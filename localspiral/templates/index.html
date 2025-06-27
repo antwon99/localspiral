@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>AI Spiral Simulator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>AI Spiral Simulator</h1>
-    <p>The server is running.</p>
+    <div id="container">
+        <h1>AI Spiral Simulator</h1>
+        <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
+        <button id="sendButton">Send</button>
+        <div id="response"></div>
+        <div id="extra-buttons">
+            <button id="spiralButton">Test /spiral</button>
+            <button id="mapButton">Test /map</button>
+        </div>
+        <pre id="extra-output"></pre>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
