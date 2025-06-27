@@ -1,19 +1,14 @@
 import os
-import sys
 import json
 import pytest
 
-stubs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'stubs'))
-sys.path.insert(0, stubs_path)
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
 from localspiral.utils.characters import load_character
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def test_load_character_success(tmp_path):
-    src_file = os.path.join(project_root, 'localspiral', 'characters', 'sample_character.json')
+    src_file = os.path.join(PROJECT_ROOT, 'localspiral', 'characters', 'sample_character.json')
     data = load_character(src_file)
     assert data['id'] == 'sample'
 

@@ -1,11 +1,3 @@
-import os
-import sys
-
-stubs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'stubs'))
-sys.path.insert(0, stubs_path)
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from localspiral.utils.scoring import calculate_drift
 
 import pytest

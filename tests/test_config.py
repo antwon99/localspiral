@@ -1,10 +1,4 @@
 import os
-import sys
-
-stubs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'stubs'))
-sys.path.insert(0, stubs_path)
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
 from localspiral.config import get_openai_api_key

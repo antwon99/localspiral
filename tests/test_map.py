@@ -1,11 +1,4 @@
 import os
-import sys
-
-stubs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'stubs'))
-sys.path.insert(0, stubs_path)
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
 
 from localspiral.utils.map import generate_map
 
