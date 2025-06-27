@@ -18,27 +18,23 @@ Respect the surreal but internally consistent game logic
 
 ## Project Structure
 
-No idea, yet.
-
-probably something like, if you think it's optimal:
-
-bash 
-
-aispiral/
-├── README.md
-├── AGENTS.md
-├── requirements.txt        # or package.json
+```
+.
+├── AGENTS.md              # Instructions for the Codex agent
+├── README.md              # This file
+├── requirements.txt       # Python dependencies
 ├── src/
-│   ├── main.py             # or server.js — the executable entry point
+│   ├── main.py            # Entry point for the Flask server
 │   ├── routes/
-│   │   ├── chat/           # /chat API handlers
-│   │   └── spiral/         # /spiral API handlers
-│   ├── utils/              # scoring modules, embeddings, helper functions
-│   ├── characters/         # character profiles in JSON or YAML
-│   └── templates/          # HTML or front-end code if needed
-├── tests/                  # unit tests for the utils and routes
-├── docs/                   # additional documentation
-└── .gitignore              # I read this is important, but idk why
+│   │   ├── chat/          # /chat API handlers
+│   │   └── spiral/        # /spiral API handlers
+│   ├── utils/             # Scoring modules and helpers
+│   ├── characters/        # Character profiles in JSON
+│   └── templates/         # HTML templates
+├── tests/                 # Unit tests
+├── docs/                  # Additional documentation
+└── .gitignore
+```
 
 
 ## Coding Guidelines
