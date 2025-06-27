@@ -58,6 +58,22 @@ Then call `dotenv.load_dotenv()` early in your application to load the variable.
 
 Place a JSON file in `localspiral/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
 
+## Map Generation
+
+The `localspiral.utils` package includes a tiny map generator for experiments.
+Use `generate_map(seed)` to produce a deterministic grid of ``'.'`` and ``'#'``
+tiles. Calling the function with the same seed always returns the same layout.
+
+Example:
+
+```python
+from localspiral.utils.map import generate_map
+
+grid = generate_map(123)
+for row in grid:
+    print("".join(row))
+```
+
 ## Tests
 
 Run tests with:
