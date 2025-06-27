@@ -5,10 +5,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src.utils.scoring import calculate_drift
 
+import pytest
+
 
 def test_calculate_drift_identical():
-    assert calculate_drift('hello world', 'hello world') == 0
+    assert calculate_drift('hello world', 'hello world') == pytest.approx(0.0, abs=1e-6)
 
 
 def test_calculate_drift_different():
-    assert calculate_drift('a b c', 'a b c d') > 0
+    score = calculate_drift('a b c', 'a b c d')
+    assert 0 < score < 1
+    assert score == pytest.approx(0.134, abs=1e-3)
