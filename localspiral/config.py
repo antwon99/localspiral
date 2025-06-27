@@ -2,6 +2,14 @@
 
 import os
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - optional dependency
+    load_dotenv = None
+
+if load_dotenv:
+    load_dotenv()
+
 
 def get_openai_api_key() -> str:
     """Return the OpenAI API key from the environment.

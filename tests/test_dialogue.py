@@ -30,5 +30,5 @@ def test_generate_reply(monkeypatch):
     monkeypatch.setenv('OPENAI_API_KEY', 'sk-test')
     monkeypatch.setattr(dialogue, 'request', dialogue.request)
     monkeypatch.setattr(dialogue.request, 'urlopen', fake_urlopen)
-    result = dialogue.generate_reply('hello')
+    result = dialogue.generate_reply('hello', system_prompt='test')
     assert result == 'hi'
