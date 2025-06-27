@@ -58,6 +58,10 @@ class Flask:
 
         return _Client()
 
+    def run(self, debug: bool = False) -> None:
+        """Mimic ``Flask.run`` without starting a server."""
+        print(f"Stub Flask app running (debug={debug})")
+
 
 def jsonify(data: Any) -> Any:
     return data
