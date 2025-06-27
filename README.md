@@ -7,7 +7,7 @@ This repository contains the barebones implementation so you can start experimen
 ## Project Structure
 
 ```
-.
+localspiral/
 ├── AGENTS.md              # Instructions for the Codex agent
 ├── README.md              # This file
 ├── requirements.txt       # Python dependencies
