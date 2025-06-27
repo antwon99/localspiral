@@ -42,6 +42,18 @@ AGENTS.md              # Instructions for the Codex agent
    ```
 5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat` and `/spiral` routes will return simple JSON messages.
 
+## OpenAI API Key
+
+Some features require an OpenAI API key. Set the variable `OPENAI_API_KEY` in your environment before running the server:
+```bash
+export OPENAI_API_KEY=sk-your-key
+```
+If you prefer a `.env` file, install [python-dotenv](https://pypi.org/project/python-dotenv/) and create a file containing:
+```
+OPENAI_API_KEY=sk-your-key
+```
+Then call `dotenv.load_dotenv()` early in your application to load the variable.
+
 ## How to Add New Characters
 
 Place a JSON file in `localspiral/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
