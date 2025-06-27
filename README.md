@@ -81,7 +81,3 @@ Run tests with:
 pytest
 ```
 They cover basic utility functions and ensure the project imports correctly.
-
-## Why `.gitignore`?
-
-The `.gitignore` file prevents temporary or local files (like virtual environments and compiled Python bytecode) from cluttering your repository. This keeps version control clean and focused on source code.
