@@ -8,22 +8,22 @@ This repository contains the barebones implementation so you can start experimen
 
 ```
 localspiral/
-├── AGENTS.md              # Instructions for the Codex agent
-├── README.md              # This file
-├── requirements.txt       # Python dependencies
+├── docs/                  # Additional documentation
 ├── src/
-│   ├── main.py            # Entry point for the Flask server
-│   ├── routes/
+│   ├── characters/        # Character profiles in JSON
+│   ├── routes/            # Anything incoming and outgoing
 │   │   ├── chat/          # /chat API handlers
 │   │   └── spiral/        # /spiral API handlers
+│   ├── templates/         # HTML templates (future)
 │   ├── utils/             # Scoring modules and helpers
-│   ├── characters/        # Character profiles in JSON
-│   └── templates/         # HTML templates
+│   └── main.py            # Entry point for the Flask server
 ├── tests/                 # Unit tests
-├── docs/                  # Additional documentation
-└── .gitignore
+├── .gitignore
+├── LICENSE
+├── README.md              # This file
+└── requirements.txt       # Dependencies
 ```
-
+AGENTS.md              # Instructions for the Codex agent
 ## Getting Started
 
 1. **Install Python 3.11 or later.**
