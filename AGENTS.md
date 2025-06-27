@@ -22,22 +22,24 @@ No idea, yet.
 
 probably something like, if you think it's optimal:
 
+bash 
+
 aispiral/
-│
 ├── README.md
 ├── AGENTS.md
-├── requirements.txt  # or package.json
+├── requirements.txt        # or package.json
 ├── src/
-│   ├── main.py (or server.js)  # the executable entry point
+│   ├── main.py             # or server.js — the executable entry point
 │   ├── routes/
-│   │   ├── chat/     # /chat API handlers
-│   │   └── spiral/   # /spiral API handlers
-│   ├── utils/        # scoring modules, embeddings, helper functions
-│   ├── characters/   # character profiles in JSON or YAML
-│   └── templates/    # HTML or front-end code if needed
-├── tests/            # unit tests for the utils and routes
-├── docs/             # additional documentation
-└── .gitignore        # I read this is important, but idk why
+│   │   ├── chat/           # /chat API handlers
+│   │   └── spiral/         # /spiral API handlers
+│   ├── utils/              # scoring modules, embeddings, helper functions
+│   ├── characters/         # character profiles in JSON or YAML
+│   └── templates/          # HTML or front-end code if needed
+├── tests/                  # unit tests for the utils and routes
+├── docs/                   # additional documentation
+└── .gitignore              # I read this is important, but idk why
+
 
 ## Coding Guidelines
 
