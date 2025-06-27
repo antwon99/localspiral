@@ -117,3 +117,7 @@ Match narrative tone to character traits
 Favor a modular design: each system (image gen, text gen, drift check) should be swappable and/or editable.
 
 Avoid speculative abstractions—stick close to what's described in README.md
+
+## What's been confirmed:
+
+http://127.0.0.1:5000/chat?prompt=Hello%20world = {"message": "Hello! How can I assist you today?"} AKA The program IS communicating with Chatgpt.
