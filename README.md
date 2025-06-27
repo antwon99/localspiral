@@ -67,4 +67,3 @@ The AGENTS.md file contains detailed instructions for GitHub Copilot/Codex, incl
 
 - This helps the AI contribute consistent code aligned with the game’s narrative tone and technical goals.
 
-
