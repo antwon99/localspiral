@@ -23,7 +23,7 @@ Respect the surreal but internally consistent game logic
 ├── AGENTS.md              # Instructions for the Codex agent
 ├── README.md              # This file
 ├── requirements.txt       # Python dependencies
-├── src/
+├── localspiral/
 │   ├── main.py            # Entry point for the Flask server
 │   ├── routes/
 │   │   ├── chat/          # /chat API handlers
