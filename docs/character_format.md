@@ -11,3 +11,14 @@ Each character is defined by a JSON file with the following fields:
 - `intro_prompt`: Starting line for story generation.
 
 See `src/characters/sample_character.json` for an example.
+
+## Loading Characters
+
+Use `load_character` from `src/utils/characters.py` to read a profile file::
+
+    from src.utils.characters import load_character
+
+    character = load_character("path/to/profile.json")
+
+The loader checks that all required fields exist and raises `ValueError` if the
+file is missing information or is not valid JSON.
