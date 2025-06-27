@@ -82,6 +82,30 @@ pytest
 ```
 They cover basic utility functions and ensure the project imports correctly.
 
+## Building a Standalone Binary
+
+You can package the project into a single executable using
+[PyInstaller](https://pyinstaller.org/). This is handy if you want to
+distribute the server without requiring Python to be installed.
+
+1. Activate your virtual environment (see **Getting Started**).
+2. Install PyInstaller if you do not already have it:
+   ```bash
+   pip install pyinstaller
+   ```
+3. Run the build script:
+   ```bash
+   ./scripts/build_exe.sh
+   ```
+   The command produces a binary in the `dist/` directory.
+4. Start the packaged server:
+   ```bash
+   ./dist/localspiral
+   ```
+
+The executable uses the same `localspiral` entry point as the regular
+`pip` installation, providing an easy install-to-run experience.
+
 ## Why `.gitignore`?
 
 The `.gitignore` file prevents temporary or local files (like virtual environments and compiled Python bytecode) from cluttering your repository. This keeps version control clean and focused on source code.
