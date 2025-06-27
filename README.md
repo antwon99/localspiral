@@ -40,7 +40,7 @@ localspiral/
    ```bash
    localspiral
    ```
-5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat` and `/spiral` routes will return simple JSON messages.
+5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat`, `/spiral`, and `/map` routes will return simple JSON messages.
 
 ## OpenAI API Key
 
