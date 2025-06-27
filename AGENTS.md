@@ -4,7 +4,9 @@ This file is used by the Codex agent to understand the goals, conventions, and r
 The agent should use this file to write code, create tests, and maintain consistency with the game’s tone and systems.
 
 ## Project Purpose
-AI Spiral Simulator is a web-based narrative roguelike where players must prevent an AI-generated character from spiraling into incoherence. Each turn, an AI character narrates a story fragment. The player must interpret the AI's generated text and submit a clarification. A backend system scores coherence between the story, the AI response, and finally the player’s response.
+AI Spiral Simulator is a simple client-based narrative roguelike where players must prevent an AI-generated character from spiraling into incoherence. Each turn, an AI character narrates a story fragment. The player must interpret the AI's generated text and submit a clarification. A backend system scores coherence between the story, the AI response, and finally the player’s response.
+
+It's simply a core-concept MVP I can test viability.
 
 ## The AI agent (Codex) should:
 
@@ -17,6 +19,27 @@ Respect the surreal but internally consistent game logic
 ## Project Structure
 
 No idea, yet.
+
+probably something like, if you think it's optimal:
+
+bash 
+
+aispiral/
+├── README.md
+├── AGENTS.md
+├── requirements.txt        # or package.json
+├── src/
+│   ├── main.py             # or server.js — the executable entry point
+│   ├── routes/
+│   │   ├── chat/           # /chat API handlers
+│   │   └── spiral/         # /spiral API handlers
+│   ├── utils/              # scoring modules, embeddings, helper functions
+│   ├── characters/         # character profiles in JSON or YAML
+│   └── templates/          # HTML or front-end code if needed
+├── tests/                  # unit tests for the utils and routes
+├── docs/                   # additional documentation
+└── .gitignore              # I read this is important, but idk why
+
 
 ## Coding Guidelines
 
