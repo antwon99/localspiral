@@ -36,9 +36,9 @@ localspiral/
    ```bash
    pip install -e .
    ```
-4. **Run the server**:
+4. **Run the included helper script**:
    ```bash
-   localspiral
+   ./scripts/run_all.sh
    ```
 5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat`, `/spiral`, and `/map` routes will return simple JSON messages.
 
