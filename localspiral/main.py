@@ -1,7 +1,7 @@
 """Entry point for the AI Spiral Simulator server."""
 from flask import Flask, render_template
-from routes.chat import chat_bp
-from routes.spiral import spiral_bp
+from .routes.chat import chat_bp
+from .routes.spiral import spiral_bp
 
 
 def create_app() -> Flask:

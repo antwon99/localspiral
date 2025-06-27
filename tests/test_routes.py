@@ -3,10 +3,10 @@ import sys
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
-sys.path.insert(0, os.path.join(project_root, 'src'))
+sys.path.insert(0, os.path.join(project_root, 'localspiral'))
 
 import pytest
-from src.main import create_app
+from localspiral.main import create_app
 
 
 @pytest.fixture

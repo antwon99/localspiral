@@ -9,7 +9,7 @@ This repository contains the barebones implementation so you can start experimen
 ```
 localspiral/
 ├── docs/                  # Additional documentation
-├── src/
+├── localspiral/
 │   ├── characters/        # Character profiles in JSON
 │   ├── routes/            # Anything incoming and outgoing
 │   │   ├── chat/          # /chat API handlers
@@ -32,19 +32,19 @@ AGENTS.md              # Instructions for the Codex agent
    python3 -m venv .venv
    source .venv/bin/activate
    ```
-3. **Install dependencies**:
+3. **Install the package in editable mode**:
    ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
 4. **Run the server**:
    ```bash
-   python src/main.py
+   localspiral
    ```
 5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat` and `/spiral` routes will return simple JSON messages.
 
 ## How to Add New Characters
 
-Place a JSON file in `src/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
+Place a JSON file in `localspiral/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
 
 ## Tests
 
