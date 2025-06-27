@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.utils.scoring import calculate_drift
+from localspiral.utils.scoring import calculate_drift
 
 import pytest
 
