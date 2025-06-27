@@ -1,0 +1,9 @@
+{
+  "id": "sample",
+  "display_name": "Sample Character",
+  "starting_sanity": 100,
+  "spiral_triggers": ["chaos", "nonsense"],
+  "recovery_anchors": ["calm", "clarity"],
+  "tone": "dry_satirical",
+  "intro_prompt": "Our journey begins in a quiet town."
+}

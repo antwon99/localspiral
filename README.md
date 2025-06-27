@@ -2,69 +2,58 @@
 
 **A narrative roguelike where your only goal is to keep an AI protagonist from spiraling into incoherent madness.**
 
-Inspired by DougDoug’s chaotic AI experiments, this game transforms LLM instability into a gameplay mechanic. You, the **Narrative Handler**, must interpret AI-generated story scenes and prevent narrative collapse—measured by how far the AI drifts from the generated context.
-
-
-## Concept
-
-Each run begins with:
-- A chosen AI character (e.g., Tyler Scienceman)
-- An initial GPT-generated narrative prompt
-- Seed based logic for the characters route home.
-
-The player must:
-- Analyze the scene and AI output
-- Submit a corrected or clarified description
-- Prevent divergence between scene ↔ AI text ↔ player text
-
-Behind the scenes, some sort of **coherence engine** scores the drift and adjusts a **Spiral Meter**. When it hits zero? Sanity fails. Game over.
-
-
-## Tech Stack
-
-No idea! :)
+This repository contains the barebones implementation so you can start experimenting quickly. It uses Python with [Flask](https://flask.palletsprojects.com/) for a lightweight API server.
 
 ## Project Structure
 
-No idea! :)
+```
+.
+├── AGENTS.md              # Instructions for the Codex agent
+├── README.md              # This file
+├── requirements.txt       # Python dependencies
+├── src/
+│   ├── main.py            # Entry point for the Flask server
+│   ├── routes/
+│   │   ├── chat/          # /chat API handlers
+│   │   └── spiral/        # /spiral API handlers
+│   ├── utils/             # Scoring modules and helpers
+│   ├── characters/        # Character profiles in JSON
+│   └── templates/         # HTML templates
+├── tests/                 # Unit tests
+├── docs/                  # Additional documentation
+└── .gitignore
+```
 
 ## Getting Started
 
-No idea! :)
-
-## Features (In Progress)
-
-Main Focus (prioritize first):
-
-Basic character selection
-GPT-based scene generation
-Core gameplay loop
-Spiral scoring via embeddings
-Spiral Meter UI
-
-After the basics are in place:
-
-Leaderboards: “Longest sanity run"
-Chaos modifiers and unlockables
-Multiplayer? (stretch goal)
-
+1. **Install Python 3.11 or later.**
+2. Create a virtual environment:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Run the server**:
+   ```bash
+   python src/main.py
+   ```
+5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat` and `/spiral` routes will return simple JSON messages.
 
 ## How to Add New Characters
 
-No idea! :)
+Place a JSON file in `src/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
 
-## Codex & Agent Instructions
+## Tests
 
-The AGENTS.md file contains detailed instructions for GitHub Copilot/Codex, including:
+Run tests with:
+```bash
+pytest
+```
+They cover basic utility functions and ensure the project imports correctly.
 
-- Style rules (naming conventions, formatting, etc.)
+## Why `.gitignore`?
 
-- Coding preferences (e.g., avoid console.log, use custom logger)
-
-- How to run tests or check correctness
-
-- Pull request formatting
-
-- This helps the AI contribute consistent code aligned with the game’s narrative tone and technical goals.
-
-
+The `.gitignore` file prevents temporary or local files (like virtual environments and compiled Python bytecode) from cluttering your repository. This keeps version control clean and focused on source code.
