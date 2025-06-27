@@ -21,9 +21,9 @@ localspiral/
 ├── .gitignore
 ├── LICENSE
 ├── README.md              # This file
+├── AGENTS.md              # Instructions for the Codex agent
 └── requirements.txt       # Dependencies
 ```
-AGENTS.md              # Instructions for the Codex agent
 ## Getting Started
 
 1. **Install Python 3.11 or later.**
