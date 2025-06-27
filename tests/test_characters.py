@@ -6,11 +6,11 @@ import pytest
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
-from src.utils.characters import load_character
+from localspiral.utils.characters import load_character
 
 
 def test_load_character_success(tmp_path):
-    src_file = os.path.join(project_root, 'src', 'characters', 'sample_character.json')
+    src_file = os.path.join(project_root, 'localspiral', 'characters', 'sample_character.json')
     data = load_character(src_file)
     assert data['id'] == 'sample'
 

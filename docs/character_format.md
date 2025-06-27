@@ -10,13 +10,13 @@ Each character is defined by a JSON file with the following fields:
 - `tone`: Narrative tone used by the AI.
 - `intro_prompt`: Starting line for story generation.
 
-See `src/characters/sample_character.json` for an example.
+See `localspiral/characters/sample_character.json` for an example.
 
 ## Loading Characters
 
-Use `load_character` from `src/utils/characters.py` to read a profile file::
+Use `load_character` from `localspiral/utils/characters.py` to read a profile file::
 
-    from src.utils.characters import load_character
+    from localspiral.utils.characters import load_character
 
     character = load_character("path/to/profile.json")
 
