@@ -20,16 +20,30 @@ def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str]) -> st
         return resp.read().decode("utf-8")
 
 
-def generate_reply(prompt: str, model: str = "gpt-3.5-turbo") -> str:
-    """Return the assistant reply for ``prompt`` using OpenAI's API."""
+def generate_reply(prompt: str, model: str = "gpt-3.5-turbo", *, system_prompt: str | None = None) -> str:
+    """Return the assistant reply for ``prompt`` using OpenAI's API.
+
+    Parameters
+    ----------
+    prompt:
+        The user's message.
+    model:
+        The OpenAI chat model to use.
+    system_prompt:
+        Optional system prompt that will be prepended to the conversation.
+    """
     api_key = get_openai_api_key()
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}",
     }
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
     }
 
     try:

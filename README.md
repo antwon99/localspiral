@@ -18,11 +18,13 @@ localspiral/
 │   ├── utils/             # Scoring modules and helpers
 │   └── main.py            # Entry point for the Flask server
 ├── tests/                 # Unit tests
+├── scripts/               # Helper scripts
 ├── .gitignore
 ├── LICENSE
 ├── README.md              # This file
 ├── AGENTS.md              # Instructions for the Codex agent
-└── requirements.txt       # Dependencies
+├── requirements.txt       # Dependencies
+└── pyproject.toml         # Package configuration
 ```
 ## Getting Started
 
@@ -37,9 +39,13 @@ localspiral/
    pip install -e .
    ```
 4. **Run the included helper script**:
-   ```bash
-   ./scripts/run_all.sh
-   ```
+```bash
+./scripts/run_all.sh
+```
+   Or on Windows:
+```bat
+scripts\run.bat
+```
 5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat`, `/spiral`, and `/map` routes will return simple JSON messages.
 
 ## OpenAI API Key
@@ -48,11 +54,15 @@ Some features require an OpenAI API key. Set the variable `OPENAI_API_KEY` in yo
 ```bash
 export OPENAI_API_KEY=sk-your-key
 ```
-If you prefer a `.env` file, install [python-dotenv](https://pypi.org/project/python-dotenv/) and create a file containing:
+On Windows PowerShell use:
+```powershell
+$env:OPENAI_API_KEY="sk-your-key"
+```
+You can also create a `.env` file with [python-dotenv](https://pypi.org/project/python-dotenv/). The application loads this file automatically.
+Create a file named `.env` containing:
 ```
 OPENAI_API_KEY=sk-your-key
 ```
-Then call `dotenv.load_dotenv()` early in your application to load the variable.
 
 ## How to Add New Characters
 

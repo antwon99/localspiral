@@ -14,7 +14,10 @@ def client(app):
 
 
 def test_chat_endpoint(client, monkeypatch):
-    monkeypatch.setattr('localspiral.routes.chat.generate_reply', lambda prompt: 'ok')
+    monkeypatch.setattr(
+        'localspiral.routes.chat.generate_reply',
+        lambda prompt, system_prompt=None: 'ok'
+    )
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
