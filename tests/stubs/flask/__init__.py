@@ -1,5 +1,14 @@
 """Minimal Flask stub for tests."""
 from typing import Callable, Dict, Any
+from urllib.parse import parse_qs, urlparse
+
+
+class _Request:
+    def __init__(self) -> None:
+        self.args: Dict[str, Any] = {}
+
+
+request = _Request()
 
 
 class Response:
@@ -48,9 +57,12 @@ class Flask:
 
         class _Client:
             def get(self, path: str) -> Response:
-                view = app.routes.get(path)
+                parsed = urlparse(path)
+                view = app.routes.get(parsed.path)
                 if view is None:
                     return Response(None, 404)
+                args = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+                request.args = args
                 result = view()
                 if isinstance(result, Response):
                     return result

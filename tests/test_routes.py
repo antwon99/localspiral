@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(project_root, 'localspiral'))
 
 import pytest
 from localspiral.main import create_app
+from localspiral.utils import dialogue
 
 
 @pytest.fixture
@@ -22,12 +23,12 @@ def client(app):
     return app.test_client()
 
 
-def test_chat_endpoint(client):
-    response = client.get('/chat')
+def test_chat_endpoint(client, monkeypatch):
+    monkeypatch.setattr('localspiral.routes.chat.generate_reply', lambda prompt: 'ok')
+    response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
-    assert isinstance(data, dict)
-    assert 'message' in data
+    assert data['message'] == 'ok'
 
 
 def test_spiral_endpoint(client):
