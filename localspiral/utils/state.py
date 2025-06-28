@@ -14,6 +14,7 @@ class GameState:
     spiral_score: float = 0.0
     sanity: int = 100
     map_grid: List[List[str]] | None = None
+    perceived_grid: List[List[str]] | None = None
     map_seed: int = 0
     player_loc: Tuple[int, int] = (5, 5)
     history: List[str] = field(default_factory=list)
@@ -34,6 +35,7 @@ def load_game_state() -> GameState:
         map_grid=data.get("map_grid"),
         map_seed=data.get("map_seed", 0),
         player_loc=tuple(data.get("player_loc", (5, 5))),
+        perceived_grid=data.get("perceived_grid"),
         history=list(data.get("history", [])),
     )
 
