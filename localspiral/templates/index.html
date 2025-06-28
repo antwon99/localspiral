@@ -165,7 +165,10 @@
                         responseDiv.textContent = data.message || data.error || 'No response';
                         if (data.state) {
                             updateSpiralMeter(data.state);
-                            loadMap();
+                            if (typeof data.state.map_seed === 'number' && data.state.map_seed !== currentMapSeed) {
+                                currentMapSeed = data.state.map_seed;
+                                loadMap(currentMapSeed);
+                            }
                         }
                     })
                     .catch(() => {
@@ -184,11 +187,15 @@
                     });
             }
 
-            function loadMap() {
+            let currentMapSeed = null;
+
+            function loadMap(seed) {
                 mapOutput.innerHTML = 'Loading...';
-                fetchJson('/map')
+                const url = typeof seed === 'number' ? `/map?seed=${seed}` : '/map';
+                fetchJson(url)
                     .then((data) => {
                         mapOutput.innerHTML = renderMapHTML(data);
+                        if (typeof data.seed === 'number') currentMapSeed = data.seed;
                     })
                     .catch(() => {
                         mapOutput.textContent = 'Request failed.';
@@ -197,7 +204,6 @@
 
             // initial state
             loadSpiral();
-            loadMap();
 
             spiralButton.addEventListener('click', loadSpiral);
             mapButton.addEventListener('click', loadMap);
