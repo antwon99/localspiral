@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+import logging
 
 from ...utils.map import generate_map
 from ...utils.scoring import calculate_drift
@@ -15,6 +16,7 @@ from ...utils.state import load_game_state, save_game_state
 from ...utils.dialogue import generate_reply
 
 chat_bp = Blueprint("chat", __name__)
+logger = logging.getLogger(__name__)
 
 
 @chat_bp.route("/chat", methods=["GET"])
@@ -89,12 +91,15 @@ def chat_example():
     if isinstance(state.character, dict):
         trigger_words = state.character.get("spiral_triggers")
     triggers = check_keywords(prompt, trigger_words)
-    print(
-        f"Drift user={drift_user:.3f} history={drift_history:.3f} triggers={triggers}"
+    logger.debug(
+        "Drift user=%.3f history=%.3f triggers=%s",
+        drift_user,
+        drift_history,
+        triggers,
     )
     spiral_score += drift_user + drift_history + triggers * 0.5
     if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
-        print(f"Drift user={drift_user:.3f} history={drift_history:.3f}")
+        logger.debug("Drift user=%.3f history=%.3f", drift_user, drift_history)
         spiral_score = max(0.0, spiral_score - 0.05)
 
     reply = distort_reply(raw_reply, spiral_score)
