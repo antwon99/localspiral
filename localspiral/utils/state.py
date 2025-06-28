@@ -3,6 +3,7 @@ from __future__ import annotations
 """Helpers for storing and retrieving game state from the session."""
 
 from dataclasses import dataclass, asdict, field
+import random
 from flask import session
 from typing import List, Tuple
 
@@ -15,7 +16,7 @@ class GameState:
     sanity: int = 100
     map_grid: List[List[str]] | None = None
     perceived_grid: List[List[str]] | None = None
-    map_seed: int = 0
+    map_seed: int = field(default_factory=lambda: random.randint(0, 2**32 - 1))
     player_loc: Tuple[int, int] = (5, 5)
     history: List[str] = field(default_factory=list)
 
@@ -33,7 +34,7 @@ def load_game_state() -> GameState:
         spiral_score=data.get("spiral_score", 0.0),
         sanity=data.get("sanity", 100),
         map_grid=data.get("map_grid"),
-        map_seed=data.get("map_seed", 0),
+        map_seed=data.get("map_seed", random.randint(0, 2**32 - 1)),
         player_loc=tuple(data.get("player_loc", (5, 5))),
         perceived_grid=data.get("perceived_grid"),
         history=list(data.get("history", [])),
