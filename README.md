@@ -46,7 +46,13 @@ localspiral/
 ```bat
 scripts\run.bat
 ```
-5. Open `http://localhost:5000` in your browser to see the placeholder homepage. The `/chat`, `/spiral`, and `/map` routes will return simple JSON messages.
+5. Open `http://localhost:5000` in your browser. The root page now includes a
+   basic interface for testing the API. Type a prompt and click **Send** to call
+   the `/chat` route. Buttons are also provided to try the `/spiral` and `/map`
+   endpoints. The `/map` output now renders as a small HTML grid styled like an
+   old terminal so you can quickly inspect the generated layout. Each chat turn
+   also updates a persistent *spiral meter*. Press **Test /spiral** or check the
+   on-page display to see the current sanity level.
 
 ## OpenAI API Key
 
