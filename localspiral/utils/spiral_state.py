@@ -68,6 +68,23 @@ def distort_reply(text: str, score: float) -> str:
     return text
 
 
+def mutate_perceived_grid(grid: list[list[str]], score: float) -> list[list[str]]:
+    """Return a hallucinated version of ``grid`` based on ``score``."""
+    if score < 5 or not grid:
+        return [row[:] for row in grid]
+
+    chance = 0.1
+    if score >= 8:
+        chance = 0.3
+
+    new_grid = [row[:] for row in grid]
+    for r, row in enumerate(new_grid):
+        for c, _ in enumerate(row):
+            if random.random() < chance:
+                new_grid[r][c] = '?'
+    return new_grid
+
+
 def analyze_map(grid: Iterable[Iterable[str]]) -> dict[str, Any]:
     """Return a basic description of ``grid``."""
     open_tiles = sum(row.count('.') for row in grid)

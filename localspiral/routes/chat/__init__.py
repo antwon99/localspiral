@@ -5,6 +5,7 @@ from ...utils.scoring import calculate_drift
 from ...utils.spiral_state import (
     analyze_map,
     distort_reply,
+    mutate_perceived_grid,
     spiral_status,
     describe_surroundings,
     check_keywords,
@@ -34,18 +35,25 @@ def chat_example():
     if grid is None:
         grid = generate_map(seed)
         state.map_grid = grid
+    perceived = state.perceived_grid
+    if perceived is None:
+        perceived = [row[:] for row in grid]
     location = state.player_loc
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
+    perceived = mutate_perceived_grid(perceived, spiral_score)
+    state.perceived_grid = perceived
     analysis = analyze_map(grid)
-    surroundings = describe_surroundings(grid, location)
-    grid_text = "\n".join("".join(row) for row in grid)
+    perceived_analysis = analyze_map(perceived)
+    surroundings = describe_surroundings(perceived, location)
+    grid_text = "\n".join("".join(row) for row in perceived)
 
     status = spiral_status(spiral_score)
 
     system_prompt = (
         SYSTEM_PROMPT
         + f"\nCurrent map description: {analysis.get('description')}"
+        + f"\nHallucinated map description: {perceived_analysis.get('description')}"
         + f"\nLocation: {location}"
         + f"\nNearby: {surroundings}"
         + f"\nSpiral status: {status} ({spiral_score:.2f})"
@@ -74,6 +82,8 @@ def chat_example():
         spiral_score = max(0.0, spiral_score - 0.05)
 
     reply = distort_reply(raw_reply, spiral_score)
+    if spiral_score >= 5:
+        reply += f" (You perceive {perceived_analysis.get('description')})"
 
     # keep alternating order: [reply, prompt, ...]
     history.append(raw_reply)
@@ -90,5 +100,6 @@ def chat_example():
         "map_seed": state.map_seed,
         "location": state.player_loc,
         "description": analysis.get("description"),
+        "perceived_description": perceived_analysis.get("description"),
     }
     return jsonify({"message": reply, "state": state_dict})

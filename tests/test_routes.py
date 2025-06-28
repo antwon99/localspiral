@@ -17,12 +17,17 @@ def test_chat_endpoint(client, monkeypatch):
         'localspiral.routes.chat.generate_reply',
         lambda prompt, system_prompt=None: 'ok'
     )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
     assert data['message'] == 'ok'
     assert 'state' in data
     assert 'spiral_score' in data['state']
+    assert 'perceived_description' in data['state']
 
 
 def test_spiral_endpoint(client):
@@ -57,6 +62,8 @@ def test_chat_persists_map(client, monkeypatch):
     monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.routes.chat.generate_reply',
                         lambda prompt, system_prompt=None: 'ok')
+    monkeypatch.setattr('localspiral.routes.chat.mutate_perceived_grid',
+                        lambda grid, score: grid)
 
     first = client.get('/chat?prompt=one')
     assert first.status_code == 200
@@ -86,6 +93,8 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.routes.chat.generate_reply', fake_reply)
     monkeypatch.setattr('localspiral.routes.chat.calculate_drift', fake_drift)
+    monkeypatch.setattr('localspiral.routes.chat.mutate_perceived_grid',
+                        lambda grid, score: grid)
 
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'] == ['first reply', 'one']

@@ -20,3 +20,15 @@ def test_distort_reply_low_mid_score(monkeypatch):
     result = spiral_state.distort_reply("hello there", 4.2)
     assert result.endswith("... hello...")
     assert not result.isupper()
+
+
+def test_mutate_perceived_grid_changes(monkeypatch):
+    grid = [[".", "."], [".", "."]]
+    monkeypatch.setattr(spiral_state.random, "random", lambda: 0.0)
+    changed = spiral_state.mutate_perceived_grid(grid, 6.0)
+    assert changed != grid
+
+
+def test_mutate_perceived_grid_low_score():
+    grid = [["."]]
+    assert spiral_state.mutate_perceived_grid(grid, 1.0) == grid
