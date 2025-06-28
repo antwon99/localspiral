@@ -30,4 +30,13 @@ def get_map():
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
     save_game_state(state)
-    return jsonify({"seed": seed, "grid": grid, "analysis": analysis, "location": location})
+    char_name = None
+    if isinstance(state.character, dict):
+        char_name = state.character.get("display_name")
+    return jsonify({
+        "seed": seed,
+        "grid": grid,
+        "analysis": analysis,
+        "location": location,
+        "display_name": char_name,
+    })

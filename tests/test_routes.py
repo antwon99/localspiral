@@ -46,7 +46,9 @@ def test_map_endpoint(client):
     assert first.status_code == 200
     assert second.status_code == 200
     assert first.get_json()['grid'] == second.get_json()['grid']
-    assert 'seed' in first.get_json()
+    payload = first.get_json()
+    assert 'seed' in payload
+    assert 'display_name' in payload
 
 
 def test_chat_persists_map(client, monkeypatch):
