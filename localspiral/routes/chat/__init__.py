@@ -85,7 +85,10 @@ def chat_example():
         drift_history = calculate_drift(history[-2], raw_reply)
     else:
         drift_history = 0.0
-    triggers = check_keywords(prompt)
+    trigger_words = None
+    if isinstance(state.character, dict):
+        trigger_words = state.character.get("spiral_triggers")
+    triggers = check_keywords(prompt, trigger_words)
     print(
         f"Drift user={drift_user:.3f} history={drift_history:.3f} triggers={triggers}"
     )
