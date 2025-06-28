@@ -156,6 +156,7 @@
                 fetchJson('/spiral')
                     .then((data) => {
                         spiralMeter.innerHTML = renderSpiral(data);
+                        spiralOutput.innerHTML = renderSpiral(data);
                     })
                     .catch(() => {
                         spiralMeter.textContent = 'Request failed.';
