@@ -3,20 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <title>AI Spiral Simulator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: "Courier New", Courier, monospace;
+            margin: 0;
+            padding: 1rem;
+        }
+        #container {
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #0f0;
+            padding: 1rem;
+        }
+        textarea {
+            width: 100%;
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        button {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+            cursor: pointer;
+        }
+        .box {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #001100;
+            border: 1px solid #0f0;
+            min-height: 80px;
+            white-space: pre-wrap;
+        }
+        .map-grid {
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .map-grid td {
+            width: 1rem;
+            height: 1rem;
+            text-align: center;
+        }
+        .map-grid .wall {
+            background: #0f0;
+            color: #000;
+        }
+    </style>
 </head>
 <body>
     <div id="container">
         <h1>AI Spiral Simulator</h1>
         <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
         <button id="sendButton">Send</button>
-        <div id="response"></div>
+        <div id="response" class="box"></div>
         <div id="extra-buttons">
             <button id="spiralButton">Test /spiral</button>
             <button id="mapButton">Test /map</button>
         </div>
-        <pre id="extra-output"></pre>
+        <div id="extra-output" class="box"></div>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        function fetchJson(url) {
+            return fetch(url).then((res) => {
+                if (!res.ok) throw new Error('Request failed');
+                return res.json();
+            });
+        }
+
+        function renderMapHTML(grid) {
+            if (!Array.isArray(grid)) return '';
+            let html = '<table class="map-grid">';
+            for (const row of grid) {
+                html += '<tr>';
+                for (const cell of row) {
+                    const cls = cell === '#' ? 'wall' : 'empty';
+                    const text = cell === '#' ? '&#9608;' : '&nbsp;';
+                    html += `<td class="${cls}">${text}</td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+            return html;
+        }
+
+        function renderSpiral(data) {
+            if ('score' in data || 'sanity' in data) {
+                let html = '';
+                if ('score' in data) html += `<p><strong>Spiral Score:</strong> ${data.score}</p>`;
+                if ('sanity' in data) html += `<p><strong>Sanity Level:</strong> ${data.sanity}</p>`;
+                return html;
+            }
+            if ('message' in data) {
+                return `<p>${data.message}</p>`;
+            }
+            return `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const promptInput = document.getElementById('prompt');
+            const sendButton = document.getElementById('sendButton');
+            const responseDiv = document.getElementById('response');
+            const spiralButton = document.getElementById('spiralButton');
+            const mapButton = document.getElementById('mapButton');
+            const extraOutput = document.getElementById('extra-output');
+
+            sendButton.addEventListener('click', () => {
+                const prompt = promptInput.value.trim();
+                if (!prompt) return;
+                responseDiv.textContent = 'Loading...';
+                fetchJson(`/chat?prompt=${encodeURIComponent(prompt)}`)
+                    .then((data) => {
+                        responseDiv.textContent = data.message || data.error || 'No response';
+                    })
+                    .catch(() => {
+                        responseDiv.textContent = 'Request failed.';
+                    });
+            });
+
+            spiralButton.addEventListener('click', () => {
+                extraOutput.innerHTML = 'Loading...';
+                fetchJson('/spiral')
+                    .then((data) => {
+                        extraOutput.innerHTML = renderSpiral(data);
+                    })
+                    .catch(() => {
+                        extraOutput.textContent = 'Request failed.';
+                    });
+            });
+
+            mapButton.addEventListener('click', () => {
+                extraOutput.innerHTML = 'Loading...';
+                fetchJson('/map')
+                    .then((data) => {
+                        extraOutput.innerHTML = renderMapHTML(data.grid);
+                    })
+                    .catch(() => {
+                        extraOutput.textContent = 'Request failed.';
+                    });
+            });
+        });
+    </script>
 </body>
 </html>
