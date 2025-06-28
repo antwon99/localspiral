@@ -5,14 +5,13 @@ import random
 from typing import Iterable, Tuple, Any
 
 TRIGGER_WORDS = {
-    "real",
-    "door",
+    "shit",
+    "fuck",
+    "die",
+    "death",
+    "run",
     "kill",
     "escape",
-    "loop",
-    "who",
-    "are",
-    "you",
 }
 
 
