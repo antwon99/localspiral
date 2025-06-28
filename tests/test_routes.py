@@ -46,7 +46,9 @@ def test_map_endpoint(client):
     assert first.status_code == 200
     assert second.status_code == 200
     assert first.get_json()['grid'] == second.get_json()['grid']
-    assert 'seed' in first.get_json()
+    payload = first.get_json()
+    assert 'seed' in payload
+    assert 'display_name' in payload
 
 
 def test_move_endpoint(client, monkeypatch):
@@ -129,6 +131,34 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
         ('two', 'second reply'),
         ('first reply', 'second reply'),
     ]
+
+
+def test_chat_updates_spiral_score(client, monkeypatch):
+    """Spiral score should increase when drift values are positive."""
+
+    from flask import session as flask_session
+    flask_session.clear()
+
+    monkeypatch.setattr(
+        'localspiral.routes.chat.generate_reply',
+        lambda prompt, system_prompt=None: 'reply'
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.calculate_drift',
+        lambda ref, resp: 0.5
+    )
+
+    first = client.get('/chat?prompt=one')
+    first_score = first.get_json()['state']['spiral_score']
+    assert first_score > 0
+
+    second = client.get('/chat?prompt=two')
+    second_score = second.get_json()['state']['spiral_score']
+    assert second_score > first_score
 
 
 def test_reset_endpoint_clears_state(client):

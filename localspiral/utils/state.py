@@ -30,7 +30,10 @@ class GameState:
 
     def update_sanity(self) -> None:
         """Recalculate sanity based on the current spiral score."""
-        self.sanity = max(0, 100 - int(self.spiral_score * 20))
+        base = 100
+        if self.character and isinstance(self.character, dict):
+            base = self.character.get("starting_sanity", 100)
+        self.sanity = max(0, base - int(self.spiral_score * 20))
 
 
 def load_game_state() -> GameState:
@@ -39,12 +42,16 @@ def load_game_state() -> GameState:
     if not isinstance(data, dict):
         character = load_character(str(CHARACTER_PATH))
         return GameState(character=character)
+        return GameState(
+            character=character,
+            sanity=character.get("starting_sanity", 100),
+        )
     character = data.get("character")
     if character is None:
         character = load_character(str(CHARACTER_PATH))
     return GameState(
         spiral_score=data.get("spiral_score", 0.0),
-        sanity=data.get("sanity", 100),
+        sanity=data.get("sanity", character.get("starting_sanity", 100)),
         map_grid=data.get("map_grid"),
         map_seed=data.get("map_seed", random.randint(0, 2**32 - 1)),
         player_loc=tuple(data.get("player_loc", (5, 5))),

@@ -4,7 +4,8 @@ from __future__ import annotations
 import random
 from typing import Iterable, Tuple, Any
 
-TRIGGER_WORDS = {
+# Default trigger words used when a character profile does not specify any.
+DEFAULT_TRIGGER_WORDS = {
     "shit",
     "fuck",
     "die",
@@ -15,10 +16,21 @@ TRIGGER_WORDS = {
 }
 
 
-def check_keywords(text: str) -> int:
-    """Return the number of trigger words present in ``text``."""
+def check_keywords(text: str, trigger_words: Iterable[str] | None = None) -> int:
+    """Return the number of trigger words present in ``text``.
+
+    Parameters
+    ----------
+    text:
+        The user supplied text to scan.
+    trigger_words:
+        Optional collection of trigger words. If ``None`` the
+        :data:`DEFAULT_TRIGGER_WORDS` set is used.
+    """
+
     lowered = text.lower()
-    return sum(1 for w in TRIGGER_WORDS if w in lowered)
+    words = trigger_words or DEFAULT_TRIGGER_WORDS
+    return sum(1 for w in words if w in lowered)
 
 
 def spiral_status(score: float) -> str:
@@ -30,9 +42,11 @@ def spiral_status(score: float) -> str:
     return "Erratic"
 
 
-def distort_reply(text: str, score: float) -> str:
-    """Warp ``text`` slightly based on ``score``."""
+def distort_reply(text: str, score: float, *, return_hallucination: bool = False) -> str | tuple[str, str | None]:
+    """Warp ``text`` slightly based on ``score`` and optionally return the hallucination used."""
+    hallucination: str | None = None
     if score >= 8:
+        hallucination = "the map warping and glitching"
         text += " [The map warps and glitches before your eyes]"
         text = text.upper()
     elif score >= 6:
@@ -42,7 +56,8 @@ def distort_reply(text: str, score: float) -> str:
             "flickering lights",
             "echoing footsteps that stop abruptly",
         ]
-        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        hallucination = random.choice(hallucinations)
+        text += " I can't stop seeing " + hallucination + "!"
         text = text.upper()
     elif score >= 5:
         hallucinations = [
@@ -52,8 +67,10 @@ def distort_reply(text: str, score: float) -> str:
             "flickering lights",
             "echoing footsteps",
         ]
-        text += " I think I saw " + random.choice(hallucinations) + "..."
-        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        hallucination = random.choice(hallucinations)
+        text += " I think I saw " + hallucination + "..."
+        hallucination = random.choice(hallucinations)
+        text += " I can't stop seeing " + hallucination + "!"
         text = text.upper()
     elif score >= 4:
         hallucinations = [
@@ -61,10 +78,13 @@ def distort_reply(text: str, score: float) -> str:
             "shadowed figures",
             "flickering lights",
         ]
+        hallucination = random.choice(hallucinations)
         fragment = random.choice(text.split())
-        text += " I think I saw " + random.choice(hallucinations) + "... " + fragment + "..."
+        text += " I think I saw " + hallucination + "... " + fragment + "..."
     elif score >= 2:
         text += " ... I think."
+    if return_hallucination:
+        return text, hallucination
     return text
 
 
