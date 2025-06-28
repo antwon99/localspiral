@@ -132,9 +132,10 @@
         }
 
         function renderSpiral(data) {
-            if ('score' in data || 'sanity' in data) {
+            if ('score' in data || 'spiral_score' in data || 'sanity' in data) {
+                const score = 'score' in data ? data.score : data.spiral_score;
                 let html = '';
-                if ('score' in data) html += `<p><strong>Spiral Score:</strong> ${data.score}</p>`;
+                if (score !== undefined) html += `<p><strong>Spiral Score:</strong> ${score}</p>`;
                 if ('sanity' in data) html += `<p><strong>Sanity Level:</strong> ${data.sanity}</p>`;
                 if ('status' in data) html += `<p><strong>Status:</strong> ${data.status}</p>`;
                 return html;
@@ -157,8 +158,10 @@
             function updateSpiralMeter(data) {
                 spiralMeter.innerHTML = renderSpiral(data);
 
+                const score = 'score' in data ? data.score : data.spiral_score;
+
                 if (data.sanity <= 0) {
-                    spiralMeter.innerHTML = `<h2>Final Spiral Score: ${data.score}</h2>` +
+                    spiralMeter.innerHTML = `<h2>Final Spiral Score: ${score}</h2>` +
                         spiralMeter.innerHTML +
                         '<p><em>Refresh the page to start over.</em></p>';
                     spiralMeter.classList.add('breakdown');
@@ -169,7 +172,7 @@
 
                 spiralMeter.classList.remove('breakdown');
 
-                if (data.score >= 4) {
+                if (score >= 4) {
                     spiralMeter.classList.add('unstable');
                     responseDiv.classList.add('unstable');
                 } else {
