@@ -1,9 +1,10 @@
 import random
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 
 from ...utils.spiral_state import analyze_map
 
 from ...utils.map import generate_map
+from ...utils.state import load_game_state, save_game_state
 
 map_bp = Blueprint("map", __name__)
 
@@ -20,13 +21,13 @@ def get_map():
         except ValueError:
             seed = random.randint(0, 2**32 - 1)
 
-    session["map_seed"] = seed
+    state = load_game_state()
+    state.map_seed = seed
     grid = generate_map(seed)
-    session["map_grid"] = grid
+    state.map_grid = grid
     analysis = analyze_map(grid)
-    location = session.get("player_loc", (5, 5))
+    location = state.player_loc
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
-    session["map_analysis"] = analysis
-    session["player_loc"] = location
+    save_game_state(state)
     return jsonify({"seed": seed, "grid": grid, "analysis": analysis, "location": location})

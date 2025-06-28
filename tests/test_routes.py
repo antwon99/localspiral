@@ -88,11 +88,11 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     monkeypatch.setattr('localspiral.routes.chat.calculate_drift', fake_drift)
 
     client.get('/chat?prompt=one')
-    assert flask_session['history'] == ['first reply', 'one']
+    assert flask_session['game_state']['history'] == ['first reply', 'one']
     assert calls == [('one', 'first reply')]
 
     client.get('/chat?prompt=two')
-    assert flask_session['history'] == ['first reply', 'one', 'second reply', 'two']
+    assert flask_session['game_state']['history'] == ['first reply', 'one', 'second reply', 'two']
     assert calls == [
         ('one', 'first reply'),
         ('two', 'second reply'),
