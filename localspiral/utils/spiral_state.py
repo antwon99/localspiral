@@ -44,7 +44,7 @@ def distort_reply(text: str, score: float) -> str:
         ]
         text += " I can't stop seeing " + random.choice(hallucinations) + "!"
         text = text.upper()
-    elif score >= 4:
+    elif score >= 5:
         hallucinations = [
             "a door that isn't real",
             "Gernon Security",
