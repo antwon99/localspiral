@@ -38,11 +38,12 @@ def chat_example():
     if perceived is None:
         perceived = [row[:] for row in grid]
     location = state.player_loc
+    grid = [row[:] for row in grid]
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
     perceived = mutate_perceived_grid(perceived, spiral_score)
     state.perceived_grid = perceived
-    analysis = analyze_map(grid)
+    analysis = analyze_map(state.map_grid)
     perceived_analysis = analyze_map(perceived)
     surroundings = describe_surroundings(perceived, location)
     grid_text = "\n".join("".join(row) for row in perceived)
