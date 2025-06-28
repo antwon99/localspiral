@@ -23,5 +23,6 @@ where = ["localspiral"]
 [tool.setuptools.package-data]
 "localspiral" = [
     "templates/*.html",
-    "characters/*.json"
+    "characters/*.json",
+    "static/*"
 ]
