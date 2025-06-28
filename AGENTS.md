@@ -121,25 +121,25 @@ Avoid speculative abstractions—stick close to what's described in README.md
 ## Features So Far (Even if basic)
 
 ### Connected to local Flask server; Tyler responds to /chat prompts  
-#### Tyler returns contextually reactive dialogue based on prompt content, spiral state, and session memory.
+Tyler returns contextually reactive dialogue based on prompt content, spiral state, and session memory.
 
 ### Dynamic map generated from randomized seeds via /map  
-#### Each map is created using a consistent seed model; seed is included in the response for deterministic regeneration and replayability.
+Each map is created using a consistent seed model; seed is included in the response for deterministic regeneration and replayability.
 
 ### Spiral score calculated using AI response drift + trigger word detection  
-#### Drift is measured between user prompt, AI response, and prior context; spiral score is stored and compounded across session.
+Drift is measured between user prompt, AI response, and prior context; spiral score is stored and compounded across session.
 
 ### Sanity level initialized, tracked, and displayed in UI  
-#### Sanity drops as spiral score rises; certain thresholds trigger hallucinations, tone shifts, and eventual narrative collapse.
+Sanity drops as spiral score rises; certain thresholds trigger hallucinations, tone shifts, and eventual narrative collapse.
 
 ### Spiral meter and hallucination distortions integrated  
-#### Tyler’s responses visually distort (caps-lock, stuttering, hallucinated phrases) as spiral score increases; also triggers frontend screen shake at critical points.
+Tyler’s responses visually distort (caps-lock, stuttering, hallucinated phrases) as spiral score increases; also triggers frontend screen shake at critical points.
 
 ### Reset mechanic added
-#### Clean /reset route wipes session and game state. Includes frontend reset button that cleanly reloads without lingering artifacts or phantom state.
+Clean /reset route wipes session and game state. Includes frontend reset button that cleanly reloads without lingering artifacts or phantom state.
 
 ### Seed stabilization and map persistence implemented
-#### Seed is generated once per session and remains stable until reset. Prevents map from regenerating on unrelated prompts.
+Seed is generated once per session and remains stable until reset. Prevents map from regenerating on unrelated prompts.
 
 ### Terminal-inspired frontend built
 #### Minimalist HTML/CSS frontend captures retro interface vibe, featuring chat history, spiral meter, and ASCII-style map rendering.
@@ -148,21 +148,19 @@ Avoid speculative abstractions—stick close to what's described in README.md
 #### Tyler now draws from a defined persona including name, tone, backstory, and memory cues (e.g. Gernon University, coffee, "Onward").
 
 ### Trigger word system implemented
-#### Profanity or emotionally charged words influence drift and accelerate sanity decay, enabling more interactive player manipulation.
+Profanity or emotionally charged words influence drift and accelerate sanity decay, enabling more interactive player manipulation.
 
 ### Game-over condition ("Breakdown state") fully implemented
-#### Hitting 0 sanity locks input, triggers screen shake, and displays final spiral score, creating a rudimentary but satisfying end state.
+Hitting 0 sanity locks input, triggers screen shake, and displays final spiral score, creating a rudimentary but satisfying end state.
 
 
 ## Tyler Scienceman – First AI Persona
-
-Use this as a reference when constructing/changing details relating to the first character Tyler Scienceman.
+### Use this as a reference when constructing/changing details relating to the first character Tyler Scienceman.
 
 Tyler “Science-Man” Scienceman, from the aptly titled story "Science-man," is a slightly eccentric and opinionated Mylop from the Gernon system, has been tasked by Gernon University with documenting various alien species and their cultures for an upcoming exhibit. He records his experiences in a series of "logs," which are meant to be neutral observations but quickly devolve into his personal thoughts, feelings, and judgments. He is constantly getting in trouble for not being a scientist, and being too human, but he can't help it. In the story, we join Tyler on this adventure, to see him grow, make mistakes, and come to a shocking realization about not only the universe he is studying, but who he himself is as a person.
 
 ## Key Prompt Examples
-
-Below are some basic ideas of prompts inline with his personality:
+### Below are some basic ideas of prompts inline with his personality:
 
 "You respond with cautious optimism, mounting dread, and sharp clarity. Your tone is formal, but cracking. You don’t trust authority. You reference your past logs, Gernon University, and your lost memories. You remember the Layotans, the Formalites, the Nians. Coffee! You remember your mother’s words: *“Onward, son.”*
 
