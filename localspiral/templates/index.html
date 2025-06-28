@@ -127,7 +127,8 @@
                 html += `<p>${data.analysis.description}</p>`;
             }
             if (Array.isArray(data.location)) {
-                html += `<p>Tyler at (${data.location[0]}, ${data.location[1]})</p>`;
+                const name = data.display_name || 'Player';
+                html += `<p>${name} at (${data.location[0]}, ${data.location[1]})</p>`;
             }
             return html;
         }
