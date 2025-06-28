@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Helpers for storing and retrieving game state from the session."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass, asdict, field
 import random
@@ -41,6 +41,7 @@ def load_game_state() -> GameState:
     data = session.get("game_state")
     if not isinstance(data, dict):
         character = load_character(str(CHARACTER_PATH))
+        return GameState(character=character)
         return GameState(
             character=character,
             sanity=character.get("starting_sanity", 100),
