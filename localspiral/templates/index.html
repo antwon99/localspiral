@@ -63,6 +63,7 @@
         <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
         <button id="sendButton">Send</button>
         <div id="response" class="box"></div>
+        <div id="spiral-meter" class="box"></div>
         <div id="extra-buttons">
             <button id="spiralButton">Test /spiral</button>
             <button id="mapButton">Test /map</button>
@@ -110,9 +111,19 @@
             const promptInput = document.getElementById('prompt');
             const sendButton = document.getElementById('sendButton');
             const responseDiv = document.getElementById('response');
+            const spiralMeter = document.getElementById('spiral-meter');
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
             const extraOutput = document.getElementById('extra-output');
+
+            // Show current spiral meter on load
+            fetchJson('/spiral')
+                .then((data) => {
+                    spiralMeter.innerHTML = renderSpiral(data);
+                })
+                .catch(() => {
+                    spiralMeter.textContent = 'Spiral data unavailable';
+                });
 
             sendButton.addEventListener('click', () => {
                 const prompt = promptInput.value.trim();
@@ -121,6 +132,10 @@
                 fetchJson(`/chat?prompt=${encodeURIComponent(prompt)}`)
                     .then((data) => {
                         responseDiv.textContent = data.message || data.error || 'No response';
+                        return fetchJson('/spiral');
+                    })
+                    .then((data) => {
+                        spiralMeter.innerHTML = renderSpiral(data);
                     })
                     .catch(() => {
                         responseDiv.textContent = 'Request failed.';
@@ -132,6 +147,8 @@
                 fetchJson('/spiral')
                     .then((data) => {
                         extraOutput.innerHTML = renderSpiral(data);
+                        spiralMeter.innerHTML = renderSpiral(data);
+
                     })
                     .catch(() => {
                         extraOutput.textContent = 'Request failed.';
