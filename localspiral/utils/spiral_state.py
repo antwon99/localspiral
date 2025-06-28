@@ -16,7 +16,19 @@ def spiral_status(score: float) -> str:
 
 def distort_reply(text: str, score: float) -> str:
     """Warp ``text`` slightly based on ``score``."""
-    if score >= 4:
+    if score >= 8:
+        text += " [The map warps and glitches before your eyes]"
+        text = text.upper()
+    elif score >= 6:
+        hallucinations = [
+            "a door that isn't real",
+            "shadowed figures",
+            "flickering lights",
+            "echoing footsteps that stop abruptly",
+        ]
+        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        text = text.upper()
+    elif score >= 4:
         hallucinations = [
             "a door that isn't real",
             "shadowed figures",
