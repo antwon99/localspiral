@@ -7,6 +7,7 @@ from ...utils.spiral_state import (
     distort_reply,
     spiral_status,
     describe_surroundings,
+    check_keywords,
 )
 
 from ...utils.dialogue import generate_reply
@@ -26,6 +27,10 @@ def chat_example():
 
     spiral_score = session.get("spiral_score", 0.0)
     seed = session.get("map_seed", 0)
+    grid = session.get("map_grid")
+    if grid is None:
+        grid = generate_map(seed)
+        session["map_grid"] = grid
     grid = generate_map(seed)
     location = session.get("player_loc", (5, 5))
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
@@ -53,6 +58,12 @@ def chat_example():
 
     drift_user = calculate_drift(prompt, raw_reply)
     drift_history = calculate_drift(history[-1], raw_reply) if history else 0.0
+    triggers = check_keywords(prompt)
+    print(
+        f"Drift user={drift_user:.3f} history={drift_history:.3f} triggers={triggers}"
+    )
+    spiral_score += drift_user + drift_history + triggers * 0.5
+    if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
     print(f"Drift user={drift_user:.3f} history={drift_history:.3f}")
     spiral_score += drift_user + drift_history
     if drift_user < 0.2 and drift_history < 0.2:

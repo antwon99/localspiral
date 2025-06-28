@@ -22,6 +22,7 @@ def get_map():
 
     session["map_seed"] = seed
     grid = generate_map(seed)
+    session["map_grid"] = grid
     analysis = analyze_map(grid)
     location = session.get("player_loc", (5, 5))
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):

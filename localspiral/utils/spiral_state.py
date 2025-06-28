@@ -4,6 +4,23 @@ from __future__ import annotations
 import random
 from typing import Iterable, Tuple, Any
 
+TRIGGER_WORDS = {
+    "real",
+    "door",
+    "kill",
+    "escape",
+    "loop",
+    "who",
+    "are",
+    "you",
+}
+
+
+def check_keywords(text: str) -> int:
+    """Return the number of trigger words present in ``text``."""
+    lowered = text.lower()
+    return sum(1 for w in TRIGGER_WORDS if w in lowered)
+
 
 def spiral_status(score: float) -> str:
     """Return a short status label for the given spiral score."""
@@ -22,11 +39,21 @@ def distort_reply(text: str, score: float) -> str:
     elif score >= 6:
         hallucinations = [
             "a door that isn't real",
+            "shadowed figures",
+            "flickering lights",
+            "echoing footsteps that stop abruptly",
+        ]
+        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        text = text.upper()
+    elif score >= 4:
+        hallucinations = [
+            "a door that isn't real",
             "Gernon Security",
             "shadowed figures",
             "flickering lights",
             "echoing footsteps",
         ]
+        text += " I think I saw " + random.choice(hallucinations) + "..."
         text += " I can't stop seeing " + random.choice(hallucinations) + "!"
         text = text.upper()
     elif score >= 4:
