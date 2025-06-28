@@ -28,8 +28,8 @@ def test_spiral_endpoint(client):
     response = client.get('/spiral')
     assert response.status_code == 200
     data = response.get_json()
-    assert isinstance(data, dict)
-    assert 'message' in data
+    assert 'score' in data
+    assert 'sanity' in data
 
 
 def test_map_endpoint(client):
@@ -38,3 +38,4 @@ def test_map_endpoint(client):
     assert first.status_code == 200
     assert second.status_code == 200
     assert first.get_json()['grid'] == second.get_json()['grid']
+    assert 'seed' in first.get_json()

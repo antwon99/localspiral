@@ -7,6 +7,7 @@ from .routes.map import map_bp
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder='templates')
+    app.secret_key = 'dev'
     app.register_blueprint(chat_bp)
     app.register_blueprint(spiral_bp)
     app.register_blueprint(map_bp)
