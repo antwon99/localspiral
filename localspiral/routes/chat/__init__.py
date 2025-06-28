@@ -60,6 +60,7 @@ def chat_example():
 
     reply = distort_reply(raw_reply, spiral_score)
 
+    history.append(raw_reply)
     history.append(prompt)
     session["history"] = history[-5:]
     session["spiral_score"] = spiral_score
