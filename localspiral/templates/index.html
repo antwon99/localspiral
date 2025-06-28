@@ -74,6 +74,7 @@
         </div>
         <div id="map-output" class="box"></div>
         <div id="spiral-output" class="box"></div>
+
     </div>
     <script>
         function fetchJson(url) {
@@ -162,6 +163,12 @@
 
             spiralButton.addEventListener('click', () => {
                 spiralMeter.innerHTML = 'Loading...';
+                fetchJson('/spiral')
+                    .then((data) => {
+                        spiralMeter.innerHTML = renderSpiral(data);
+                    })
+                    .catch(() => {
+                        spiralMeter.textContent = 'Request failed.';
                 fetchJson('/spiral')
                     .then((data) => {
                         spiralMeter.innerHTML = renderSpiral(data);

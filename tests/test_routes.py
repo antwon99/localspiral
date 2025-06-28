@@ -35,7 +35,6 @@ def test_spiral_endpoint(client):
     assert 'status' in data
 
 
-
 def test_map_endpoint(client):
     first = client.get('/map?seed=5')
     second = client.get('/map?seed=5')
