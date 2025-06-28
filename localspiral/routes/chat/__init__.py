@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 
 from ...utils.map import generate_map
 from ...utils.scoring import calculate_drift
@@ -9,6 +9,7 @@ from ...utils.spiral_state import (
     describe_surroundings,
     check_keywords,
 )
+from ...utils.state import load_game_state, save_game_state
 
 from ...utils.dialogue import generate_reply
 
@@ -25,16 +26,18 @@ def chat_example():
     if not prompt:
         return jsonify({"message": "No prompt provided."})
 
-    spiral_score = session.get("spiral_score", 0.0)
-    seed = session.get("map_seed", 0)
-    grid = session.get("map_grid")
+    state = load_game_state()
+
+    spiral_score = state.spiral_score
+    seed = state.map_seed
+    grid = state.map_grid
     if grid is None:
         grid = generate_map(seed)
-        session["map_grid"] = grid
-    location = session.get("player_loc", (5, 5))
+        state.map_grid = grid
+    location = state.player_loc
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
-    analysis = session.get("map_analysis", analyze_map(grid))
+    analysis = analyze_map(grid)
     surroundings = describe_surroundings(grid, location)
     grid_text = "\n".join("".join(row) for row in grid)
 
@@ -50,7 +53,7 @@ def chat_example():
     )
 
     # history alternates: [AI reply, user prompt, AI reply, user prompt, ...]
-    history = session.get("history", [])
+    history = state.history
     try:
         raw_reply = generate_reply(prompt, system_prompt=system_prompt)
     except RuntimeError as exc:
@@ -75,16 +78,17 @@ def chat_example():
     # keep alternating order: [reply, prompt, ...]
     history.append(raw_reply)
     history.append(prompt)
-    session["history"] = history[-5:]
-    session["spiral_score"] = spiral_score
+    state.history = history[-5:]
+    state.spiral_score = spiral_score
+    state.update_sanity()
+    save_game_state(state)
 
-    state = {
-        "spiral_score": round(spiral_score, 3),
-        "sanity": max(0, 100 - int(spiral_score * 20)),
-        "status": spiral_status(spiral_score),
-        "map_seed": seed,
-        "location": location,
+    state_dict = {
+        "spiral_score": round(state.spiral_score, 3),
+        "sanity": state.sanity,
+        "status": spiral_status(state.spiral_score),
+        "map_seed": state.map_seed,
+        "location": state.player_loc,
         "description": analysis.get("description"),
     }
-
-    return jsonify({"message": reply, "state": state})
+    return jsonify({"message": reply, "state": state_dict})
