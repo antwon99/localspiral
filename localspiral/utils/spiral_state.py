@@ -48,10 +48,22 @@ def distort_reply(text: str, score: float) -> str:
     elif score >= 4:
         hallucinations = [
             "a door that isn't real",
+            "Gernon Security",
+            "shadowed figures",
+            "flickering lights",
+            "echoing footsteps",
+        ]
+        text += " I think I saw " + random.choice(hallucinations) + "..."
+        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        text = text.upper()
+    elif score >= 4:
+        hallucinations = [
+            "a door that isn't real",
             "shadowed figures",
             "flickering lights",
         ]
-        text += " I think I saw " + random.choice(hallucinations) + "..."
+        fragment = random.choice(text.split())
+        text += " I think I saw " + random.choice(hallucinations) + "... " + fragment + "..."
     elif score >= 2:
         text += " ... I think."
     return text

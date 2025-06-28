@@ -31,6 +31,7 @@ def chat_example():
     if grid is None:
         grid = generate_map(seed)
         session["map_grid"] = grid
+    grid = generate_map(seed)
     location = session.get("player_loc", (5, 5))
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
@@ -63,11 +64,15 @@ def chat_example():
     )
     spiral_score += drift_user + drift_history + triggers * 0.5
     if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
+    print(f"Drift user={drift_user:.3f} history={drift_history:.3f}")
+    spiral_score += drift_user + drift_history
+    if drift_user < 0.2 and drift_history < 0.2:
         spiral_score = max(0.0, spiral_score - 0.1)
 
     reply = distort_reply(raw_reply, spiral_score)
 
     history.append(raw_reply)
+    history.append(prompt)
     session["history"] = history[-5:]
     session["spiral_score"] = spiral_score
 
