@@ -148,7 +148,6 @@
                     .then((data) => {
                         extraOutput.innerHTML = renderSpiral(data);
                         spiralMeter.innerHTML = renderSpiral(data);
-
                     })
                     .catch(() => {
                         extraOutput.textContent = 'Request failed.';
