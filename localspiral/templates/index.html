@@ -59,6 +59,14 @@
             color: #0f0;
             font-weight: bold;
         }
+        @keyframes jitter {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+        .unstable {
+            animation: jitter 0.2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -136,6 +144,17 @@
             const mapButton = document.getElementById('mapButton');
             const mapOutput = document.getElementById('map-output');
 
+            function updateSpiralMeter(data) {
+                spiralMeter.innerHTML = renderSpiral(data);
+                if (data.score >= 4) {
+                    spiralMeter.classList.add('unstable');
+                    responseDiv.classList.add('unstable');
+                } else {
+                    spiralMeter.classList.remove('unstable');
+                    responseDiv.classList.remove('unstable');
+                }
+            }
+
 
             sendButton.addEventListener('click', () => {
                 const prompt = promptInput.value.trim();
@@ -144,7 +163,10 @@
                 fetchJson(`/chat?prompt=${encodeURIComponent(prompt)}`)
                     .then((data) => {
                         responseDiv.textContent = data.message || data.error || 'No response';
-                        if (data.state) spiralMeter.innerHTML = renderSpiral(data.state);
+                        if (data.state) {
+                            updateSpiralMeter(data.state);
+                            loadMap();
+                        }
                     })
                     .catch(() => {
                         responseDiv.textContent = 'Request failed.';
@@ -155,6 +177,10 @@
                 spiralMeter.innerHTML = 'Loading...';
                 fetchJson('/spiral')
                     .then((data) => {
+                        updateSpiralMeter(data);
+                    })
+                    .catch(() => {
+                        updateSpiralMeter({score: 0, sanity: 100, status: 'Lucid'});
                         spiralMeter.innerHTML = renderSpiral(data);
                         spiralOutput.innerHTML = renderSpiral(data);
                     })

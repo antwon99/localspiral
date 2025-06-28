@@ -53,6 +53,7 @@ def chat_example():
 
     drift_user = calculate_drift(prompt, raw_reply)
     drift_history = calculate_drift(history[-1], raw_reply) if history else 0.0
+    print(f"Drift user={drift_user:.3f} history={drift_history:.3f}")
     spiral_score += drift_user + drift_history
     if drift_user < 0.2 and drift_history < 0.2:
         spiral_score = max(0.0, spiral_score - 0.1)
