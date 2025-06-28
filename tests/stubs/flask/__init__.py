@@ -8,6 +8,9 @@ class _Request:
         self.args: Dict[str, Any] = {}
 
 
+session: Dict[str, Any] = {}
+
+
 request = _Request()
 
 
