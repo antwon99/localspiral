@@ -101,8 +101,15 @@ def chat_example():
     if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
         logger.debug("Drift user=%.3f history=%.3f", drift_user, drift_history)
         spiral_score = max(0.0, spiral_score - 0.05)
+        state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
+    else:
+        state.paranoia_level = min(
+            10.0, state.paranoia_level + drift_user + drift_history + triggers * 0.5
+        )
 
-    reply = distort_reply(raw_reply, spiral_score)
+    reply, hallucination = distort_reply(raw_reply, spiral_score, return_hallucination=True)
+    if hallucination:
+        state.last_hallucination = hallucination
     if spiral_score >= 5:
         reply += f" (You perceive {perceived_analysis.get('description')})"
 

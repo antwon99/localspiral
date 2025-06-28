@@ -42,9 +42,11 @@ def spiral_status(score: float) -> str:
     return "Erratic"
 
 
-def distort_reply(text: str, score: float) -> str:
-    """Warp ``text`` slightly based on ``score``."""
+def distort_reply(text: str, score: float, *, return_hallucination: bool = False) -> str | tuple[str, str | None]:
+    """Warp ``text`` slightly based on ``score`` and optionally return the hallucination used."""
+    hallucination: str | None = None
     if score >= 8:
+        hallucination = "the map warping and glitching"
         text += " [The map warps and glitches before your eyes]"
         text = text.upper()
     elif score >= 6:
@@ -54,7 +56,8 @@ def distort_reply(text: str, score: float) -> str:
             "flickering lights",
             "echoing footsteps that stop abruptly",
         ]
-        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        hallucination = random.choice(hallucinations)
+        text += " I can't stop seeing " + hallucination + "!"
         text = text.upper()
     elif score >= 5:
         hallucinations = [
@@ -64,8 +67,10 @@ def distort_reply(text: str, score: float) -> str:
             "flickering lights",
             "echoing footsteps",
         ]
-        text += " I think I saw " + random.choice(hallucinations) + "..."
-        text += " I can't stop seeing " + random.choice(hallucinations) + "!"
+        hallucination = random.choice(hallucinations)
+        text += " I think I saw " + hallucination + "..."
+        hallucination = random.choice(hallucinations)
+        text += " I can't stop seeing " + hallucination + "!"
         text = text.upper()
     elif score >= 4:
         hallucinations = [
@@ -73,10 +78,13 @@ def distort_reply(text: str, score: float) -> str:
             "shadowed figures",
             "flickering lights",
         ]
+        hallucination = random.choice(hallucinations)
         fragment = random.choice(text.split())
-        text += " I think I saw " + random.choice(hallucinations) + "... " + fragment + "..."
+        text += " I think I saw " + hallucination + "... " + fragment + "..."
     elif score >= 2:
         text += " ... I think."
+    if return_hallucination:
+        return text, hallucination
     return text
 
 
