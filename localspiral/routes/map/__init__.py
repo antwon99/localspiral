@@ -27,6 +27,7 @@ def get_map():
     state.map_grid = grid
     analysis = analyze_map(grid)
     location = state.player_loc
+    grid = [row[:] for row in state.map_grid]
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
     save_game_state(state)

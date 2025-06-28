@@ -168,3 +168,29 @@ def test_reset_endpoint_clears_state(client):
     assert response.status_code == 200
     assert 'game_state' not in flask_session
 
+
+def test_map_grid_excludes_player_marker(client, monkeypatch):
+    """Ensure '@' is never stored in the session map grid."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    client.get('/map?seed=1')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+
+    client.get('/move?dir=north')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+
+    monkeypatch.setattr(
+        'localspiral.routes.chat.generate_reply',
+        lambda prompt, system_prompt=None: 'ok'
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
+    client.get('/chat?prompt=hello')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+
