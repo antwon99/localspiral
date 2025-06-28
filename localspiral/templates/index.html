@@ -68,7 +68,8 @@
             <button id="spiralButton">Test /spiral</button>
             <button id="mapButton">Test /map</button>
         </div>
-        <div id="extra-output" class="box"></div>
+        <div id="map-output" class="box"></div>
+        <div id="spiral-output" class="box"></div>
     </div>
     <script>
         function fetchJson(url) {
@@ -78,10 +79,10 @@
             });
         }
 
-        function renderMapHTML(grid) {
-            if (!Array.isArray(grid)) return '';
+        function renderMapHTML(data) {
+            if (!data || !Array.isArray(data.grid)) return '';
             let html = '<table class="map-grid">';
-            for (const row of grid) {
+            for (const row of data.grid) {
                 html += '<tr>';
                 for (const cell of row) {
                     const cls = cell === '#' ? 'wall' : 'empty';
@@ -91,6 +92,7 @@
                 html += '</tr>';
             }
             html += '</table>';
+            if ('seed' in data) html += `<p>Seed: ${data.seed}</p>`;
             return html;
         }
 
@@ -114,7 +116,8 @@
             const spiralMeter = document.getElementById('spiral-meter');
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
-            const extraOutput = document.getElementById('extra-output');
+            const mapOutput = document.getElementById('map-output');
+            const spiralOutput = document.getElementById('spiral-output');
 
             // Show current spiral meter on load
             fetchJson('/spiral')
@@ -143,25 +146,25 @@
             });
 
             spiralButton.addEventListener('click', () => {
-                extraOutput.innerHTML = 'Loading...';
+                spiralOutput.innerHTML = 'Loading...';
                 fetchJson('/spiral')
                     .then((data) => {
-                        extraOutput.innerHTML = renderSpiral(data);
+                        spiralOutput.innerHTML = renderSpiral(data);
                         spiralMeter.innerHTML = renderSpiral(data);
                     })
                     .catch(() => {
-                        extraOutput.textContent = 'Request failed.';
+                        spiralOutput.textContent = 'Request failed.';
                     });
             });
 
             mapButton.addEventListener('click', () => {
-                extraOutput.innerHTML = 'Loading...';
+                mapOutput.innerHTML = 'Loading...';
                 fetchJson('/map')
                     .then((data) => {
-                        extraOutput.innerHTML = renderMapHTML(data.grid);
+                        mapOutput.innerHTML = renderMapHTML(data);
                     })
                     .catch(() => {
-                        extraOutput.textContent = 'Request failed.';
+                        mapOutput.textContent = 'Request failed.';
                     });
             });
         });
