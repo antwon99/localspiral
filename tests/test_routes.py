@@ -110,3 +110,11 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
         ('two', 'second reply'),
         ('first reply', 'second reply'),
     ]
+
+
+def test_reset_endpoint_clears_state(client):
+    from flask import session as flask_session
+    flask_session['game_state'] = {'spiral_score': 5}
+    response = client.get('/reset')
+    assert response.status_code == 200
+    assert 'game_state' not in flask_session
