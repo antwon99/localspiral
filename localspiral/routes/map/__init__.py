@@ -29,3 +29,4 @@ def get_map():
     session['map_analysis'] = analysis
     session['player_loc'] = location
     return jsonify({'seed': seed, 'grid': grid, 'analysis': analysis, 'location': location})
+    return jsonify({'seed': seed, 'grid': grid})

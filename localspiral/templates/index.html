@@ -73,6 +73,8 @@
             <button id="mapButton">Test /map</button>
         </div>
         <div id="map-output" class="box"></div>
+        <div id="spiral-output" class="box"></div>
+
     </div>
     <script>
         function fetchJson(url) {
@@ -134,6 +136,7 @@
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
             const mapOutput = document.getElementById('map-output');
+            const spiralOutput = document.getElementById('spiral-output');
 
             // Show current spiral meter on load
             fetchJson('/spiral')
@@ -166,6 +169,20 @@
                     })
                     .catch(() => {
                         spiralMeter.textContent = 'Request failed.';
+                fetchJson('/spiral')
+                    .then((data) => {
+                        spiralMeter.innerHTML = renderSpiral(data);
+                    })
+                    .catch(() => {
+                        spiralMeter.textContent = 'Request failed.';
+                spiralOutput.innerHTML = 'Loading...';
+                fetchJson('/spiral')
+                    .then((data) => {
+                        spiralOutput.innerHTML = renderSpiral(data);
+                        spiralMeter.innerHTML = renderSpiral(data);
+                    })
+                    .catch(() => {
+                        spiralOutput.textContent = 'Request failed.';
                     });
             });
 

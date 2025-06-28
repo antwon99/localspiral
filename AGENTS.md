@@ -6,7 +6,7 @@ The agent should use this file to write code, create tests, and maintain consist
 ## Project Purpose
 AI Spiral Simulator is a simple client-based narrative roguelike where players must prevent an AI-generated character from spiraling into incoherence. Each turn, an AI character narrates a story fragment. The player must interpret the AI's generated text and submit a clarification. A backend system scores coherence between the story, the AI response, and finally the player’s response.
 
-It's simply a core-concept MVP I can test viability.
+It's simply a core-concept MVP to test viability.
 
 ## The AI agent (Codex) should:
 
@@ -118,6 +118,16 @@ Favor a modular design: each system (image gen, text gen, drift check) should be
 
 Avoid speculative abstractions—stick close to what's described in README.md
 
-## What's been confirmed:
+## Features So Far (Even if basic)
 
-http://127.0.0.1:5000/chat?prompt=Hello%20world = {"message": "Hello! How can I assist you today?"} AKA The program IS communicating with Chatgpt.
+Connected to local Flask server; Tyler responds to /chat prompts with contextual awareness
+
+Dynamic map generated from randomized seeds via /map; seed included in response for replayability
+
+Spiral score calculated using AI response drift; persisted via session state
+
+Sanity level initialized and displayed alongside spiral decay
+
+Basic front-end visualizes chat, map, and spiral score with a retro terminal aesthetic
+
+Character identity (Tyler Scienceman) established with intro prompt and evolving tone

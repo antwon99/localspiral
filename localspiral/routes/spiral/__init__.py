@@ -14,3 +14,4 @@ def spiral_example():
         'sanity': sanity,
         'status': spiral_status(score),
     })
+    return jsonify({'score': round(score, 3), 'sanity': sanity})
