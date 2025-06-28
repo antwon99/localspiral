@@ -17,14 +17,9 @@ dependencies = [
 [project.scripts]
 localspiral = "localspiral.main:main"
 
-[tool.setuptools.packages.find]
-where = ["localspiral"]
-
 [tool.setuptools.package-data]
 "localspiral" = [
     "templates/*.html",
-    "characters/*.json"
-]
     "characters/*.json",
     "static/*"
 ]
