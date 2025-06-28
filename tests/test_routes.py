@@ -22,6 +22,8 @@ def test_chat_endpoint(client, monkeypatch):
     assert response.status_code == 200
     data = response.get_json()
     assert data['message'] == 'ok'
+    assert 'state' in data
+    assert 'spiral_score' in data['state']
 
 
 def test_spiral_endpoint(client):
@@ -30,6 +32,8 @@ def test_spiral_endpoint(client):
     data = response.get_json()
     assert 'score' in data
     assert 'sanity' in data
+    assert 'status' in data
+
 
 
 def test_map_endpoint(client):
