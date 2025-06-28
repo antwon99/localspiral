@@ -114,6 +114,34 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     ]
 
 
+def test_chat_updates_spiral_score(client, monkeypatch):
+    """Spiral score should increase when drift values are positive."""
+
+    from flask import session as flask_session
+    flask_session.clear()
+
+    monkeypatch.setattr(
+        'localspiral.routes.chat.generate_reply',
+        lambda prompt, system_prompt=None: 'reply'
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.calculate_drift',
+        lambda ref, resp: 0.5
+    )
+
+    first = client.get('/chat?prompt=one')
+    first_score = first.get_json()['state']['spiral_score']
+    assert first_score > 0
+
+    second = client.get('/chat?prompt=two')
+    second_score = second.get_json()['state']['spiral_score']
+    assert second_score > first_score
+
+
 def test_reset_endpoint_clears_state(client):
     from flask import session as flask_session
     flask_session['game_state'] = {'spiral_score': 5}
