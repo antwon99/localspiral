@@ -1,5 +1,3 @@
-import os
-
 from localspiral.utils.map import generate_map
 
 

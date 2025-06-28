@@ -1,7 +1,4 @@
-import os
 import json
-
-import pytest
 
 from localspiral.utils import dialogue
 

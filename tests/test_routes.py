@@ -1,6 +1,5 @@
 import pytest
 from localspiral.main import create_app
-from localspiral.utils import dialogue
 
 
 @pytest.fixture
