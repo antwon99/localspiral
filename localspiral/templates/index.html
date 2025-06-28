@@ -67,6 +67,16 @@
         .unstable {
             animation: jitter 0.2s infinite;
         }
+        @keyframes breakdown-shake {
+            0% { transform: translate(0,0) rotate(0deg); }
+            25% { transform: translate(-4px, 4px) rotate(-1deg); }
+            50% { transform: translate(4px, -4px) rotate(1deg); }
+            75% { transform: translate(-4px, 4px) rotate(-1deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+        .breakdown {
+            animation: breakdown-shake 0.1s infinite;
+        }
     </style>
 </head>
 <body>
@@ -146,6 +156,19 @@
 
             function updateSpiralMeter(data) {
                 spiralMeter.innerHTML = renderSpiral(data);
+
+                if (data.sanity <= 0) {
+                    spiralMeter.innerHTML = `<h2>Final Spiral Score: ${data.score}</h2>` +
+                        spiralMeter.innerHTML +
+                        '<p><em>Refresh the page to start over.</em></p>';
+                    spiralMeter.classList.add('breakdown');
+                    promptInput.disabled = true;
+                    sendButton.disabled = true;
+                    return;
+                }
+
+                spiralMeter.classList.remove('breakdown');
+
                 if (data.score >= 4) {
                     spiralMeter.classList.add('unstable');
                     responseDiv.classList.add('unstable');
