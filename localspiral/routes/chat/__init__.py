@@ -31,7 +31,6 @@ def chat_example():
     if grid is None:
         grid = generate_map(seed)
         session["map_grid"] = grid
-    grid = generate_map(seed)
     location = session.get("player_loc", (5, 5))
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
