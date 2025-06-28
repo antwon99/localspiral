@@ -89,6 +89,7 @@
         <div id="extra-buttons">
             <button id="spiralButton">Test /spiral</button>
             <button id="mapButton">Test /map</button>
+            <button id="resetButton">Reset</button>
         </div>
         <div id="map-output" class="box"></div>
 
@@ -153,6 +154,7 @@
             const spiralMeter = document.getElementById('spiral-meter');
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
+            const resetButton = document.getElementById('resetButton');
             const mapOutput = document.getElementById('map-output');
 
             function updateSpiralMeter(data) {
@@ -233,6 +235,15 @@
 
             spiralButton.addEventListener('click', loadSpiral);
             mapButton.addEventListener('click', loadMap);
+            resetButton.addEventListener('click', () => {
+                fetchJson('/reset').then(() => {
+                    promptInput.disabled = false;
+                    sendButton.disabled = false;
+                    responseDiv.textContent = '';
+                    mapOutput.textContent = '';
+                    loadSpiral();
+                });
+            });
         });
     </script>
 </body>
