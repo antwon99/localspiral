@@ -138,14 +138,6 @@
             const mapOutput = document.getElementById('map-output');
             const spiralOutput = document.getElementById('spiral-output');
 
-            // Show current spiral meter on load
-            fetchJson('/spiral')
-                .then((data) => {
-                    spiralMeter.innerHTML = renderSpiral(data);
-                })
-                .catch(() => {
-                    spiralMeter.textContent = 'Spiral data unavailable';
-                });
 
             sendButton.addEventListener('click', () => {
                 const prompt = promptInput.value.trim();
@@ -161,32 +153,19 @@
                     });
             });
 
-            spiralButton.addEventListener('click', () => {
+            function loadSpiral() {
                 spiralMeter.innerHTML = 'Loading...';
                 fetchJson('/spiral')
                     .then((data) => {
                         spiralMeter.innerHTML = renderSpiral(data);
-                    })
-                    .catch(() => {
-                        spiralMeter.textContent = 'Request failed.';
-                fetchJson('/spiral')
-                    .then((data) => {
-                        spiralMeter.innerHTML = renderSpiral(data);
-                    })
-                    .catch(() => {
-                        spiralMeter.textContent = 'Request failed.';
-                spiralOutput.innerHTML = 'Loading...';
-                fetchJson('/spiral')
-                    .then((data) => {
                         spiralOutput.innerHTML = renderSpiral(data);
-                        spiralMeter.innerHTML = renderSpiral(data);
                     })
                     .catch(() => {
-                        spiralOutput.textContent = 'Request failed.';
+                        spiralMeter.textContent = 'Request failed.';
                     });
-            });
+            }
 
-            mapButton.addEventListener('click', () => {
+            function loadMap() {
                 mapOutput.innerHTML = 'Loading...';
                 fetchJson('/map')
                     .then((data) => {
@@ -195,7 +174,14 @@
                     .catch(() => {
                         mapOutput.textContent = 'Request failed.';
                     });
-            });
+            }
+
+            // initial state
+            loadSpiral();
+            loadMap();
+
+            spiralButton.addEventListener('click', loadSpiral);
+            mapButton.addEventListener('click', loadMap);
         });
     </script>
 </body>
