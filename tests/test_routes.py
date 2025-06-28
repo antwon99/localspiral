@@ -25,6 +25,7 @@ def test_chat_endpoint(client, monkeypatch):
     assert response.status_code == 200
     data = response.get_json()
     assert data['message'] == 'ok'
+    assert 'breakdown' in data
     assert 'state' in data
     assert 'spiral_score' in data['state']
     assert 'perceived_description' in data['state']
@@ -67,10 +68,12 @@ def test_chat_persists_map(client, monkeypatch):
 
     first = client.get('/chat?prompt=one')
     assert first.status_code == 200
+    assert 'breakdown' in first.get_json()
     assert len(calls) == 1
 
     second = client.get('/chat?prompt=two')
     assert second.status_code == 200
+    assert 'breakdown' in second.get_json()
     assert len(calls) == 1
 
 

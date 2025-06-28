@@ -91,6 +91,7 @@ def chat_example():
     state.history = history[-5:]
     state.spiral_score = spiral_score
     state.update_sanity()
+    breakdown = state.sanity <= 0
     save_game_state(state)
 
     state_dict = {
@@ -102,4 +103,4 @@ def chat_example():
         "description": analysis.get("description"),
         "perceived_description": perceived_analysis.get("description"),
     }
-    return jsonify({"message": reply, "state": state_dict})
+    return jsonify({"message": reply, "state": state_dict, "breakdown": breakdown})
