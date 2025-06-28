@@ -59,6 +59,14 @@
             color: #0f0;
             font-weight: bold;
         }
+        @keyframes jitter {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+        .unstable {
+            animation: jitter 0.2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +81,6 @@
             <button id="mapButton">Test /map</button>
         </div>
         <div id="map-output" class="box"></div>
-        <div id="spiral-output" class="box"></div>
 
     </div>
     <script>
@@ -136,16 +143,18 @@
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
             const mapOutput = document.getElementById('map-output');
-            const spiralOutput = document.getElementById('spiral-output');
 
-            // Show current spiral meter on load
-            fetchJson('/spiral')
-                .then((data) => {
-                    spiralMeter.innerHTML = renderSpiral(data);
-                })
-                .catch(() => {
-                    spiralMeter.textContent = 'Spiral data unavailable';
-                });
+            function updateSpiralMeter(data) {
+                spiralMeter.innerHTML = renderSpiral(data);
+                if (data.score >= 4) {
+                    spiralMeter.classList.add('unstable');
+                    responseDiv.classList.add('unstable');
+                } else {
+                    spiralMeter.classList.remove('unstable');
+                    responseDiv.classList.remove('unstable');
+                }
+            }
+
 
             sendButton.addEventListener('click', () => {
                 const prompt = promptInput.value.trim();
@@ -154,39 +163,28 @@
                 fetchJson(`/chat?prompt=${encodeURIComponent(prompt)}`)
                     .then((data) => {
                         responseDiv.textContent = data.message || data.error || 'No response';
-                        if (data.state) spiralMeter.innerHTML = renderSpiral(data.state);
+                        if (data.state) {
+                            updateSpiralMeter(data.state);
+                            loadMap();
+                        }
                     })
                     .catch(() => {
                         responseDiv.textContent = 'Request failed.';
                     });
             });
 
-            spiralButton.addEventListener('click', () => {
+            function loadSpiral() {
                 spiralMeter.innerHTML = 'Loading...';
                 fetchJson('/spiral')
                     .then((data) => {
-                        spiralMeter.innerHTML = renderSpiral(data);
+                        updateSpiralMeter(data);
                     })
                     .catch(() => {
-                        spiralMeter.textContent = 'Request failed.';
-                fetchJson('/spiral')
-                    .then((data) => {
-                        spiralMeter.innerHTML = renderSpiral(data);
-                    })
-                    .catch(() => {
-                        spiralMeter.textContent = 'Request failed.';
-                spiralOutput.innerHTML = 'Loading...';
-                fetchJson('/spiral')
-                    .then((data) => {
-                        spiralOutput.innerHTML = renderSpiral(data);
-                        spiralMeter.innerHTML = renderSpiral(data);
-                    })
-                    .catch(() => {
-                        spiralOutput.textContent = 'Request failed.';
+                        updateSpiralMeter({score: 0, sanity: 100, status: 'Lucid'});
                     });
-            });
+            }
 
-            mapButton.addEventListener('click', () => {
+            function loadMap() {
                 mapOutput.innerHTML = 'Loading...';
                 fetchJson('/map')
                     .then((data) => {
@@ -195,7 +193,14 @@
                     .catch(() => {
                         mapOutput.textContent = 'Request failed.';
                     });
-            });
+            }
+
+            // initial state
+            loadSpiral();
+            loadMap();
+
+            spiralButton.addEventListener('click', loadSpiral);
+            mapButton.addEventListener('click', loadMap);
         });
     </script>
 </body>
