@@ -1,4 +1,13 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
+
+from ...utils.map import generate_map
+from ...utils.scoring import calculate_drift
+from ...utils.spiral_state import (
+    analyze_map,
+    distort_reply,
+    spiral_status,
+    describe_surroundings,
+)
 
 from ...utils.dialogue import generate_reply
 
@@ -10,14 +19,60 @@ chat_bp = Blueprint('chat', __name__)
 
 @chat_bp.route('/chat', methods=['GET'])
 def chat_example():
-    """Return a dynamic response from the OpenAI API."""
+    """Return a dynamic response influenced by the current game state."""
     prompt = request.args.get('prompt')
     if not prompt:
         return jsonify({'message': 'No prompt provided.'})
 
+    # current spiral score and map context
+    spiral_score = session.get('spiral_score', 0.0)
+    seed = session.get('map_seed', 0)
+    grid = generate_map(seed)
+    location = session.get('player_loc', (5, 5))
+    if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
+        grid[location[0]][location[1]] = '@'
+    analysis = session.get('map_analysis', analyze_map(grid))
+    surroundings = describe_surroundings(grid, location)
+    grid_text = "\n".join("".join(row) for row in grid)
+
+    status = spiral_status(spiral_score)
+
+    system_prompt = (
+        SYSTEM_PROMPT
+        + f"\nCurrent map description: {analysis.get('description')}"
+        + f"\nLocation: {location}"
+        + f"\nNearby: {surroundings}"
+        + f"\nSpiral status: {status} ({spiral_score:.2f})\n"
+        + f"Map grid:\n{grid_text}"
+    )
+
+    history = session.get('history', [])
+
     try:
-        reply = generate_reply(prompt, system_prompt=SYSTEM_PROMPT)
+        raw_reply = generate_reply(prompt, system_prompt=system_prompt)
     except RuntimeError as exc:
         return jsonify({'error': str(exc)})
 
-    return jsonify({'message': reply})
+    drift_user = calculate_drift(prompt, raw_reply)
+    drift_history = calculate_drift(history[-1], raw_reply) if history else 0.0
+
+    spiral_score += drift_user + drift_history
+    if drift_user < 0.2 and drift_history < 0.2:
+        spiral_score = max(0.0, spiral_score - 0.1)
+
+    reply = distort_reply(raw_reply, spiral_score)
+
+    history.append(reply)
+    session['history'] = history[-5:]
+    session['spiral_score'] = spiral_score
+
+    state = {
+        'spiral_score': round(spiral_score, 3),
+        'sanity': max(0, 100 - int(spiral_score * 20)),
+        'status': spiral_status(spiral_score),
+        'map_seed': seed,
+        'location': location,
+        'description': analysis.get('description'),
+    }
+
+    return jsonify({'message': reply, 'state': state})
