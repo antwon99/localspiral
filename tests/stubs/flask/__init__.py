@@ -55,7 +55,7 @@ class Flask:
     def register_blueprint(self, bp: Blueprint) -> None:
         self.routes.update(bp.routes)
 
-    def test_client(self) -> "_Client":
+    def test_client(self) -> "FlaskClient":
         app = self
 
         class _Client:
