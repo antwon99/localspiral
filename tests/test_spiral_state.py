@@ -6,6 +6,12 @@ def test_check_keywords_counts():
     assert spiral_state.check_keywords("Nothing suspicious here") == 0
 
 
+def test_check_keywords_custom_list():
+    triggers = ["alpha", "beta"]
+    assert spiral_state.check_keywords("alpha BETA", triggers) == 2
+    assert spiral_state.check_keywords("gamma", triggers) == 0
+
+
 def test_distort_reply_mid_score(monkeypatch):
     """Score >=5 should inject hallucination text and uppercase output."""
     monkeypatch.setattr(spiral_state.random, "choice", lambda seq: seq[0])
