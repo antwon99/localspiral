@@ -20,6 +20,7 @@ def distort_reply(text: str, score: float) -> str:
         text += " [The map warps and glitches before your eyes]"
         text = text.upper()
     elif score >= 6:
+    if score >= 6:
         hallucinations = [
             "a door that isn't real",
             "shadowed figures",

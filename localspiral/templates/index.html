@@ -165,6 +165,7 @@
                         responseDiv.textContent = data.message || data.error || 'No response';
                         if (data.state) {
                             updateSpiralMeter(data.state);
+                            loadMap();
                         }
                     })
                     .catch(() => {
@@ -180,6 +181,11 @@
                     })
                     .catch(() => {
                         updateSpiralMeter({score: 0, sanity: 100, status: 'Lucid'});
+                        spiralMeter.innerHTML = renderSpiral(data);
+                        spiralOutput.innerHTML = renderSpiral(data);
+                    })
+                    .catch(() => {
+                        spiralMeter.textContent = 'Request failed.';
                     });
             }
 
