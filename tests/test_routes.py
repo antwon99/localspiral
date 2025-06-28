@@ -49,6 +49,25 @@ def test_map_endpoint(client):
     assert 'seed' in first.get_json()
 
 
+def test_move_endpoint(client, monkeypatch):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(10)] for _ in range(10)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+
+    client.get('/map?seed=1')
+    resp = client.get('/move?dir=north')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert tuple(data['location']) == (4, 5)
+
+
 def test_chat_persists_map(client, monkeypatch):
     from flask import session as flask_session
     flask_session.clear()
@@ -118,3 +137,4 @@ def test_reset_endpoint_clears_state(client):
     response = client.get('/reset')
     assert response.status_code == 200
     assert 'game_state' not in flask_session
+

@@ -34,6 +34,9 @@
             margin-top: 0.5rem;
             cursor: pointer;
         }
+        #move-buttons button {
+            margin-right: 0.5rem;
+        }
         .box {
             margin-top: 1rem;
             padding: 0.5rem;
@@ -90,6 +93,12 @@
             <button id="spiralButton">Test /spiral</button>
             <button id="mapButton">Test /map</button>
             <button id="resetButton">Reset</button>
+        </div>
+        <div id="move-buttons">
+            <button data-dir="north">North</button>
+            <button data-dir="south">South</button>
+            <button data-dir="west">West</button>
+            <button data-dir="east">East</button>
         </div>
         <div id="map-output" class="box"></div>
 
@@ -155,6 +164,7 @@
             const spiralButton = document.getElementById('spiralButton');
             const mapButton = document.getElementById('mapButton');
             const resetButton = document.getElementById('resetButton');
+            const moveButtons = document.querySelectorAll('#move-buttons button');
             const mapOutput = document.getElementById('map-output');
 
             function updateSpiralMeter(data) {
@@ -230,6 +240,16 @@
                     });
             }
 
+            function move(dir) {
+                fetchJson(`/move?dir=${dir}`)
+                    .then((data) => {
+                        if (data.grid) mapOutput.innerHTML = renderMapHTML(data);
+                    })
+                    .catch(() => {
+                        // ignore errors
+                    });
+            }
+
             // initial state
             loadSpiral();
 
@@ -243,6 +263,10 @@
                     mapOutput.textContent = '';
                     loadSpiral();
                 });
+            });
+
+            moveButtons.forEach(btn => {
+                btn.addEventListener('click', () => move(btn.dataset.dir));
             });
         });
     </script>

@@ -14,9 +14,6 @@ from ...utils.state import load_game_state, save_game_state
 
 from ...utils.dialogue import generate_reply
 
-
-SYSTEM_PROMPT = "You are Tyler Scienceman, a helpful scientist with a stoic tone."
-
 chat_bp = Blueprint("chat", __name__)
 
 
@@ -50,8 +47,24 @@ def chat_example():
 
     status = spiral_status(spiral_score)
 
+    char_data = state.character or {}
+    base_prompt = f"You are {char_data.get('display_name', 'Tyler Scienceman')}"
+    employer = char_data.get('employer')
+    if employer:
+        base_prompt += f" employed by {employer}"
+    tone = char_data.get('tone')
+    if tone:
+        base_prompt += f" with a {tone} tone"
+    intro = char_data.get('intro_prompt')
+    if intro:
+        base_prompt += f". {intro}"
+    if state.last_hallucination:
+        base_prompt += f" Last hallucination: {state.last_hallucination}."
+    if state.paranoia_level:
+        base_prompt += f" Paranoia level {state.paranoia_level:.2f}."
+
     system_prompt = (
-        SYSTEM_PROMPT
+        base_prompt
         + f"\nCurrent map description: {analysis.get('description')}"
         + f"\nHallucinated map description: {perceived_analysis.get('description')}"
         + f"\nLocation: {location}"
