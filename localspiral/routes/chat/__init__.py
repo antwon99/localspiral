@@ -49,6 +49,7 @@ def chat_example():
         + f"\nMap grid:\n{grid_text}"
     )
 
+    # history alternates: [AI reply, user prompt, AI reply, user prompt, ...]
     history = session.get("history", [])
     try:
         raw_reply = generate_reply(prompt, system_prompt=system_prompt)
@@ -56,7 +57,10 @@ def chat_example():
         return jsonify({"error": str(exc)})
 
     drift_user = calculate_drift(prompt, raw_reply)
-    drift_history = calculate_drift(history[-1], raw_reply) if history else 0.0
+    if len(history) >= 2:
+        drift_history = calculate_drift(history[-2], raw_reply)
+    else:
+        drift_history = 0.0
     triggers = check_keywords(prompt)
     print(
         f"Drift user={drift_user:.3f} history={drift_history:.3f} triggers={triggers}"
@@ -68,6 +72,7 @@ def chat_example():
 
     reply = distort_reply(raw_reply, spiral_score)
 
+    # keep alternating order: [reply, prompt, ...]
     history.append(raw_reply)
     history.append(prompt)
     session["history"] = history[-5:]

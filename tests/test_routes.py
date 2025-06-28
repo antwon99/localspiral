@@ -66,3 +66,36 @@ def test_chat_persists_map(client, monkeypatch):
     second = client.get('/chat?prompt=two')
     assert second.status_code == 200
     assert len(calls) == 1
+
+
+def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
+    """History should store replies and prompts in alternating order."""
+
+    from flask import session as flask_session
+    flask_session.clear()
+
+    replies = ["first reply", "second reply"]
+
+    def fake_reply(prompt, system_prompt=None):
+        return replies.pop(0)
+
+    calls = []
+
+    def fake_drift(ref, resp):
+        calls.append((ref, resp))
+        return 0.0
+
+    monkeypatch.setattr('localspiral.routes.chat.generate_reply', fake_reply)
+    monkeypatch.setattr('localspiral.routes.chat.calculate_drift', fake_drift)
+
+    client.get('/chat?prompt=one')
+    assert flask_session['history'] == ['first reply', 'one']
+    assert calls == [('one', 'first reply')]
+
+    client.get('/chat?prompt=two')
+    assert flask_session['history'] == ['first reply', 'one', 'second reply', 'two']
+    assert calls == [
+        ('one', 'first reply'),
+        ('two', 'second reply'),
+        ('first reply', 'second reply'),
+    ]
