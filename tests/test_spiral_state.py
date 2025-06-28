@@ -1,4 +1,3 @@
-import pytest
 from localspiral.utils import spiral_state
 
 

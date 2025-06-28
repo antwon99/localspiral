@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from localspiral.config import get_openai_api_key
 
