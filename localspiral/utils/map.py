@@ -22,7 +22,9 @@ def generate_map(seed: int) -> list[list[str]]:
     return grid
 
 
-def with_player_marker(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> list[list[str]]:
+def with_player_marker(
+    grid: Iterable[Iterable[str]], loc: Tuple[int, int]
+) -> list[list[str]]:
     """Return a copy of ``grid`` with ``'@'`` placed at ``loc``.
 
     The original grid is not modified.
@@ -47,4 +49,3 @@ def with_entities(
                 if new_grid[r][c] == ".":
                     new_grid[r][c] = "X"
     return new_grid
-

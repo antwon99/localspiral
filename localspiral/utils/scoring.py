@@ -15,10 +15,9 @@ import math
 import os
 from typing import Any, Counter as CounterType
 from urllib import request
+from ..config import get_openai_api_key
 
 _EMBED_URL = "https://api.openai.com/v1/embeddings"
-
-from ..config import get_openai_api_key
 
 
 def _bow_embed(text: str) -> CounterType[str]:
@@ -26,7 +25,9 @@ def _bow_embed(text: str) -> CounterType[str]:
     return Counter(text.lower().split())
 
 
-def _openai_embed(text: str, model: str = "text-embedding-3-small") -> list[float]:
+def _openai_embed(
+    text: str, model: str = "text-embedding-3-small"
+) -> list[float]:
     """Return embedding from OpenAI's API."""
     api_key = get_openai_api_key()
     headers = {
@@ -35,14 +36,18 @@ def _openai_embed(text: str, model: str = "text-embedding-3-small") -> list[floa
     }
     payload = {"model": model, "input": text}
     data = json.dumps(payload).encode("utf-8")
-    req = request.Request(_EMBED_URL, data=data, headers=headers, method="POST")
+    req = request.Request(
+        _EMBED_URL, data=data, headers=headers, method="POST"
+    )
     with request.urlopen(req) as resp:
         body = resp.read().decode("utf-8")
     parsed: Any = json.loads(body)
     return parsed["data"][0]["embedding"]
 
 
-def _cosine_similarity_sparse(vec1: CounterType[str], vec2: CounterType[str]) -> float:
+def _cosine_similarity_sparse(
+    vec1: CounterType[str], vec2: CounterType[str]
+) -> float:
     """Return cosine similarity between two sparse vectors."""
     keys = set(vec1) | set(vec2)
     dot_product = sum(vec1.get(k, 0) * vec2.get(k, 0) for k in keys)

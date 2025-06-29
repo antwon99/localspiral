@@ -43,7 +43,9 @@ def load_character(path: str) -> dict:
 
     missing = REQUIRED_FIELDS - data.keys()
     if missing:
-        missing_list=", ".join(sorted(missing))
-        raise ValueError(f"Character file {path} missing fields: {missing_list}")
+        missing_list = ", ".join(sorted(missing))
+        raise ValueError(
+            f"Character file {path} missing fields: {missing_list}"
+        )
 
     return data
