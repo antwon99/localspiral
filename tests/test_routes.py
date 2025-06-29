@@ -29,10 +29,6 @@ def test_chat_endpoint(client, monkeypatch):
         'localspiral.utils.game_loop.add_enemy',
         lambda state: None
     )
-    monkeypatch.setattr(
-        'localspiral.utils.game_loop.add_enemy',
-        lambda state: None
-    )
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
