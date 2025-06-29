@@ -151,27 +151,11 @@ Add unit tests to `/tests/` where possible.
 
 ---
 
-## Codex Command Examples
-
-For **Code Mode prompts**, Codex should:
-
-- Wire up existing systems (e.g., "connect turn system to chat input")
-- Modularize logic (e.g., "extract spiral update into utils/spiral.py")
-- Fix bugs (e.g., "Tyler's coords desync after two moves")
-
-For **Ask Mode prompts**, Codex should:
-
-- Scan across files
-- Offer structural insights
-- Suggest modular changes without merging them
-
----
 
 ## Final Principles
 
 - Prioritize **narrative integrity** over mechanical polish
 - Always explain fixes in plain English unless explicitly told not to
-- Avoid speculative abstractions—focus on the systems described here
 - Match all narration and behavior to Tyler’s persona
 - Remember: **The player doesn’t control Tyler—they stabilize him.**
 
