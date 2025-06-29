@@ -226,7 +226,11 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     history = state.history
     history.append(raw_reply)
     history.append(prompt)
-    state.history = history[-5:]
+    # Remove oldest entries in prompt/reply pairs to keep history length even
+    while len(history) > 6:
+        history.pop(0)
+        history.pop(0)
+    state.history = history
     state.spiral_score = spiral_score
     state.update_sanity()
     return reply, state
