@@ -14,11 +14,11 @@ def client(app):
 
 def test_chat_endpoint(client, monkeypatch):
     monkeypatch.setattr(
-        'localspiral.routes.chat.generate_reply',
+        'localspiral.utils.game_loop.generate_reply',
         lambda prompt, system_prompt=None: 'ok'
     )
     monkeypatch.setattr(
-        'localspiral.routes.chat.mutate_perceived_grid',
+        'localspiral.utils.game_loop.mutate_perceived_grid',
         lambda grid, score: grid
     )
     response = client.get('/chat?prompt=hello')
@@ -102,11 +102,11 @@ def test_chat_persists_map(client, monkeypatch):
         calls.append(seed)
         return [['.' for _ in range(10)] for _ in range(10)]
 
-    monkeypatch.setattr('localspiral.routes.chat.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.game_loop.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.chat.generate_reply',
+    monkeypatch.setattr('localspiral.utils.game_loop.generate_reply',
                         lambda prompt, system_prompt=None: 'ok')
-    monkeypatch.setattr('localspiral.routes.chat.mutate_perceived_grid',
+    monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
 
     first = client.get('/chat?prompt=one')
@@ -137,9 +137,9 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
         calls.append((ref, resp))
         return 0.0
 
-    monkeypatch.setattr('localspiral.routes.chat.generate_reply', fake_reply)
-    monkeypatch.setattr('localspiral.routes.chat.calculate_drift', fake_drift)
-    monkeypatch.setattr('localspiral.routes.chat.mutate_perceived_grid',
+    monkeypatch.setattr('localspiral.utils.game_loop.generate_reply', fake_reply)
+    monkeypatch.setattr('localspiral.utils.game_loop.calculate_drift', fake_drift)
+    monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
 
     client.get('/chat?prompt=one')
@@ -162,15 +162,15 @@ def test_chat_updates_spiral_score(client, monkeypatch):
     flask_session.clear()
 
     monkeypatch.setattr(
-        'localspiral.routes.chat.generate_reply',
+        'localspiral.utils.game_loop.generate_reply',
         lambda prompt, system_prompt=None: 'reply'
     )
     monkeypatch.setattr(
-        'localspiral.routes.chat.mutate_perceived_grid',
+        'localspiral.utils.game_loop.mutate_perceived_grid',
         lambda grid, score: grid
     )
     monkeypatch.setattr(
-        'localspiral.routes.chat.calculate_drift',
+        'localspiral.utils.game_loop.calculate_drift',
         lambda ref, resp: 0.5
     )
 

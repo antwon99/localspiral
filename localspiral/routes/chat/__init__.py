@@ -13,9 +13,9 @@ from ...utils.spiral_state import (
     get_available_directions,
     check_keywords,
 )
+from ...utils.spiral_state import analyze_map, spiral_status
 from ...utils.state import load_game_state, save_game_state
-
-from ...utils.dialogue import generate_reply
+from ...utils.game_loop import process_turn
 
 chat_bp = Blueprint("chat", __name__)
 logger = logging.getLogger(__name__)
@@ -87,49 +87,15 @@ def chat_example():
     # history alternates: [AI reply, user prompt, AI reply, user prompt, ...]
     history = state.history
     try:
-        raw_reply = generate_reply(prompt, system_prompt=system_prompt)
+        reply, state = process_turn(prompt, state)
     except RuntimeError as exc:
         return jsonify({"error": str(exc)})
 
-    drift_user = calculate_drift(prompt, raw_reply)
-    if len(history) >= 2:
-        drift_history = calculate_drift(history[-2], raw_reply)
-    else:
-        drift_history = 0.0
-    trigger_words = None
-    if isinstance(state.character, dict):
-        trigger_words = state.character.get("spiral_triggers")
-    triggers = check_keywords(prompt, trigger_words)
-    logger.debug(
-        "Drift user=%.3f history=%.3f triggers=%s",
-        drift_user,
-        drift_history,
-        triggers,
-    )
-    spiral_score += drift_user + drift_history + triggers * 0.5
-    if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
-        logger.debug("Drift user=%.3f history=%.3f", drift_user, drift_history)
-        spiral_score = max(0.0, spiral_score - 0.05)
-        state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
-    else:
-        state.paranoia_level = min(
-            10.0, state.paranoia_level + drift_user + drift_history + triggers * 0.5
-        )
-
-    reply, hallucination = distort_reply(raw_reply, spiral_score, return_hallucination=True)
-    if hallucination:
-        state.last_hallucination = hallucination
-    if spiral_score >= 5:
-        reply += f" (You perceive {perceived_analysis.get('description')})"
-
-    # keep alternating order: [reply, prompt, ...]
-    history.append(raw_reply)
-    history.append(prompt)
-    state.history = history[-5:]
-    state.spiral_score = spiral_score
-    state.update_sanity()
-    breakdown = state.sanity <= 0
     save_game_state(state)
+
+    analysis = analyze_map(state.map_grid or [])
+    perceived_analysis = analyze_map(state.perceived_grid or [])
+    breakdown = state.sanity <= 0
 
     state_dict = {
         "spiral_score": round(state.spiral_score, 3),
