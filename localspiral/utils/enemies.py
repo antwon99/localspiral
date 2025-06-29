@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .state import GameState
 
 from .map import generate_map
 
