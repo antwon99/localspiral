@@ -104,9 +104,12 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
 
     state.turn_count += 1
     lower = prompt.lower()
+    movement_dir: str | None = None
+    movement_success = False
     for direction in _DIRECTION_VECTORS:
         if direction in lower:
-            apply_move(state, direction)
+            movement_dir = direction
+            movement_success = apply_move(state, direction)
             break
 
     display = advance_state(state)
@@ -138,8 +141,15 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     if state.paranoia_level:
         base_prompt += f" Paranoia level {state.paranoia_level:.2f}."
 
+    move_line = ""
+    if movement_dir:
+        outcome = "succeeded" if movement_success else "blocked"
+        move_line = f"\nMovement attempt: {movement_dir} ({outcome})"
+
     system_prompt = (
         base_prompt
+        + f"\nTurn: {state.turn_count}"
+        + move_line
         + f"\nCurrent map description: {analysis.get('description')}"
         + f"\nHallucinated map description: {perceived_analysis.get('description')}"
         + f"\nLocation: {location}"

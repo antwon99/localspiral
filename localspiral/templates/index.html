@@ -105,10 +105,16 @@
     </div>
     <script>
         function fetchJson(url) {
-            return fetch(url).then((res) => {
-                if (!res.ok) throw new Error('Request failed');
-                return res.json();
-            });
+            return fetch(url).then((res) =>
+                res.json().then((data) => {
+                    if (!res.ok) {
+                        const err = new Error('Request failed');
+                        err.data = data;
+                        throw err;
+                    }
+                    return data;
+                })
+            );
         }
 
         function renderMapHTML(data) {
@@ -250,8 +256,12 @@
                             mapOutput.innerHTML = renderMapHTML(data);
                         }
                     })
-                    .catch(() => {
-                        mapOutput.textContent = 'Request failed.';
+                    .catch((err) => {
+                        if (err.data && err.data.error) {
+                            mapOutput.textContent = err.data.error;
+                        } else {
+                            mapOutput.textContent = 'Request failed.';
+                        }
                     });
             }
 
