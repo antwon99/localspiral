@@ -72,6 +72,26 @@ def test_move_endpoint(client, monkeypatch):
     assert 'directions' in data
 
 
+def test_move_blocked_returns_error(client, monkeypatch):
+    """Movement beyond the map should return a 400 error."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(10)] for _ in range(10)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+
+    client.get('/map?seed=1')
+    flask_session['game_state']['player_loc'] = (0, 5)
+    resp = client.get('/move?dir=north')
+    assert resp.status_code == 400
+    assert resp.get_json() == {'error': 'Blocked'}
+
+
 def test_chat_persists_map(client, monkeypatch):
     from flask import session as flask_session
     flask_session.clear()
