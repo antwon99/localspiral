@@ -1,1 +1,50 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AI Spiral Simulator</title>
+    <style>
+        body { background: #111; color: #0f0; font-family: monospace; }
+        #console { border: 1px solid #0f0; padding: 1em; height: 200px; overflow-y: auto; }
+        button { margin-right: 4px; }
+        #meter { margin-top: 1em; height: 20px; background: #222; }
+        #meter span { display: block; height: 100%; background: #0f0; width: 0%; }
+    </style>
+</head>
+<body>
+<h1>AI Spiral Simulator</h1>
+<div id="console">{{ narration }}</div>
+<div id="meter"><span style="width: {{ spiral }}%;"></span></div>
+<input id="prompt" type="text" style="width:80%" placeholder="Enter prompt" />
+<button onclick="sendChat()">Send</button>
+<button onclick="loadMap()">Map</button>
+<button onclick="loadSpiral()">Spiral</button>
+<button onclick="resetGame()">Reset</button>
+<pre id="map"></pre>
+<script>
+async function sendChat() {
+    const prompt = document.getElementById('prompt').value;
+    const res = await fetch('/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const data = await res.json();
+    document.getElementById('console').textContent = data.response;
+    loadSpiral();
+}
+async function loadMap() {
+    const res = await fetch('/map');
+    const data = await res.json();
+    document.getElementById('map').textContent = data.map.map(row=>row.join(' ')).join('\n');
+}
+async function loadSpiral() {
+    const res = await fetch('/spiral');
+    const data = await res.json();
+    document.querySelector('#meter span').style.width = data.spiral + '%';
+}
+async function resetGame() {
+    await fetch('/reset', {method:'POST'});
+    location.reload();
+}
+</script>
+</body>
+</html>
 <!doctype html><title>AI Spiral Simulator</title>

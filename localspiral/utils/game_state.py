@@ -13,6 +13,7 @@ class GameState:
         self.spiral = 0
         self.turn = 0
         self.position = (0, 0)
+        self.last_narration = self.character.get("intro_prompt", "")
 
 
 GAME_STATE = GameState()
