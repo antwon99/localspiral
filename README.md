@@ -80,5 +80,5 @@ If you're using GitHub Copilot/Codex, refer to `AGENTS.md` for the in-depth rule
 
 ---
 
-For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `moonshots` and `old` branches for alternate timelines.
+For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `main` and `old` branches for alternate timelines.
 
