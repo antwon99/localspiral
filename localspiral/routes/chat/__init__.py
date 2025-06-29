@@ -35,15 +35,17 @@ def chat_example():
     if grid is None:
         grid = generate_map(seed)
         state.map_grid = grid
-    perceived = state.perceived_grid
-    if perceived is None:
-        perceived = [row[:] for row in grid]
     location = state.player_loc
-    grid = [row[:] for row in grid]
-    if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
-        grid[location[0]][location[1]] = "@"
-    perceived = mutate_perceived_grid(perceived, spiral_score)
+
+    # Work with a copy of the real grid so the session state remains pristine.
+    display_grid = [row[:] for row in grid]
+    if 0 <= location[0] < len(display_grid) and 0 <= location[1] < len(display_grid[0]):
+        display_grid[location[0]][location[1]] = "@"
+
+    # Hallucinate the version shown to the user based on the spiral score.
+    perceived = mutate_perceived_grid(display_grid, spiral_score)
     state.perceived_grid = perceived
+
     analysis = analyze_map(state.map_grid)
     perceived_analysis = analyze_map(perceived)
     surroundings = describe_surroundings(perceived, location)
