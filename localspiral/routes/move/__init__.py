@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from ...utils.map import generate_map, with_entities
 from ...utils.spiral_state import analyze_map, get_available_directions
+from ...utils.game_loop import apply_move, advance_state
 from ...utils.state import load_game_state, save_game_state
 
 move_bp = Blueprint("move", __name__)
@@ -25,25 +26,17 @@ def move_player():
     if direction not in DIRECTIONS:
         return jsonify({"error": "Invalid direction"}), 400
 
-    dx, dy = DIRECTIONS[direction]
-
     state = load_game_state()
     grid = state.map_grid
     if grid is None:
         grid = generate_map(state.map_seed)
         state.map_grid = grid
 
-    x, y = state.player_loc
-    new_x = x + dx
-    new_y = y + dy
-    if not (0 <= new_x < len(grid) and 0 <= new_y < len(grid[0])):
-        save_game_state(state)
-        return jsonify({"error": "Blocked"}), 400
-    if grid[new_x][new_y] == "#":
+    if not apply_move(state, direction):
         save_game_state(state)
         return jsonify({"error": "Blocked"}), 400
 
-    state.player_loc = (new_x, new_y)
+    advance_state(state)
     analysis = analyze_map(grid)
     location = state.player_loc
     directions = get_available_directions(grid, location)

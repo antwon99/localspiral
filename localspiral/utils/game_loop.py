@@ -4,19 +4,20 @@ from __future__ import annotations
 
 from typing import Tuple
 
-from .map import generate_map
+from .map import generate_map, with_entities
 from .dialogue import generate_reply
 from .scoring import calculate_drift
 from .spiral_state import (
     analyze_map,
     mutate_perceived_grid,
     describe_surroundings,
+    describe_location,
     distort_reply,
     spiral_status,
     check_keywords,
 )
 from .state import GameState
-from .enemies import update_enemies
+from .enemies import update_enemies, add_enemy
 
 
 _DIRECTION_VECTORS = {
@@ -65,6 +66,34 @@ def apply_move(state: GameState, direction: str) -> bool:
     return True
 
 
+def _clean_entities(grid: list[list[str]]) -> list[list[str]]:
+    """Return ``grid`` with any entity markers replaced by dots."""
+    return [[cell if cell not in {'@', 'X'} else '.' for cell in row] for row in grid]
+
+
+def advance_state(state: GameState) -> list[list[str]]:
+    """Update enemy positions and hallucinated view for the current turn.
+
+    The returned grid includes entity markers and hallucination effects for
+    use in narration while ``state.perceived_grid`` stores a clean version.
+    """
+    grid = state.map_grid
+    if grid is None:
+        grid = generate_map(state.map_seed)
+        state.map_grid = grid
+
+    if not state.enemies:
+        add_enemy(state)
+
+    update_enemies(state)
+
+    enemy_positions = [e.position for e in state.enemies]
+    display = with_entities(grid, state.player_loc, enemy_positions)
+    hallucinated = mutate_perceived_grid(display, state.spiral_score)
+    state.perceived_grid = _clean_entities(hallucinated)
+    return hallucinated
+
+
 def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     """Process a single turn of user input.
 
@@ -79,32 +108,17 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
             apply_move(state, direction)
             break
 
+    display = advance_state(state)
     grid = state.map_grid
-    if grid is None:
-        grid = generate_map(state.map_seed)
-        state.map_grid = grid
-
-    update_enemies(state)
-    grid = state.map_grid
-
     location = state.player_loc
-    if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
-        grid[location[0]][location[1]] = "@"
-    for enemy in state.enemies:
-        r, c = enemy.position
-        if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
-            grid[r][c] = "X"
-
-    perceived = state.perceived_grid
-    if perceived is None:
-        perceived = [row[:] for row in grid]
-    perceived = mutate_perceived_grid(perceived, state.spiral_score)
-    state.perceived_grid = perceived
 
     analysis = analyze_map(grid)
-    perceived_analysis = analyze_map(perceived)
-    surroundings = describe_surroundings(perceived, location)
-    grid_text = "\n".join("".join(row) for row in perceived)
+    perceived_analysis = analyze_map(display)
+    surroundings = describe_surroundings(display, location)
+    location_desc = describe_location(display, location)
+    nearby = [e for e in state.enemies if abs(e.position[0]-location[0]) <= 1 and abs(e.position[1]-location[1]) <= 1]
+    enemy_info = f"{len(nearby)} enemy{'ies' if len(nearby)!=1 else ''} nearby" if nearby else "no enemies nearby"
+    grid_text = "\n".join("".join(row) for row in display)
 
     char_data = state.character or {}
     base_prompt = f"You are {char_data.get('display_name', 'Tyler Scienceman')}"
@@ -127,7 +141,9 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         + f"\nCurrent map description: {analysis.get('description')}"
         + f"\nHallucinated map description: {perceived_analysis.get('description')}"
         + f"\nLocation: {location}"
+        + f"\nOn this tile: {location_desc}"
         + f"\nNearby: {surroundings}"
+        + f"\n{enemy_info}"
         + f"\nSpiral status: {spiral_status(state.spiral_score)} ({state.spiral_score:.2f})"
         + f"\nMap grid:\n{grid_text}"
     )
