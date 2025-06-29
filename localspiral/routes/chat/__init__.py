@@ -41,15 +41,19 @@ def chat_example():
     display_grid = with_player_marker(grid, location)
 
     # Hallucinate the version shown to the user based on the spiral score.
-    perceived = mutate_perceived_grid(display_grid, spiral_score)
-    state.perceived_grid = perceived
+    hallucinated_display = mutate_perceived_grid(display_grid, spiral_score)
 
-    analysis = analyze_map(state.map_grid)
-    perceived_analysis = analyze_map(perceived)
-    surroundings = describe_surroundings(perceived, location)
-    location_desc = describe_location(perceived, location)
+    def _clean_at(g):
+        return [[cell if cell != "@" else "." for cell in row] for row in g]
+
+    state.perceived_grid = _clean_at(hallucinated_display)
+
+    analysis = analyze_map(grid)
+    perceived_analysis = analyze_map(state.perceived_grid)
+    surroundings = describe_surroundings(state.perceived_grid, location)
+    location_desc = describe_location(state.perceived_grid, location)
     directions = get_available_directions(state.map_grid, state.player_loc)
-    grid_text = "\n".join("".join(row) for row in perceived)
+    grid_text = "\n".join("".join(row) for row in hallucinated_display)
 
     status = spiral_status(spiral_score)
 
