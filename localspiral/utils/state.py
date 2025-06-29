@@ -36,6 +36,13 @@ class GameState:
         self.sanity = max(0, base - int(self.spiral_score * 20))
 
 
+def _clean_grid(grid: List[List[str]] | None) -> List[List[str]] | None:
+    """Return ``grid`` with any ``'@'`` markers removed."""
+    if grid is None:
+        return None
+    return [[cell if cell != '@' else '.' for cell in row] for row in grid]
+
+
 def load_game_state() -> GameState:
     """Return :class:`GameState` instance from the session."""
     data = session.get("game_state")
@@ -52,7 +59,7 @@ def load_game_state() -> GameState:
     return GameState(
         spiral_score=data.get("spiral_score", 0.0),
         sanity=data.get("sanity", character.get("starting_sanity", 100)),
-        map_grid=data.get("map_grid"),
+        map_grid=_clean_grid(data.get("map_grid")),
         map_seed=data.get("map_seed", random.randint(0, 2**32 - 1)),
         player_loc=tuple(data.get("player_loc", (5, 5))),
         perceived_grid=data.get("perceived_grid"),
@@ -65,4 +72,5 @@ def load_game_state() -> GameState:
 
 def save_game_state(state: GameState) -> None:
     """Persist ``state`` to the session."""
+    state.map_grid = _clean_grid(state.map_grid)
     session["game_state"] = asdict(state)

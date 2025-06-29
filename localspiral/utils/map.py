@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from typing import Iterable, Tuple
 
 
 def generate_map(seed: int) -> list[list[str]]:
@@ -19,3 +20,16 @@ def generate_map(seed: int) -> list[list[str]]:
         row = ['#' if rng.random() < 0.2 else '.' for _ in range(width)]
         grid.append(row)
     return grid
+
+
+def with_player_marker(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> list[list[str]]:
+    """Return a copy of ``grid`` with ``'@'`` placed at ``loc``.
+
+    The original grid is not modified.
+    """
+    new_grid = [list(row) for row in grid]
+    r, c = loc
+    if 0 <= r < len(new_grid) and 0 <= c < len(new_grid[0]):
+        new_grid[r][c] = "@"
+    return new_grid
+
