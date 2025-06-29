@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from .utils.game_state import GAME_STATE
+from .utils import game_state
 
 from .routes.chat import chat_bp
 from .routes.spiral import spiral_bp
@@ -18,10 +18,9 @@ app.register_blueprint(game_bp)
 def index():
     return render_template(
         "index.html",
-        narration=GAME_STATE.last_narration,
-        spiral=GAME_STATE.spiral,
+        narration=game_state.GAME_STATE.last_narration,
+        spiral=game_state.GAME_STATE.spiral,
     )
-    return render_template("index.html")
 
 
 if __name__ == "__main__":

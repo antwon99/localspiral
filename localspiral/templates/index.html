@@ -5,8 +5,23 @@
     <meta charset="utf-8">
     <title>AI Spiral Simulator</title>
     <style>
-        body { background: #111; color: #0f0; font-family: monospace; }
-        #console { border: 1px solid #0f0; padding: 1em; height: 200px; overflow-y: auto; }
+        body {
+            background: #111;
+            color: #0f0;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #console {
+            border: 1px solid #0f0;
+            padding: 1em;
+            height: 200px;
+            overflow-y: auto;
+            text-align: center;
+        }
         button { margin-right: 4px; }
         #meter { margin-top: 1em; height: 20px; background: #222; }
         #meter span { display: block; height: 100%; background: #0f0; width: 0%; }
@@ -16,11 +31,14 @@
 <h1>AI Spiral Simulator</h1>
 <div id="console">{{ narration }}</div>
 <div id="meter"><span style="width: {{ spiral }}%;"></span></div>
+<div id="spiral-value">{{ spiral }}</div>
 <input id="prompt" type="text" style="width:80%" placeholder="Enter prompt" />
-<button onclick="sendChat()">Send</button>
-<button onclick="loadMap()">Map</button>
-<button onclick="loadSpiral()">Spiral</button>
-<button onclick="resetGame()">Reset</button>
+<div>
+    <button onclick="sendChat()">Send</button>
+    <button onclick="loadMap()">Map</button>
+    <button onclick="loadSpiral()">Spiral</button>
+    <button onclick="resetGame()">Reset</button>
+</div>
 <pre id="map"></pre>
 <script>
 async function sendChat() {
@@ -28,7 +46,9 @@ async function sendChat() {
     const res = await fetch('/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const data = await res.json();
     document.getElementById('console').textContent = data.response;
-    loadSpiral();
+    document.getElementById('spiral-value').textContent = data.spiral;
+    document.querySelector('#meter span').style.width = data.spiral + '%';
+    document.getElementById('map').textContent = data.map.map(row=>row.join(' ')).join('\n');
 }
 async function loadMap() {
     const res = await fetch('/map');
@@ -47,4 +67,3 @@ async function resetGame() {
 </script>
 </body>
 </html>
-<!doctype html><title>AI Spiral Simulator</title>
