@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Tuple
+import random
 
 from .map import generate_map, with_entities
 from .dialogue import generate_reply
@@ -85,8 +86,11 @@ def advance_state(state: GameState) -> list[list[str]]:
         grid = generate_map(state.map_seed)
         state.map_grid = grid
 
-    if not state.enemies:
+    if not state.enemies or random.random() < 0.25:
         add_enemy(state)
+    if state.turn_count and state.turn_count % 5 == 0:
+        add_enemy(state, hallucination=True)
+        state.last_hallucination = "A flickering foe looms."
 
     update_enemies(state)
 
@@ -197,10 +201,10 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     spiral_score = state.spiral_score
     spiral_score += drift_user + drift_history + triggers * 0.5
     spiral_score -= anchors * 0.5
-    spiral_score = max(0.0, spiral_score)
+    spiral_score = max(0.0, spiral_score - 0.02)
 
     paranoia_change = (
-        drift_user + drift_history + triggers * 0.5 - anchors * 0.2
+        drift_user + drift_history + triggers * 0.5 - anchors * 0.2 + 0.05
     )
     state.paranoia_level = max(
         0.0, min(10.0, state.paranoia_level + paranoia_change)
