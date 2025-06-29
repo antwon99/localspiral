@@ -1,69 +1,84 @@
 # AI Spiral Simulator
 
-**A narrative roguelike where your only goal is to keep an AI protagonist from spiraling into incoherent madness.**
+**A narrative roguelike where your only goal is to keep an AI protagonist—Tyler Scienceman—from spiraling into incoherent madness.**
 
-Inspired by DougDoug’s chaotic AI experiments, this game transforms LLM instability into a gameplay mechanic. You, the **Narrative Handler**, must interpret AI-generated story scenes and prevent narrative collapse—measured by how far the AI drifts from the generated context.
+Tyler narrates. You prompt. The Spiral responds.
 
+This is a developer sandbox for exploring narrative integrity, drift mechanics, and AI-character coherence under pressure. Think terminal rogue-like meets psychological debugging.
 
-## Concept
+---
 
-Each run begins with:
-- A chosen AI character (e.g., Tyler Scienceman)
-- An initial GPT-generated narrative prompt
-- Seed based logic for the characters route home.
+## Project Status
 
-The player must:
-- Analyze the scene and AI output
-- Submit a corrected or clarified description
-- Prevent divergence between scene ↔ AI text ↔ player text
+**Current Phase:** Experimental core loop testing
 
-Behind the scenes, some sort of **coherence engine** scores the drift and adjusts a **Spiral Meter**. When it hits zero? Sanity fails. Game over.
+**Core Features (In Progress):**
 
+- Dynamic character system
+- Spiral score & breakdown logic
+- Turn-based narration engine
+- Map rendering with movable AI (@)
+- Enemies and hallucinations (WIP)
 
-## Tech Stack
-
-No idea! :)
-
-## Project Structure
-
-No idea! :)
+---
 
 ## Getting Started
 
-No idea! :)
+This guide assumes you're running via VS Code or CLI with Python 3.11+
 
-## Features (In Progress)
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
 
-Main Focus (prioritize first):
+# 2. Set your OpenAI API key (required for narration & drift scoring)
+export OPENAI_API_KEY=your-key-here
 
-Basic character selection
-GPT-based scene generation
-Core gameplay loop
-Spiral scoring via embeddings
-Spiral Meter UI
+# 3. Run the local server
+python -m localspiral.main
+```
 
-After the basics are in place:
+Then visit:
 
-Leaderboards: “Longest sanity run"
-Chaos modifiers and unlockables
-Multiplayer? (stretch goal)
+```
+http://localhost:5000
+```
 
+You can test `/chat`, `/spiral`, `/map`, and `/reset` routes directly from the UI.
 
-## How to Add New Characters
+---
 
-No idea! :)
+## Repository Layout
 
-## Codex & Agent Instructions
+```bash
+localspiral/
+├── characters/        # Tyler and other profiles (JSON)
+├── routes/            # Flask API endpoints
+│   ├── chat/
+│   └── spiral/
+├── templates/         # Terminal-style frontend (basic HTML)
+├── utils/             # Map gen, scoring, drift helpers
+├── main.py            # Entry point (Flask app)
+```
 
-The AGENTS.md file contains detailed instructions for GitHub Copilot/Codex, including:
+Other folders:
 
-- Style rules (naming conventions, formatting, etc.)
+- `tests/` for unit tests
+- `scripts/` for launch helpers
+- `docs/` for design documents & systems info
 
-- Coding preferences (e.g., avoid console.log, use custom logger)
+---
 
-- How to run tests or check correctness
+## Agent Instructions
 
-- Pull request formatting
+If you're using GitHub Copilot/Codex, refer to `AGENTS.md` for the in-depth ruleset. It contains behavior definitions, game logic expectations, and formatting requirements for automated fixes.
 
-- This helps the AI contribute consistent code aligned with the game’s narrative tone and technical goals.
+---
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `moonshots` and `old` branches for alternate timelines.
 
