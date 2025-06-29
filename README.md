@@ -16,6 +16,7 @@ This is a developer sandbox for exploring narrative integrity, drift mechanics, 
 
 - Dynamic character system
 - Spiral score & breakdown logic
+- Tone shifts and hallucinations at spiral thresholds
 - Turn-based narration engine
 - Map rendering with movable AI (@)
 - Enemies and hallucinations (WIP)

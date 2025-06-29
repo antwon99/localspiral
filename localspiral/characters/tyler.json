@@ -5,5 +5,12 @@
   "spiral_triggers": ["madness", "chaos"],
   "recovery_anchors": ["onward", "clarity"],
   "tone": "dry_satirical",
+  "spiral_thresholds": [25, 50, 75],
+  "tone_progression": [
+    "dry_satirical",
+    "tense",
+    "erratic",
+    "hallucinatory"
+  ],
   "intro_prompt": "I am Tyler Scienceman, recording my observations."
 }
