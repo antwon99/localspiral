@@ -69,6 +69,9 @@ class Flask:
                 result = view()
                 if isinstance(result, Response):
                     return result
+                if isinstance(result, tuple) and len(result) == 2:
+                    data, status = result
+                    return Response(data, status)
                 return Response(result, 200)
 
         return _Client()

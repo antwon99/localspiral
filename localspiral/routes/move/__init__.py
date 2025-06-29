@@ -38,10 +38,10 @@ def move_player():
     new_y = y + dy
     if not (0 <= new_x < len(grid) and 0 <= new_y < len(grid[0])):
         save_game_state(state)
-        return jsonify({"error": "Blocked"})
+        return jsonify({"error": "Blocked"}), 400
     if grid[new_x][new_y] == "#":
         save_game_state(state)
-        return jsonify({"error": "Blocked"})
+        return jsonify({"error": "Blocked"}), 400
 
     state.player_loc = (new_x, new_y)
     analysis = analyze_map(grid)

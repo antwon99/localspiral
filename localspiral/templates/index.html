@@ -244,10 +244,14 @@
             function move(dir) {
                 fetchJson(`/move?dir=${dir}`)
                     .then((data) => {
-                        if (data.grid) mapOutput.innerHTML = renderMapHTML(data);
+                        if (data.error) {
+                            mapOutput.textContent = data.error;
+                        } else if (data.grid) {
+                            mapOutput.innerHTML = renderMapHTML(data);
+                        }
                     })
                     .catch(() => {
-                        // ignore errors
+                        mapOutput.textContent = 'Request failed.';
                     });
             }
 
