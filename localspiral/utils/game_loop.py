@@ -102,6 +102,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     returned alongside the reply text.
     """
 
+    state.turn_count += 1
     lower = prompt.lower()
     for direction in _DIRECTION_VECTORS:
         if direction in lower:
