@@ -158,17 +158,25 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         drift_history = 0.0
 
     trigger_words = None
+    anchor_words = None
     if isinstance(state.character, dict):
         trigger_words = state.character.get("spiral_triggers")
+        anchor_words = state.character.get("recovery_anchors")
+
     triggers = check_keywords(prompt, trigger_words)
+    anchors = check_keywords(prompt, anchor_words)
 
     spiral_score = state.spiral_score
     spiral_score += drift_user + drift_history + triggers * 0.5
-    if drift_user < 0.2 and drift_history < 0.2 and triggers == 0:
+    spiral_score -= anchors * 0.5
+    spiral_score = max(0.0, spiral_score)
+
+    paranoia_change = drift_user + drift_history + triggers * 0.5 - anchors * 0.2
+    state.paranoia_level = max(0.0, min(10.0, state.paranoia_level + paranoia_change))
+
+    if drift_user < 0.2 and drift_history < 0.2 and triggers == 0 and anchors == 0:
         spiral_score = max(0.0, spiral_score - 0.05)
         state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
-    else:
-        state.paranoia_level = min(10.0, state.paranoia_level + drift_user + drift_history + triggers * 0.5)
 
     reply, hallucination = distort_reply(raw_reply, spiral_score, return_hallucination=True)
     if hallucination:
