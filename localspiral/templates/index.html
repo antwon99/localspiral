@@ -32,6 +32,7 @@
 <div id="console">{{ narration }}</div>
 <div id="meter"><span style="width: {{ spiral }}%;"></span></div>
 <div id="spiral-value">{{ spiral }}</div>
+<div id="turn-value">{{ turn }}</div>
 <input id="prompt" type="text" style="width:80%" placeholder="Enter prompt" />
 <div>
     <button onclick="sendChat()">Send</button>
@@ -47,6 +48,7 @@ async function sendChat() {
     const data = await res.json();
     document.getElementById('console').textContent = data.response;
     document.getElementById('spiral-value').textContent = data.spiral;
+    document.getElementById('turn-value').textContent = data.turn;
     document.querySelector('#meter span').style.width = data.spiral + '%';
     document.getElementById('map').textContent = data.map.map(row=>row.join(' ')).join('\n');
 }
