@@ -59,10 +59,6 @@ def load_game_state() -> GameState:
     if not isinstance(data, dict):
         character = load_character(str(CHARACTER_PATH))
         return GameState(character=character)
-        return GameState(
-            character=character,
-            sanity=character.get("starting_sanity", 100),
-        )
     character = data.get("character")
     if character is None:
         character = load_character(str(CHARACTER_PATH))
