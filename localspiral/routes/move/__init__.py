@@ -36,6 +36,7 @@ def move_player():
         save_game_state(state)
         return jsonify({"error": "Blocked"}), 400
 
+    state.turn_count += 1
     advance_state(state)
     analysis = analyze_map(grid)
     location = state.player_loc

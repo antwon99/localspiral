@@ -245,3 +245,35 @@ def test_map_grid_excludes_player_marker(client, monkeypatch):
     grid = flask_session['game_state']['map_grid']
     assert all(cell in '.#' for row in grid for cell in row)
 
+
+def test_chat_increments_turn_count(client, monkeypatch):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    monkeypatch.setattr('localspiral.utils.game_loop.generate_reply', lambda p, system_prompt=None: 'ok')
+    monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid', lambda g, s: g)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
+
+    client.get('/chat?prompt=hello')
+    assert flask_session['game_state']['turn_count'] == 1
+
+
+def test_move_increments_turn_count(client, monkeypatch):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(10)] for _ in range(10)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
+
+    client.get('/map?seed=1')
+    client.get('/move?dir=north')
+    assert flask_session['game_state']['turn_count'] == 1
+

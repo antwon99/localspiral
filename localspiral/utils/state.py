@@ -26,6 +26,7 @@ class GameState:
     map_seed: int = field(default_factory=lambda: random.randint(0, 2**32 - 1))
     player_loc: Tuple[int, int] = (5, 5)
     history: List[str] = field(default_factory=list)
+    turn_count: int = 0
     character: dict | None = None
     last_hallucination: str | None = None
     paranoia_level: float = 0.0
@@ -78,6 +79,7 @@ def load_game_state() -> GameState:
         player_loc=tuple(data.get("player_loc", (5, 5))),
         perceived_grid=data.get("perceived_grid"),
         history=list(data.get("history", [])),
+        turn_count=data.get("turn_count", 0),
         character=character,
         last_hallucination=data.get("last_hallucination"),
         paranoia_level=data.get("paranoia_level", 0.0),
