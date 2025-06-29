@@ -1,100 +1,84 @@
 # AI Spiral Simulator
 
-**A narrative roguelike where your only goal is to keep an AI protagonist from spiraling into incoherent madness.**
+**A narrative roguelike where your only goal is to keep an AI protagonist—Tyler Scienceman—from spiraling into incoherent madness.**
 
-This repository contains the barebones implementation so you can start experimenting quickly. It uses Python with [Flask](https://flask.palletsprojects.com/) for a lightweight API server.
+Tyler narrates. You prompt. The Spiral responds.
 
-## Project Structure
+This is a developer sandbox for exploring narrative integrity, drift mechanics, and AI-character coherence under pressure. Think terminal rogue-like meets psychological debugging.
 
-```
-localspiral/
-├── docs/                  # Additional documentation
-├── localspiral/
-│   ├── characters/        # Character profiles in JSON
-│   ├── routes/            # Anything incoming and outgoing
-│   │   ├── chat/          # /chat API handlers
-│   │   └── spiral/        # /spiral API handlers
-│   ├── templates/         # HTML templates (future)
-│   ├── utils/             # Scoring modules and helpers
-│   └── main.py            # Entry point for the Flask server
-├── tests/                 # Unit tests
-├── scripts/               # Helper scripts
-├── .gitignore
-├── LICENSE
-├── README.md              # This file
-├── AGENTS.md              # Instructions for the Codex agent
-├── requirements.txt       # Dependencies
-└── pyproject.toml         # Package configuration
-```
+---
+
+## Project Status
+
+**Current Phase:** Experimental core loop testing
+
+**Core Features (In Progress):**
+
+- Dynamic character system
+- Spiral score & breakdown logic
+- Turn-based narration engine
+- Map rendering with movable AI (@)
+- Enemies and hallucinations (WIP)
+
+---
+
 ## Getting Started
 
-1. **Install Python 3.11 or later.**
-2. Create a virtual environment:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-3. **Install the package in editable mode**:
-   ```bash
-   pip install -e .
-   ```
-4. **Run the included helper script**:
+This guide assumes you're running via VS Code or CLI with Python 3.11+
+
 ```bash
-./scripts/run_all.sh
-```
-   Or on Windows:
-```bat
-scripts\run.bat
-```
-5. Open `http://localhost:5000` in your browser. The root page now includes a
-   basic interface for testing the API. Type a prompt and click **Send** to call
-   the `/chat` route. Buttons are also provided to try the `/spiral` and `/map`
-   endpoints. The `/map` output now renders as a small HTML grid styled like an
-   old terminal so you can quickly inspect the generated layout. Each chat turn
-   also updates a persistent *spiral meter*. Press **Test /spiral** or check the
-   on-page display to see the current sanity level.
-   Buttons are also provided to try the `/spiral` and `/map` endpoints. The `/map` output now renders as a small HTML grid styled like an old terminal so you can quickly inspect the generated layout.
+# 1. Install dependencies
+pip install -r requirements.txt
 
-## OpenAI API Key
+# 2. Set your OpenAI API key (required for narration & drift scoring)
+export OPENAI_API_KEY=your-key-here
 
-Some features require an OpenAI API key. Set the variable `OPENAI_API_KEY` in your environment before running the server:
+# 3. Run the local server
+python -m localspiral.main
+```
+
+Then visit:
+
+```
+http://localhost:5000
+```
+
+You can test `/chat`, `/spiral`, `/map`, and `/reset` routes directly from the UI.
+
+---
+
+## Repository Layout
+
 ```bash
-export OPENAI_API_KEY=sk-your-key
-```
-On Windows PowerShell use:
-```powershell
-$env:OPENAI_API_KEY="sk-your-key"
-```
-You can also create a `.env` file with [python-dotenv](https://pypi.org/project/python-dotenv/). The application loads this file automatically.
-Create a file named `.env` containing:
-```
-OPENAI_API_KEY=sk-your-key
+localspiral/
+├── characters/        # Tyler and other profiles (JSON)
+├── routes/            # Flask API endpoints
+│   ├── chat/
+│   └── spiral/
+├── templates/         # Terminal-style frontend (basic HTML)
+├── utils/             # Map gen, scoring, drift helpers
+├── main.py            # Entry point (Flask app)
 ```
 
-## How to Add New Characters
+Other folders:
 
-Place a JSON file in `localspiral/characters/` following the format described in `docs/character_format.md`. The example `sample_character.json` shows all required fields.
+- `tests/` for unit tests
+- `scripts/` for launch helpers
+- `docs/` for design documents & systems info
 
-## Map Generation
+---
 
-The `localspiral.utils` package includes a tiny map generator for experiments.
-Use `generate_map(seed)` to produce a deterministic grid of ``'.'`` and ``'#'``
-tiles. Calling the function with the same seed always returns the same layout.
+## Agent Instructions
 
-Example:
+If you're using GitHub Copilot/Codex, refer to `AGENTS.md` for the in-depth ruleset. It contains behavior definitions, game logic expectations, and formatting requirements for automated fixes.
 
-```python
-from localspiral.utils.map import generate_map
+---
 
-grid = generate_map(123)
-for row in grid:
-    print("".join(row))
-```
+## License
 
-## Tests
+[MIT](LICENSE)
 
-Run tests with:
-```bash
-pytest
-```
-They cover basic utility functions and ensure the project imports correctly.
+---
+
+For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `moonshots` and `old` branches for alternate timelines.
+
