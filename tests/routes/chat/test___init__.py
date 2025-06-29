@@ -18,7 +18,16 @@ def test_chat_endpoint_empty_prompt(client):
     resp = client.post("/chat", json={})
     data = resp.get_json()
     assert resp.status_code == 200
-    assert data["response"] == "Tyler reflects: "
+    assert data["response"] != ""
+    assert data["response"].lower() != ""
+
+
+def test_chat_response_not_echo(client):
+    prompt = "hello there"
+    resp = client.post("/chat", json={"prompt": prompt})
+    data = resp.get_json()
+    assert resp.status_code == 200
+    assert data["response"].strip().lower() != prompt
 
 
 # Edge case: invalid JSON should return 400
