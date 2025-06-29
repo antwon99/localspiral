@@ -142,7 +142,12 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     from flask import session as flask_session
     flask_session.clear()
 
-    replies = ["first reply", "second reply"]
+    replies = [
+        "first reply",
+        "second reply",
+        "third reply",
+        "fourth reply",
+    ]
 
     def fake_reply(prompt, system_prompt=None):
         return replies.pop(0)
@@ -165,11 +170,28 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     assert calls == [('one', 'first reply')]
 
     client.get('/chat?prompt=two')
-    assert flask_session['game_state']['history'] == ['first reply', 'one', 'second reply', 'two']
+    assert flask_session['game_state']['history'] == [
+        'first reply', 'one', 'second reply', 'two'
+    ]
     assert calls == [
         ('one', 'first reply'),
         ('two', 'second reply'),
         ('first reply', 'second reply'),
+    ]
+
+    client.get('/chat?prompt=three')
+    client.get('/chat?prompt=four')
+    assert flask_session['game_state']['history'] == [
+        'second reply', 'two', 'third reply', 'three', 'fourth reply', 'four'
+    ]
+    assert calls == [
+        ('one', 'first reply'),
+        ('two', 'second reply'),
+        ('first reply', 'second reply'),
+        ('three', 'third reply'),
+        ('second reply', 'third reply'),
+        ('four', 'fourth reply'),
+        ('third reply', 'fourth reply'),
     ]
 
 
