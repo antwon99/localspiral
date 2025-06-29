@@ -12,7 +12,7 @@ class GameState:
         self.map = generate_map()
         self.spiral = 0
         self.turn = 0
-        self.position = (0, 0)
+        self.position = (len(self.map) // 2, len(self.map[0]) // 2)
         self.last_narration = self.character.get("intro_prompt", "")
 
 
