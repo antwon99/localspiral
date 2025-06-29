@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 
 from ...utils.spiral_state import analyze_map
 
-from ...utils.map import generate_map
+from ...utils.map import generate_map, with_player_marker
 from ...utils.state import load_game_state, save_game_state
 
 map_bp = Blueprint("map", __name__)
@@ -27,16 +27,14 @@ def get_map():
     state.map_grid = grid
     analysis = analyze_map(grid)
     location = state.player_loc
-    grid = [row[:] for row in state.map_grid]
-    if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
-        grid[location[0]][location[1]] = "@"
+    display = with_player_marker(state.map_grid, location)
     save_game_state(state)
     char_name = None
     if isinstance(state.character, dict):
         char_name = state.character.get("display_name")
     return jsonify({
         "seed": seed,
-        "grid": grid,
+        "grid": display,
         "analysis": analysis,
         "location": location,
         "display_name": char_name,

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 import logging
 
-from ...utils.map import generate_map
+from ...utils.map import generate_map, with_player_marker
 from ...utils.scoring import calculate_drift
 from ...utils.spiral_state import (
     analyze_map,
@@ -38,10 +38,7 @@ def chat_example():
         state.map_grid = grid
     location = state.player_loc
 
-    # Work with a copy of the real grid so the session state remains pristine.
-    display_grid = [row[:] for row in grid]
-    if 0 <= location[0] < len(display_grid) and 0 <= location[1] < len(display_grid[0]):
-        display_grid[location[0]][location[1]] = "@"
+    display_grid = with_player_marker(grid, location)
 
     # Hallucinate the version shown to the user based on the spiral score.
     perceived = mutate_perceived_grid(display_grid, spiral_score)
