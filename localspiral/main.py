@@ -21,6 +21,7 @@ def index():
         narration=GAME_STATE.last_narration,
         spiral=GAME_STATE.spiral,
     )
+    return render_template("index.html")
 
 
 if __name__ == "__main__":

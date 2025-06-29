@@ -1,3 +1,4 @@
+
 import os
 
 import openai
@@ -27,5 +28,7 @@ def chat():
     except Exception as exc:
         response = f"OpenAI error: {exc}"
     GAME_STATE.last_narration = response
+    # Placeholder response
+    response = f"Tyler hears: {prompt}"
     update_spiral(vars(GAME_STATE), prompt, response)
     return jsonify({"turn": GAME_STATE.turn, "response": response})
