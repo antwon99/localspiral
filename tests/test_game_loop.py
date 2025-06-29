@@ -27,6 +27,7 @@ def test_process_turn_updates_state(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.5)
     monkeypatch.setattr("localspiral.utils.game_loop.check_keywords", lambda text, words=None: 0)
     monkeypatch.setattr("localspiral.utils.game_loop.distort_reply", lambda t, s, return_hallucination=False: (t, None))
+    monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
 
     reply, new_state = process_turn("go east", state)
     assert reply == "ok"

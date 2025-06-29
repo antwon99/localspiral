@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 import logging
 
-from ...utils.map import generate_map, with_player_marker
+from ...utils.map import generate_map, with_entities
 from ...utils.scoring import calculate_drift
 from ...utils.spiral_state import (
     analyze_map,
@@ -38,13 +38,14 @@ def chat_example():
         state.map_grid = grid
     location = state.player_loc
 
-    display_grid = with_player_marker(grid, location)
+    enemy_positions = [e.position for e in state.enemies]
+    display_grid = with_entities(grid, location, enemy_positions)
 
     # Hallucinate the version shown to the user based on the spiral score.
     hallucinated_display = mutate_perceived_grid(display_grid, spiral_score)
 
     def _clean_at(g):
-        return [[cell if cell != "@" else "." for cell in row] for row in g]
+        return [[cell if cell not in {"@", "X"} else "." for cell in row] for row in g]
 
     state.perceived_grid = _clean_at(hallucinated_display)
 

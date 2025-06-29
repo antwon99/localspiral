@@ -21,6 +21,10 @@ def test_chat_endpoint(client, monkeypatch):
         'localspiral.utils.game_loop.mutate_perceived_grid',
         lambda grid, score: grid
     )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.update_enemies',
+        lambda state: None
+    )
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
@@ -104,10 +108,12 @@ def test_chat_persists_map(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.utils.game_loop.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.chat.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.game_loop.generate_reply',
                         lambda prompt, system_prompt=None: 'ok')
     monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
 
     first = client.get('/chat?prompt=one')
     assert first.status_code == 200
@@ -141,6 +147,7 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     monkeypatch.setattr('localspiral.utils.game_loop.calculate_drift', fake_drift)
     monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
 
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'] == ['first reply', 'one']
@@ -173,6 +180,10 @@ def test_chat_updates_spiral_score(client, monkeypatch):
         'localspiral.utils.game_loop.calculate_drift',
         lambda ref, resp: 0.5
     )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.update_enemies',
+        lambda state: None
+    )
 
     first = client.get('/chat?prompt=one')
     first_score = first.get_json()['state']['spiral_score']
@@ -204,13 +215,20 @@ def test_map_grid_excludes_player_marker(client, monkeypatch):
     grid = flask_session['game_state']['map_grid']
     assert all(cell in '.#' for row in grid for cell in row)
 
+    # add an enemy marker to ensure cleaning logic
+    flask_session['game_state']['enemies'] = [{'position': [1, 1], 'aggressive': False}]
+
     monkeypatch.setattr(
-        'localspiral.routes.chat.generate_reply',
+        'localspiral.utils.game_loop.generate_reply',
         lambda prompt, system_prompt=None: 'ok'
     )
     monkeypatch.setattr(
-        'localspiral.routes.chat.mutate_perceived_grid',
+        'localspiral.utils.game_loop.mutate_perceived_grid',
         lambda grid, score: grid
+    )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.update_enemies',
+        lambda state: None
     )
     client.get('/chat?prompt=hello')
     grid = flask_session['game_state']['map_grid']

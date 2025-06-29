@@ -16,6 +16,7 @@ from .spiral_state import (
     check_keywords,
 )
 from .state import GameState
+from .enemies import update_enemies
 
 
 _DIRECTION_VECTORS = {
@@ -83,9 +84,16 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         grid = generate_map(state.map_seed)
         state.map_grid = grid
 
+    update_enemies(state)
+    grid = state.map_grid
+
     location = state.player_loc
     if 0 <= location[0] < len(grid) and 0 <= location[1] < len(grid[0]):
         grid[location[0]][location[1]] = "@"
+    for enemy in state.enemies:
+        r, c = enemy.position
+        if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
+            grid[r][c] = "X"
 
     perceived = state.perceived_grid
     if perceived is None:
