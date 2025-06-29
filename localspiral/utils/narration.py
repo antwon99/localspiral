@@ -9,6 +9,9 @@ from __future__ import annotations
 
 import os
 from typing import List, Dict
+from dotenv import load_dotenv
+
+load_dotenv()
 
 try:
     import openai  # type: ignore

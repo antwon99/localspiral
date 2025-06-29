@@ -28,11 +28,11 @@ This is a developer sandbox for exploring narrative integrity, drift mechanics, 
 This guide assumes you're running via VS Code or CLI with Python 3.11+ (For now)
 
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+# 1. Create a virtual environment and install dependencies
+source scripts/setup.sh
 
-# 2. Set your OpenAI API key (required for narration & drift scoring)
-export OPENAI_API_KEY=your-key-here
+# 2. Add your OpenAI API key to `.env`
+echo "OPENAI_API_KEY=your-key-here" > .env
 
 # 3. Run the local server
 python -m localspiral.main
