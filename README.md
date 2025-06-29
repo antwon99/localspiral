@@ -24,7 +24,7 @@ This is a developer sandbox for exploring narrative integrity, drift mechanics, 
 
 ## Getting Started
 
-This guide assumes you're running via VS Code or CLI with Python 3.11+
+This guide assumes you're running via VS Code or CLI with Python 3.11+ (For now)
 
 ```bash
 # 1. Install dependencies
@@ -80,5 +80,5 @@ If you're using GitHub Copilot/Codex, refer to `AGENTS.md` for the in-depth rule
 
 ---
 
-For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `moonshots` and `old` branches for alternate timelines.
+For full vision, logic breakdowns, or to contribute: contact the project creator or explore the `moonshots` branch for the most recent test build, `main` for old builds, and `old` for the original build for alternate timelines.
 
