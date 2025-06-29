@@ -9,6 +9,7 @@ from ...utils.spiral_state import (
     mutate_perceived_grid,
     spiral_status,
     describe_surroundings,
+    get_available_directions,
     check_keywords,
 )
 from ...utils.state import load_game_state, save_game_state
@@ -46,6 +47,7 @@ def chat_example():
     analysis = analyze_map(state.map_grid)
     perceived_analysis = analyze_map(perceived)
     surroundings = describe_surroundings(perceived, location)
+    directions = get_available_directions(state.map_grid, state.player_loc)
     grid_text = "\n".join("".join(row) for row in perceived)
 
     status = spiral_status(spiral_score)
@@ -131,5 +133,6 @@ def chat_example():
         "location": state.player_loc,
         "description": analysis.get("description"),
         "perceived_description": perceived_analysis.get("description"),
+        "directions": directions,
     }
     return jsonify({"message": reply, "state": state_dict, "breakdown": breakdown})

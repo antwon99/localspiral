@@ -29,6 +29,7 @@ def test_chat_endpoint(client, monkeypatch):
     assert 'state' in data
     assert 'spiral_score' in data['state']
     assert 'perceived_description' in data['state']
+    assert 'directions' in data['state']
 
 
 def test_spiral_endpoint(client):
@@ -68,6 +69,7 @@ def test_move_endpoint(client, monkeypatch):
     assert resp.status_code == 200
     data = resp.get_json()
     assert tuple(data['location']) == (4, 5)
+    assert 'directions' in data
 
 
 def test_chat_persists_map(client, monkeypatch):

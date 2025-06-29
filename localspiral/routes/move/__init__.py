@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ...utils.map import generate_map
-from ...utils.spiral_state import analyze_map
+from ...utils.spiral_state import analyze_map, get_available_directions
 from ...utils.state import load_game_state, save_game_state
 
 move_bp = Blueprint("move", __name__)
@@ -46,8 +46,15 @@ def move_player():
     state.player_loc = (new_x, new_y)
     analysis = analyze_map(grid)
     location = state.player_loc
+    directions = get_available_directions(grid, location)
     grid = [row[:] for row in grid]
     grid[location[0]][location[1]] = "@"
 
     save_game_state(state)
-    return jsonify({"seed": state.map_seed, "grid": grid, "analysis": analysis, "location": location})
+    return jsonify({
+        "seed": state.map_seed,
+        "grid": grid,
+        "analysis": analysis,
+        "location": location,
+        "directions": directions,
+    })
