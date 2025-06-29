@@ -8,6 +8,8 @@ from flask import session
 from typing import List, Tuple
 from pathlib import Path
 
+from .enemies import Enemy
+
 from .characters import load_character
 
 CHARACTER_PATH = Path(__file__).resolve().parents[1] / "characters" / "tyler.json"
@@ -27,6 +29,7 @@ class GameState:
     character: dict | None = None
     last_hallucination: str | None = None
     paranoia_level: float = 0.0
+    enemies: List[Enemy] = field(default_factory=list)
 
     def update_sanity(self) -> None:
         """Recalculate sanity based on the current spiral score."""
@@ -37,10 +40,16 @@ class GameState:
 
 
 def _clean_grid(grid: List[List[str]] | None) -> List[List[str]] | None:
-    """Return ``grid`` with any ``'@'`` markers removed."""
+    """Return ``grid`` with any entity markers removed."""
     if grid is None:
         return None
-    return [[cell if cell != '@' else '.' for cell in row] for row in grid]
+    cleaned = []
+    for row in grid:
+        cleaned.append([
+            '.' if cell in {'@', 'X'} else cell
+            for cell in row
+        ])
+    return cleaned
 
 
 def load_game_state() -> GameState:
@@ -56,6 +65,11 @@ def load_game_state() -> GameState:
     character = data.get("character")
     if character is None:
         character = load_character(str(CHARACTER_PATH))
+    enemies = [
+        Enemy(tuple(e.get("position", (0, 0))), e.get("aggressive", False))
+        for e in data.get("enemies", [])
+        if isinstance(e, dict)
+    ]
     return GameState(
         spiral_score=data.get("spiral_score", 0.0),
         sanity=data.get("sanity", character.get("starting_sanity", 100)),
@@ -67,6 +81,7 @@ def load_game_state() -> GameState:
         character=character,
         last_hallucination=data.get("last_hallucination"),
         paranoia_level=data.get("paranoia_level", 0.0),
+        enemies=enemies,
     )
 
 

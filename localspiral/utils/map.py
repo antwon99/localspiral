@@ -33,3 +33,18 @@ def with_player_marker(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> l
         new_grid[r][c] = "@"
     return new_grid
 
+
+def with_entities(
+    grid: Iterable[Iterable[str]],
+    player_loc: Tuple[int, int],
+    enemies: Iterable[Tuple[int, int]] | None = None,
+) -> list[list[str]]:
+    """Return copy of ``grid`` with player and enemies marked."""
+    new_grid = with_player_marker(grid, player_loc)
+    if enemies:
+        for r, c in enemies:
+            if 0 <= r < len(new_grid) and 0 <= c < len(new_grid[0]):
+                if new_grid[r][c] == ".":
+                    new_grid[r][c] = "X"
+    return new_grid
+

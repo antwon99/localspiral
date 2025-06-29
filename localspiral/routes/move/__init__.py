@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from ...utils.map import generate_map, with_player_marker
+from ...utils.map import generate_map, with_entities
 from ...utils.spiral_state import analyze_map, get_available_directions
 from ...utils.state import load_game_state, save_game_state
 
@@ -47,7 +47,8 @@ def move_player():
     analysis = analyze_map(grid)
     location = state.player_loc
     directions = get_available_directions(grid, location)
-    display = with_player_marker(grid, location)
+    enemy_positions = [e.position for e in state.enemies]
+    display = with_entities(grid, location, enemy_positions)
 
     save_game_state(state)
     return jsonify({
