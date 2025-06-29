@@ -19,6 +19,7 @@ This is a developer sandbox for exploring narrative integrity, drift mechanics, 
 - Turn-based narration engine
 - Map rendering with movable AI (@)
 - Enemies and hallucinations (WIP)
+- Patrol patterns and hallucinated foes
 
 ---
 
@@ -65,6 +66,14 @@ Other folders:
 - `tests/` for unit tests
 - `scripts/` for launch helpers
 - `docs/` for design documents & systems info
+
+---
+
+### Enemy Mechanics
+
+Enemies can now follow set patrol routes or appear as hallucinated threats. A
+patrolling enemy cycles through a list of coordinates each turn, while a
+hallucinated enemy increases spiral score more dramatically when encountered.
 
 ---
 
