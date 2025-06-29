@@ -17,7 +17,7 @@ from .spiral_state import (
     check_keywords,
 )
 from .state import GameState
-from .enemies import update_enemies, add_enemy
+from .enemies import update_enemies, add_enemy, handle_enemy_encounters
 
 
 _DIRECTION_VECTORS = {
@@ -110,6 +110,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
             break
 
     display = advance_state(state)
+    encounter = handle_enemy_encounters(state)
     grid = state.map_grid
     location = state.player_loc
 
@@ -145,6 +146,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         + f"\nOn this tile: {location_desc}"
         + f"\nNearby: {surroundings}"
         + f"\n{enemy_info}"
+        + (f"\nEncounter: {encounter}" if encounter else "")
         + f"\nSpiral status: {spiral_status(state.spiral_score)} ({state.spiral_score:.2f})"
         + f"\nMap grid:\n{grid_text}"
     )
