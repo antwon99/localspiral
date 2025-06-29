@@ -1,6 +1,7 @@
 from typing import Iterable, List
 
 from .game_state import GameState
+from .sanity import adjust_sanity_from_spiral
 
 
 def update_spiral(game_state: GameState, prompt: str, response: str) -> None:
@@ -20,6 +21,7 @@ def update_spiral(game_state: GameState, prompt: str, response: str) -> None:
             increment += 5
 
     game_state.spiral = min(100, game_state.spiral + increment)
+    adjust_sanity_from_spiral(game_state, increment)
 
     thresholds: List[int] = sorted(game_state.character.get("spiral_thresholds", []))
     tones: List[str] = game_state.character.get(

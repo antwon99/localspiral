@@ -17,3 +17,10 @@ def test_update_spiral_triggers_hallucination_at_final_threshold():
     assert state.spiral == 75
     assert state.hallucinating is True
     assert state.character["tone"] == "hallucinatory"
+
+
+def test_update_spiral_decreases_sanity():
+    state = GameState()
+    starting = state.sanity
+    update_spiral(state, "", "")
+    assert state.sanity == starting - 1

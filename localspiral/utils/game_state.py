@@ -11,6 +11,7 @@ class GameState:
         self.character = load_character("tyler")
         self.map = generate_map()
         self.spiral = 0
+        self.sanity = self.character.get("starting_sanity", 100)
         self.turn = 0
         self.position = (len(self.map) // 2, len(self.map[0]) // 2)
         self.last_narration = self.character.get("intro_prompt", "")

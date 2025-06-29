@@ -23,8 +23,17 @@
             text-align: center;
         }
         button { margin-right: 4px; }
-        #meter { margin-top: 1em; height: 20px; background: #222; }
-        #meter span { display: block; height: 100%; background: #0f0; width: 0%; }
+        #meter, #sanity-meter {
+            margin-top: 1em;
+            height: 20px;
+            background: #222;
+        }
+        #meter span, #sanity-meter span {
+            display: block;
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+        }
     </style>
 </head>
 <body>
@@ -32,12 +41,15 @@
 <div id="console">{{ narration }}</div>
 <div id="meter"><span style="width: {{ spiral }}%;"></span></div>
 <div id="spiral-value">{{ spiral }}</div>
+<div id="sanity-meter"><span style="width: {{ sanity }}%;"></span></div>
+<div id="sanity-value">{{ sanity }}</div>
 <div id="turn-value">{{ turn }}</div>
 <input id="prompt" type="text" style="width:80%" placeholder="Enter prompt" />
 <div>
     <button onclick="sendChat()">Send</button>
     <button onclick="loadMap()">Map</button>
     <button onclick="loadSpiral()">Spiral</button>
+    <button onclick="loadSanity()">Sanity</button>
     <button onclick="resetGame()">Reset</button>
 </div>
 <pre id="map"></pre>
@@ -51,6 +63,7 @@ async function sendChat() {
     document.getElementById('turn-value').textContent = data.turn;
     document.querySelector('#meter span').style.width = data.spiral + '%';
     document.getElementById('map').textContent = data.map.map(row=>row.join(' ')).join('\n');
+    await loadSanity();
 }
 async function loadMap() {
     const res = await fetch('/map');
@@ -61,6 +74,12 @@ async function loadSpiral() {
     const res = await fetch('/spiral');
     const data = await res.json();
     document.querySelector('#meter span').style.width = data.spiral + '%';
+}
+async function loadSanity() {
+    const res = await fetch('/sanity');
+    const data = await res.json();
+    document.querySelector('#sanity-meter span').style.width = data.sanity + '%';
+    document.getElementById('sanity-value').textContent = data.sanity;
 }
 async function resetGame() {
     await fetch('/reset', {method:'POST'});
