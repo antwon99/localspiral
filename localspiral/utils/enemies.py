@@ -14,10 +14,13 @@ from .map import generate_map
 
 @dataclass
 class Enemy:
-    """Simple enemy entity."""
+    """Simple enemy entity with optional patrol and hallucination flags."""
 
     position: Tuple[int, int]
     aggressive: bool = False
+    patrol: List[Tuple[int, int]] | None = None
+    hallucination: bool = False
+    patrol_index: int = 0
 
 
 def add_enemy(
@@ -25,6 +28,8 @@ def add_enemy(
     position: Tuple[int, int] | None = None,
     *,
     aggressive: bool = False,
+    patrol: List[Tuple[int, int]] | None = None,
+    hallucination: bool = False,
 ) -> Enemy:
     """Add a new enemy to ``state`` at ``position`` or a random open tile."""
     grid = state.map_grid
@@ -46,7 +51,7 @@ def add_enemy(
                 ):
                     position = (r, c)
                     break
-    enemy = Enemy(position, aggressive)
+    enemy = Enemy(position, aggressive, patrol, hallucination)
     state.enemies.append(enemy)
     return enemy
 
@@ -92,6 +97,23 @@ def _chase_move(
             break
 
 
+def _patrol_move(enemy: Enemy, grid: List[List[str]]) -> None:
+    """Move the enemy along its patrol route if possible."""
+    if not enemy.patrol:
+        _random_move(enemy, grid)
+        return
+    enemy.patrol_index = (enemy.patrol_index + 1) % len(enemy.patrol)
+    nr, nc = enemy.patrol[enemy.patrol_index]
+    if (
+        0 <= nr < len(grid)
+        and 0 <= nc < len(grid[0])
+        and grid[nr][nc] != '#'
+    ):
+        enemy.position = (nr, nc)
+    else:
+        _random_move(enemy, grid)
+
+
 def update_enemies(state: 'GameState') -> None:
     """Move all enemies one step."""
     grid = state.map_grid
@@ -101,6 +123,8 @@ def update_enemies(state: 'GameState') -> None:
     for enemy in state.enemies:
         if enemy.aggressive:
             _chase_move(enemy, grid, state.player_loc)
+        elif enemy.patrol:
+            _patrol_move(enemy, grid)
         else:
             _random_move(enemy, grid)
 
@@ -115,15 +139,29 @@ def handle_enemy_encounters(state: 'GameState') -> str | None:
     """
 
     player_r, player_c = state.player_loc
+    hall_close = [
+        "A phantom whispers nonsense.",
+        "A shadow blurs at the edge of vision.",
+    ]
+    hall_touch = [
+        "The figure melts away as you collide.",
+        "Your hand passes through a ghostly foe.",
+    ]
     for enemy in state.enemies:
         er, ec = enemy.position
         if (er, ec) == (player_r, player_c):
+            if enemy.hallucination:
+                state.spiral_score += 1.5
+                return random.choice(hall_touch)
             state.spiral_score += 1.0
             return "An enemy collides with you."
         if (
             abs(er - player_r) <= 1
             and abs(ec - player_c) <= 1
         ):
+            if enemy.hallucination:
+                state.spiral_score += 1.0
+                return random.choice(hall_close)
             state.spiral_score += 0.5
             return "You feel an enemy lurking nearby."
     return None

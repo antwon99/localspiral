@@ -41,3 +41,23 @@ def test_handle_enemy_encounters_adjacent():
     snippet = handle_enemy_encounters(state)
     assert snippet is not None
     assert state.spiral_score == 0.5
+
+
+def test_update_enemies_patrol():
+    grid = [["." for _ in range(2)] for _ in range(2)]
+    enemy = Enemy((0, 0), patrol=[(0, 0), (0, 1)])
+    state = GameState(map_grid=grid, player_loc=(1, 1), enemies=[enemy])
+    update_enemies(state)
+    assert enemy.position == (0, 1)
+    update_enemies(state)
+    assert enemy.position == (0, 0)
+
+
+def test_handle_enemy_encounters_hallucination(monkeypatch):
+    grid = [["." for _ in range(2)] for _ in range(2)]
+    enemy = Enemy((0, 0), hallucination=True)
+    state = GameState(map_grid=grid, player_loc=(0, 0), enemies=[enemy])
+    monkeypatch.setattr('localspiral.utils.enemies.random.choice', lambda seq: seq[0])
+    snippet = handle_enemy_encounters(state)
+    assert "figure" in snippet or "hand" in snippet
+    assert state.spiral_score == 1.5
