@@ -1,9 +1,30 @@
 from typing import List, Tuple, Optional
+import random
 
 
 def generate_map(seed: int = 0, width: int = 10, height: int = 10) -> List[List[str]]:
-    """Return a stubbed map grid."""
-    return [["." for _ in range(width)] for _ in range(height)]
+    """Generate a simple deterministic map.
+
+    A ``random.Random`` instance seeded with ``seed`` controls placement of
+    obstacles and interactive tiles. ``#`` represents an obstacle, ``!`` an
+    interactive feature and ``.`` open ground.
+    """
+    rng = random.Random(seed)
+    grid: List[List[str]] = []
+    for _ in range(height):
+        row: List[str] = []
+        for _ in range(width):
+            roll = rng.random()
+            if roll < 0.1:
+                row.append("#")
+            elif roll < 0.15:
+                row.append("!")
+            elif roll < 0.2:
+                row.append("?")
+            else:
+                row.append(".")
+        grid.append(row)
+    return grid
 
 
 def parse_direction(prompt: str) -> Optional[str]:
