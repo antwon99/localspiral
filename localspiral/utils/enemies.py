@@ -83,3 +83,24 @@ def update_enemies(state: 'GameState') -> None:
             _chase_move(enemy, grid, state.player_loc)
         else:
             _random_move(enemy, grid)
+
+
+def handle_enemy_encounters(state: 'GameState') -> str | None:
+    """Update ``state`` if the player bumps into or nears an enemy.
+
+    If the player occupies the same tile as an enemy ``state.spiral_score`` is
+    increased by ``1``. When merely adjacent (including diagonals) the score is
+    increased by ``0.5``. A short narrative snippet describing the encounter is
+    returned or ``None`` if no enemies are near the player.
+    """
+
+    player_r, player_c = state.player_loc
+    for enemy in state.enemies:
+        er, ec = enemy.position
+        if (er, ec) == (player_r, player_c):
+            state.spiral_score += 1.0
+            return "An enemy collides with you."
+        if abs(er - player_r) <= 1 and abs(ec - player_c) <= 1:
+            state.spiral_score += 0.5
+            return "You feel an enemy lurking nearby."
+    return None
