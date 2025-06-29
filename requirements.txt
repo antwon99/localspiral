@@ -1,0 +1,7 @@
+flask
+openai
+pytest
+python-dotenv
+requests
+numpy
+tqdm
