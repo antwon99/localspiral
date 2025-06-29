@@ -14,6 +14,7 @@ class GameState:
         self.turn = 0
         self.position = (len(self.map) // 2, len(self.map[0]) // 2)
         self.last_narration = self.character.get("intro_prompt", "")
+        self.hallucinating = False
 
 
 GAME_STATE = GameState()
