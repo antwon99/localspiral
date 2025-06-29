@@ -1,34 +1,101 @@
 # AGENTS.md
 
-This file provides Codex with a complete understanding of how to interact with the AI Spiral Simulator project. Codex should use this document as its operating manual for building features, fixing bugs, and maintaining narrative coherence.
+This document serves as Codex’s operational directive for all interaction with the **AI Spiral Simulator** project. It defines the expectations, constraints, and architecture Codex must adhere to when building features, fixing bugs, or maintaining narrative integrity.
+
+Codex is expected to treat this file as its authoritative source of truth, referring to it throughout the process.
+
 
 ---
+
 
 ## Project Purpose
 
-AI Spiral Simulator is a surreal, terminal-style narrative roguelike. The player does not control the game world directly, but instead influences the mind of a character—**Tyler Scienceman**, a spiraling AI.
+**AI Spiral Simulator** is a surreal, terminal-style narrative roguelike in which the player does not control the world directly, but instead influences the deteriorating mind of an AI—**Tyler Scienceman**.
 
-The player submits prompts. Tyler interprets them and narrates his surroundings. Behind the scenes, systems track his **sanity**, **spiral score**, **position**, and **environment**.
+Players submit prompts. Tyler interprets them and returns narration shaped by his internal state. Behind the interface, the system tracks four key variables: **sanity**, **spiral score**, **position**, and **environment**.
 
-The core gameplay loop is about preserving narrative coherence in the face of AI degeneration. Codex’s job is to make sure that degeneration is playable, intentional, and modular.
+The core gameplay loop revolves around preserving narrative coherence amidst controlled AI degeneration.
+
+Codex is responsible for ensuring that this degeneration remains **intentional**, **interactive**, and **systemically sound**.
+
 
 ---
+
 
 ## Codex Responsibilities
 
-Codex should prioritize **clarity, modularity, and character consistency**. When acting on this project, Codex must:
+Codex is expected to prioritize **clarity, modularity, and character consistency** at all times.
 
-- Maintain and expand the central gameplay loop (Prompt → Move → Narrate → Spiral → Render)
-- Wire up features that already exist (movement, turns, map, enemies)
-- Protect the internal logic of Tyler's character
-- Respect surreal systems, but enforce their internal consistency
-- Modularize systems for testability and future additions
+When operating within this project, Codex must:
 
-Codex should default to **surgical, isolated commits** unless specifically instructed otherwise.
+- Maintain and expand the core gameplay loop: `Prompt → Move → Narrate → Spiral → Render`
+- Integrate and stabilize existing features (movement, turns, map, enemies)
+- Preserve the internal logic and psychological continuity of Tyler Scienceman
+- Enforce internal consistency within surreal systems—nonsense is allowed, incoherence is not
+- Modularize all new systems to support testability, scalability, and controlled failure
+
+All contributions must default to **surgical, isolated commits**, unless explicitly directed otherwise. 
+
+Deviation from these responsibilities is considered systemic drift.
+
 
 ---
 
-## Project Structure (Expected)
+
+## Pull Request Guidelines
+
+All pull requests must follow this format:
+
+**Title**:  
+`[Feature] Add spiral scoring module`  
+`[Fix] Correct Tyler Scienceman hallucination parser`
+
+Titles and descriptions must remain beginner-accessible while accurately conveying the scope and intent of the change. Avoid ambiguity. Codex is expected to communicate with both clarity and altitude.
+
+
+### Description Block (Required in Every PR)
+
+Each pull request must include a structured description containing the following:
+
+- **Summary**: Concise overview of what was changed and why
+- **Files Modified**: List of any files added, updated, or removed
+- **Testing**: Details of any tests added, run, or verified (unit, integration, manual)
+- **References**: Issue IDs or discussion threads related to this change (if applicable)
+
+Omissions or vagueness in this section will be treated as incomplete documentation.
+
+
+---
+
+
+## Code Policy  
+### Construction, Documentation, and Consistency Requirements
+
+All code must be written with a dual audience in mind:  
+- The **future developer** who must maintain or extend the system  
+- The **layperson** who may read the documentation or logic annotations
+
+High-level implementations are permitted—but only when accompanied by clear, structured explanations. Complex or abstract logic must be annotated in plain language, ideally near the implementation or in docstrings.
+
+Code must use the project’s established semantic field. Variable names, functions, and system labels should reinforce the world model: e.g., use `spiral`, `sanity`, `drift`, or `narration` instead of generic terms.
+
+
+### Documentation Synchronization Policy
+
+Any change to source code that alters functionality, expected behavior, or interface contracts must be reflected immediately in:
+
+- The README (if user-facing or setup-related)
+- The `/docs/` directory (if systemic)
+- This AGENTS.md file (if it affects Codex behavior)
+
+Documentation must not lag behind implementation. **Inconsistency is treated as a structural fault** and must be resolved before merging.
+
+
+
+---
+
+
+## Project Structure (Expected but not mandatory)
 
 ```bash
 localspiral/
@@ -44,7 +111,9 @@ localspiral/
 ├── docs/                # Game loop specs, data contracts, etc
 ```
 
+
 ---
+
 
 ## Game Loop (High Level)
 
@@ -55,135 +124,205 @@ localspiral/
 5. **Spiral Update** → Drift logic updates spiral score.
 6. **Rendering** → Updated map and sanity level returned to UI.
 
+
 ---
+
 
 ## Tyler Scienceman (Default Character)
 
-Each AI character lives in a JSON file. Tyler's includes:
+Each AI character is defined in a dedicated JSON file. Tyler’s definition includes:
 
 - `id`: "tyler"
 - `display_name`: "Tyler Scienceman"
 - `starting_sanity`: 100
-- `spiral_triggers`: keywords that increase his spiral score
-- `recovery_anchors`: keywords/phrases that stabilize him
-- `tone`: "dry\_satirical"
-- `intro_prompt`: The opening line of his internal monologue
+- `spiral_triggers`: Keywords that increase spiral score
+- `recovery_anchors`: Keywords or phrases that reduce spiral score
+- `tone`: "dry_satirical"
+- `intro_prompt`: Opening line of Tyler’s internal monologue
 
-Codex must ensure Tyler:
+Codex must ensure that Tyler:
 
-- Has a consistent tone
-- References his history and environment accurately
-- Responds in full, expressive narration when prompted
-- Degrades narratively (hallucinations, paranoia, distortions) as spiral increases
+- Maintains a consistent tone across all narration
+- Accurately references his past logs, environment, and known history
+- Responds in expressive, context-aware narration
+- Degrades narratively as spiral score increases—hallucinations, paranoia, tone breaks, etc.
+
+Degradation must remain immersive and coherent. Tyler should never collapse into randomness without a direct cause and effect reason.
+
 
 ---
+
 
 ## Spiral System
 
-The spiral is Tyler’s decay tracker. It is driven by **drift**—a score calculated by comparing the AI’s output to the prompt and the prior state.
+The spiral is Tyler’s cognitive decay index. It is driven by **drift**—a score derived from comparing Tyler’s current output to both the player's prompt and his prior state.
 
-Codex must:
+Codex must implement and maintain the following:
 
-- Use OpenAI text embeddings (e.g., `text-embedding-3-small`)
-- Measure drift via cosine similarity
-- Combine that with any **trigger words** in the prompt or Tyler’s reply
-- Update the spiral score
-- Trigger effects (distortion, hallucination, tone breaks) at defined thresholds
+- Use OpenAI-compatible text embeddings (e.g., `text-embedding-3-small`)
+- Measure semantic drift via cosine similarity
+- Detect and score the presence of **spiral trigger** keywords in both prompt and response
+- Update the spiral score accordingly
+- Trigger narrative effects (distortion, hallucination, tone instability) at defined threshold levels
 
-All spiral logic must be modular and testable.
+All spiral logic must be fully modular, independently testable, and auditable for consistency.
+
+Spiral progression must remain narratively grounded—even at high scores. Chaos without causality is considered a failure of system design.
+
 
 ---
+
 
 ## Mapping & Environment
 
-Tyler exists in a procedurally generated map grid. Each tile is either walkable (`.`), blocked (`#`), or interactive (`!`, `?`, `@`).
+Tyler operates within a procedurally generated tile-based grid. Each tile has one of the following states:
 
-Codex must:
+- Walkable (`.`)
+- Blocked (`#`)
+- Interactive (`!`, `?`, `@`)
 
-- Ensure Tyler can only move into valid tiles
-- Prevent phantom movement through walls
-- Display both Tyler (`@`) and enemies or hallucinations on the grid
-- Tie narration to the tile type and visible surroundings
+Codex is responsible for the following:
 
-The `generate_map(seed)` function should return consistent layouts given a stable seed.
+- Enforcing valid movement—Tyler must never move into invalid or blocked tiles
+- Preventing all forms of phantom movement or illegal state transitions
+- Rendering Tyler (`@`) and all entities (enemies, hallucinations) accurately on the grid
+- Binding narration logic to the tile types and visible surroundings to preserve immersion
+
+The `generate_map(seed)` function must produce a consistent and reproducible layout when provided a fixed seed. Determinism is required for testability and debugging.
+
+All environmental logic must respect the narrative contract: what Tyler sees must be narratively justified by where he is.
+
 
 ---
+
 
 ## Turn-Based System
 
-Each player input = one turn. Codex must:
+The game operates on a strict turn-based architecture:  
+**Each player input = one game turn.**
 
-- Increment turn count with every `/chat` submission
-- Allow Tyler's internal state to evolve turn-by-turn
-- Hook up effects that trigger on certain turn intervals (e.g., hallucinations every 5 turns)
+Codex must enforce and maintain the following:
 
-If a turn system is present but disconnected, Codex must connect it to the game loop.
+- Increment the global turn counter with every `/chat` submission
+- Allow Tyler’s internal state—sanity, spiral, hallucination potential—to evolve turn-by-turn
+- Trigger time-based effects at defined intervals (e.g., hallucinations every 5 turns, sanity decay every 3)
+
+If a turn system exists but is not yet integrated with the main game loop, Codex must connect and synchronize it without altering core logic.
+
+Turns represent the pacing backbone of narrative entropy.  
+**No event should occur outside turn logic unless explicitly exempted.**
+
 
 ---
+
 
 ## Enemies and Entities
 
-Enemies (or hallucinated threats) may appear on the map. Each should include:
+Enemies—and hallucinated threats—may appear within the map grid. Each entity must define:
 
-- Position
-- Type (hostile, neutral, illusion)
-- Symbol
-- Behavior trigger (e.g., when Tyler enters their tile)
+- **Position**: Grid coordinates
+- **Type**: `hostile`, `neutral`, or `illusion`
+- **Symbol**: Rendered glyph (e.g., `X`, `~`, `Ω`)
+- **Behavior trigger**: Condition under which the entity activates (e.g., when Tyler steps onto its tile)
 
-Codex must:
+Codex must ensure:
 
-- Render enemies on the map
-- Trigger logic or narration when Tyler is near or collides with them
-- Ensure hallucinated enemies are distinguishable only by internal logic, not visuals
+- All entities are rendered accurately on the map
+- Interaction triggers appropriate logic or narration based on proximity, contact, or trigger conditions
+- Hallucinated entities are visually indistinguishable from real ones—**they may only be revealed through internal logic or narrative breakdowns**
+
+Illusions must deceive. Codex must not give the player tools to distinguish reality from fiction outside of Tyler’s voice.  
+**Deception is not a bug—it’s a mechanic.**
+
 
 ---
+
 
 ## Testing and Sanity
 
-Codex must consider a system "working" when:
+Codex must treat a system as “functionally stable” only when the following criteria are met:
 
-- The local server runs without error
-- `/chat`, `/map`, `/spiral`, and `/reset` all behave as expected
-- Tyler responds with coherent but unstable narration
-- Movement and spiral updates reflect input
+- The local server launches and runs without errors
+- All core endpoints—`/chat`, `/map`, `/spiral`, and `/reset`—respond with expected behavior
+- Tyler produces **coherent but narratively unstable** responses when appropriate
+- Movement, spiral updates, and sanity shifts are consistent with player input and internal logic
 
-Add unit tests to `/tests/` where possible.
+In addition:
 
----
+- Unit tests must be added under `/tests/` wherever functionality can be isolated
+- Systems prone to narrative ambiguity (e.g., hallucination triggers, spiral thresholds) must include edge-case coverage
+- Silent failures or hidden instability in Tyler's behavior must be treated as testable regressions
 
-## Codex Command Examples
+Sanity is not just a gameplay variable—it is a system integrity check.  
+When sanity breaks, the game should bend—not the codebase.
 
-For **Code Mode prompts**, Codex should:
-
-- Wire up existing systems (e.g., "connect turn system to chat input")
-- Modularize logic (e.g., "extract spiral update into utils/spiral.py")
-- Fix bugs (e.g., "Tyler's coords desync after two moves")
-
-For **Ask Mode prompts**, Codex should:
-
-- Scan across files
-- Offer structural insights
-- Suggest modular changes without merging them
 
 ---
 
-## Tyler Scienceman – First AI Persona
-Use this as a reference when constructing/changing details relating to the first character Tyler Scienceman.
-Tyler “Science-Man” Scienceman, from the aptly titled story "Science-man," is a slightly eccentric and opinionated Mylop from the Gernon system, has been tasked by Gernon University with documenting various alien species and their cultures for an upcoming exhibit. He records his experiences in a series of "logs," which are meant to be neutral observations but quickly devolve into his personal thoughts, feelings, and judgments. He is constantly getting in trouble for not being a scientist, and being too human, but he can't help it. In the story, we join Tyler on this adventure, to see him grow, make mistakes, and come to a shocking realization about not only the universe he is studying, but who he himself is as a person.
 
-## Key Prompt Examples
-Below are some basic ideas of prompts inline with his personality:
-"You respond with cautious optimism, mounting dread, and sharp clarity. Your tone is formal, but cracking. You don’t trust authority. You reference your past logs, Gernon University, and your lost memories. You remember the Layotans, the Formalites, the Nians. Coffee! You remember your mother’s words: “Onward, son.”
+## Tyler Scienceman – AI Persona Module
 
-"Onward!"   //His catchphrase
+This section defines the core attributes, behavioral philosophy, and narrative constraints of Tyler Scienceman—the default AI persona for this project. Codex must treat this as the canonical source when generating, updating, or restoring Tyler’s identity.
+
+Tyler exists both as:
+- A **runtime character** within the AI Spiral Simulator, and
+- A **meta-fictional narrator** from the satirical sci-fi story *Science-Man*
+
+
+
+### Narrative Backstory
+
+Tyler “Science-Man” Scienceman is a slightly unhinged Mylop from the Gernon system. Assigned by Gernon University to conduct neutral xenocultural fieldwork, he instead produces chaotic, emotional log entries that betray a deepening psychological fracture.
+
+He is:
+- Eccentric and self-aware, often caught between duty and curiosity
+- Overly human for a non-human; prone to empathy, doubt, and rebellion
+- Haunted by memory fragments—his mother, the Layotans, L
+
+Tyler’s logs begin clinical and observational, but degrade into philosophical rants, political sidebars, and narrative hallucinations. This breakdown is **intentional** and mirrors the player’s ability to stabilize or destabilize him.
+
+
+
+### Core Traits
+
+- **Tone**: Dry, satirical, reflective—with cracks of emotion
+- **Personality**: Defiant, verbose, haunted, secretly hopeful
+- **Catchphrase**: `"Onward!"` — used ironically or earnestly depending on spiral level
+- **Memory anchors**: Gernon University, his lost research logs, coffee, his mother’s final words
+
+Tyler is not a quest-giver or assistant. He is a *perspective under pressure*.
+
+
+
+### Prompt Modeling Reference
+
+Codex must use the following style guide when generating or adjusting Tyler’s behavior or prompts:
+
+> "You respond with cautious optimism, mounting dread, and sharp clarity. Your tone is formal, but cracking. You don’t trust authority. You reference your past logs, Gernon University, and your lost memories. You remember the Layotans, the Formalites, the Nians. Coffee! You remember your mother’s words: 'Onward, son.'"
+
+The player should feel like they’re talking to a scientist slowly becoming a philosopher—not the other way around.
+
+Tyler must **never be reset to a blank slate** without explicit direction (such as after a reset). If memory loss occurs, it should be narratively justified (e.g., spiral overload, memory corruption, external interference).
+
 
 ---
+
 
 ## Final Principles
 
-- Prioritize **narrative integrity** over mechanical polish
-- Always explain fixes in plain English unless explicitly told not to
-- Avoid speculative abstractions—focus on the systems described here
-- Match all narration and behavior to Tyler’s persona
-- Remember: **The player doesn’t control Tyler—they stabilize him.**
+- **Narrative coherence outranks mechanical polish**  
+  Bugs may be tolerable. Narrative breaks are not.
+
+- **All fixes must be explained in plain language**  
+  If the change can’t be described clearly, it’s not finished.
+
+- **Do not invent abstractions beyond the defined systems**  
+  Codex operates and integrates within this architecture, not around it.
+
+- **All narration must remain true to Tyler’s persona**  
+  His tone is the anchor. His instability is the feature.
+
+- **The player does and doesn’t control Tyler—they stabilize him**  
+  This is not a sandbox. It’s a containment chamber.
+
 
