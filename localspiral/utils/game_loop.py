@@ -68,7 +68,10 @@ def apply_move(state: GameState, direction: str) -> bool:
 
 def _clean_entities(grid: list[list[str]]) -> list[list[str]]:
     """Return ``grid`` with any entity markers replaced by dots."""
-    return [[cell if cell not in {'@', 'X'} else '.' for cell in row] for row in grid]
+    return [
+        [cell if cell not in {'@', 'X'} else '.' for cell in row]
+        for row in grid
+    ]
 
 
 def advance_state(state: GameState) -> list[list[str]]:
@@ -97,7 +100,7 @@ def advance_state(state: GameState) -> list[list[str]]:
 def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     """Process a single turn of user input.
 
-    Movement commands contained in ``prompt`` are applied, the assistant reply is
+    Movement commands in ``prompt`` are applied, the assistant reply is
     generated and the spiral score updated. The modified ``GameState`` is
     returned alongside the reply text.
     """
@@ -121,12 +124,23 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     perceived_analysis = analyze_map(display)
     surroundings = describe_surroundings(display, location)
     location_desc = describe_location(display, location)
-    nearby = [e for e in state.enemies if abs(e.position[0]-location[0]) <= 1 and abs(e.position[1]-location[1]) <= 1]
-    enemy_info = f"{len(nearby)} enemy{'ies' if len(nearby)!=1 else ''} nearby" if nearby else "no enemies nearby"
+    nearby = [
+        e
+        for e in state.enemies
+        if abs(e.position[0] - location[0]) <= 1
+        and abs(e.position[1] - location[1]) <= 1
+    ]
+    enemy_info = (
+        f"{len(nearby)} enemy{'ies' if len(nearby) != 1 else ''} nearby"
+        if nearby
+        else "no enemies nearby"
+    )
     grid_text = "\n".join("".join(row) for row in display)
 
     char_data = state.character or {}
-    base_prompt = f"You are {char_data.get('display_name', 'Tyler Scienceman')}"
+    base_prompt = (
+        f"You are {char_data.get('display_name', 'Tyler Scienceman')}"
+    )
     employer = char_data.get("employer")
     if employer:
         base_prompt += f" employed by {employer}"
@@ -151,13 +165,15 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         + f"\nTurn: {state.turn_count}"
         + move_line
         + f"\nCurrent map description: {analysis.get('description')}"
-        + f"\nHallucinated map description: {perceived_analysis.get('description')}"
+        + "\nHallucinated map description: "
+        + perceived_analysis.get('description')
         + f"\nLocation: {location}"
         + f"\nOn this tile: {location_desc}"
         + f"\nNearby: {surroundings}"
         + f"\n{enemy_info}"
         + (f"\nEncounter: {encounter}" if encounter else "")
-        + f"\nSpiral status: {spiral_status(state.spiral_score)} ({state.spiral_score:.2f})"
+        + f"\nSpiral status: {spiral_status(state.spiral_score)}"
+        + f" ({state.spiral_score:.2f})"
         + f"\nMap grid:\n{grid_text}"
     )
 
@@ -183,14 +199,25 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     spiral_score -= anchors * 0.5
     spiral_score = max(0.0, spiral_score)
 
-    paranoia_change = drift_user + drift_history + triggers * 0.5 - anchors * 0.2
-    state.paranoia_level = max(0.0, min(10.0, state.paranoia_level + paranoia_change))
+    paranoia_change = (
+        drift_user + drift_history + triggers * 0.5 - anchors * 0.2
+    )
+    state.paranoia_level = max(
+        0.0, min(10.0, state.paranoia_level + paranoia_change)
+    )
 
-    if drift_user < 0.2 and drift_history < 0.2 and triggers == 0 and anchors == 0:
+    if (
+        drift_user < 0.2
+        and drift_history < 0.2
+        and triggers == 0
+        and anchors == 0
+    ):
         spiral_score = max(0.0, spiral_score - 0.05)
         state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
 
-    reply, hallucination = distort_reply(raw_reply, spiral_score, return_hallucination=True)
+    reply, hallucination = distort_reply(
+        raw_reply, spiral_score, return_hallucination=True
+    )
     if hallucination:
         state.last_hallucination = hallucination
     if spiral_score >= 5:
@@ -202,6 +229,4 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     state.history = history[-5:]
     state.spiral_score = spiral_score
     state.update_sanity()
-
     return reply, state
-

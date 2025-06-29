@@ -12,7 +12,9 @@ from ..config import get_openai_api_key
 _API_URL = "https://api.openai.com/v1/chat/completions"
 
 
-def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str]) -> str:
+def _post_json(
+    url: str, payload: dict[str, Any], headers: dict[str, str]
+) -> str:
     """Send JSON data via POST and return the response body as a string."""
     data = json.dumps(payload).encode("utf-8")
     req = request.Request(url, data=data, headers=headers, method="POST")
@@ -20,7 +22,12 @@ def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str]) -> st
         return resp.read().decode("utf-8")
 
 
-def generate_reply(prompt: str, model: str = "gpt-3.5-turbo", *, system_prompt: str | None = None) -> str:
+def generate_reply(
+    prompt: str,
+    model: str = "gpt-3.5-turbo",
+    *,
+    system_prompt: str | None = None,
+) -> str:
     """Return the assistant reply for ``prompt`` using OpenAI's API.
 
     Parameters

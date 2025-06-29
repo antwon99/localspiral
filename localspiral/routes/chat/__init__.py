@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify, request
 import logging
 
-from ...utils.spiral_state import analyze_map, spiral_status, get_available_directions
+from ...utils.spiral_state import (
+    analyze_map,
+    spiral_status,
+    get_available_directions,
+)
 from ...utils.state import load_game_state, save_game_state
 from ...utils.game_loop import process_turn
 
@@ -29,7 +33,9 @@ def chat_example():
     perceived_analysis = analyze_map(state.perceived_grid or [])
     breakdown = state.sanity <= 0
 
-    directions = get_available_directions(state.map_grid or [], state.player_loc)
+    directions = get_available_directions(
+        state.map_grid or [], state.player_loc
+    )
 
     state_dict = {
         "spiral_score": round(state.spiral_score, 3),
@@ -41,4 +47,6 @@ def chat_example():
         "perceived_description": perceived_analysis.get("description"),
         "directions": directions,
     }
-    return jsonify({"message": reply, "state": state_dict, "breakdown": breakdown})
+    return jsonify(
+        {"message": reply, "state": state_dict, "breakdown": breakdown}
+    )

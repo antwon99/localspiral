@@ -25,7 +25,9 @@ DIRECTION_VECTORS: Dict[str, Tuple[int, int]] = {
 }
 
 
-def check_keywords(text: str, trigger_words: Iterable[str] | None = None) -> int:
+def check_keywords(
+    text: str, trigger_words: Iterable[str] | None = None
+) -> int:
     """Return the number of trigger words present in ``text``.
 
     Parameters
@@ -51,8 +53,13 @@ def spiral_status(score: float) -> str:
     return "Erratic"
 
 
-def distort_reply(text: str, score: float, *, return_hallucination: bool = False) -> str | tuple[str, str | None]:
-    """Warp ``text`` slightly based on ``score`` and optionally return the hallucination used."""
+def distort_reply(
+    text: str, score: float, *, return_hallucination: bool = False
+) -> str | tuple[str, str | None]:
+    """Warp ``text`` slightly based on ``score``.
+
+    Optionally return the hallucination used.
+    """
     hallucination: str | None = None
     if score >= 8:
         hallucination = "the map warping and glitching"
@@ -97,7 +104,9 @@ def distort_reply(text: str, score: float, *, return_hallucination: bool = False
     return text
 
 
-def mutate_perceived_grid(grid: list[list[str]], score: float) -> list[list[str]]:
+def mutate_perceived_grid(
+    grid: list[list[str]], score: float
+) -> list[list[str]]:
     """Return a hallucinated version of ``grid`` based on ``score``."""
     if score < 5 or not grid:
         return [row[:] for row in grid]
@@ -123,10 +132,16 @@ def analyze_map(grid: Iterable[Iterable[str]]) -> dict[str, Any]:
         desc = "mostly open corridors"
     elif wall_tiles > open_tiles:
         desc = "claustrophobic maze"
-    return {"open": open_tiles, "walls": wall_tiles, "description": desc}
+    return {
+        "open": open_tiles,
+        "walls": wall_tiles,
+        "description": desc,
+    }
 
 
-def get_available_directions(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> list[str]:
+def get_available_directions(
+    grid: Iterable[Iterable[str]], loc: Tuple[int, int]
+) -> list[str]:
     """Return a list of directions the player can move to from ``loc``."""
     rows = len(grid)
     cols = len(grid[0]) if rows else 0
@@ -138,7 +153,9 @@ def get_available_directions(grid: Iterable[Iterable[str]], loc: Tuple[int, int]
     return available
 
 
-def describe_surroundings(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> str:
+def describe_surroundings(
+    grid: Iterable[Iterable[str]], loc: Tuple[int, int]
+) -> str:
     """Return short text describing tiles next to ``loc``."""
     rows = len(grid)
     cols = len(grid[0]) if rows else 0
@@ -157,7 +174,9 @@ def describe_surroundings(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -
     return ', '.join(parts)
 
 
-def describe_location(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> str:
+def describe_location(
+    grid: Iterable[Iterable[str]], loc: Tuple[int, int]
+) -> str:
     """Return a short description of the tile under ``loc``."""
 
     rows = len(grid)

@@ -12,7 +12,9 @@ from .enemies import Enemy
 
 from .characters import load_character
 
-CHARACTER_PATH = Path(__file__).resolve().parents[1] / "characters" / "tyler.json"
+CHARACTER_PATH = (
+    Path(__file__).resolve().parents[1] / "characters" / "tyler.json"
+)
 
 
 @dataclass

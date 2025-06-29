@@ -20,7 +20,12 @@ class Enemy:
     aggressive: bool = False
 
 
-def add_enemy(state: 'GameState', position: Tuple[int, int] | None = None, *, aggressive: bool = False) -> Enemy:
+def add_enemy(
+    state: 'GameState',
+    position: Tuple[int, int] | None = None,
+    *,
+    aggressive: bool = False,
+) -> Enemy:
     """Add a new enemy to ``state`` at ``position`` or a random open tile."""
     grid = state.map_grid
     if grid is None:
@@ -36,7 +41,9 @@ def add_enemy(state: 'GameState', position: Tuple[int, int] | None = None, *, ag
             r = rng.randint(0, rows - 1)
             c = rng.randint(0, cols - 1)
             if grid[r][c] == '.' and (r, c) != state.player_loc:
-                if all(e.position != (r, c) for e in state.enemies):
+                if all(
+                    e.position != (r, c) for e in state.enemies
+                ):
                     position = (r, c)
                     break
     enemy = Enemy(position, aggressive)
@@ -49,12 +56,18 @@ def _random_move(enemy: Enemy, grid: List[List[str]]) -> None:
     options = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
     random.shuffle(options)
     for nr, nc in options:
-        if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] != '#':
+        if (
+            0 <= nr < len(grid)
+            and 0 <= nc < len(grid[0])
+            and grid[nr][nc] != '#'
+        ):
             enemy.position = (nr, nc)
             break
 
 
-def _chase_move(enemy: Enemy, grid: List[List[str]], target: Tuple[int, int]) -> None:
+def _chase_move(
+    enemy: Enemy, grid: List[List[str]], target: Tuple[int, int]
+) -> None:
     r, c = enemy.position
     pr, pc = target
     candidates: List[Tuple[int, int]] = []
@@ -70,7 +83,11 @@ def _chase_move(enemy: Enemy, grid: List[List[str]], target: Tuple[int, int]) ->
         candidates = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
     random.shuffle(candidates)
     for nr, nc in candidates:
-        if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] != '#':
+        if (
+            0 <= nr < len(grid)
+            and 0 <= nc < len(grid[0])
+            and grid[nr][nc] != '#'
+        ):
             enemy.position = (nr, nc)
             break
 
@@ -103,7 +120,10 @@ def handle_enemy_encounters(state: 'GameState') -> str | None:
         if (er, ec) == (player_r, player_c):
             state.spiral_score += 1.0
             return "An enemy collides with you."
-        if abs(er - player_r) <= 1 and abs(ec - player_c) <= 1:
+        if (
+            abs(er - player_r) <= 1
+            and abs(ec - player_c) <= 1
+        ):
             state.spiral_score += 0.5
             return "You feel an enemy lurking nearby."
     return None
