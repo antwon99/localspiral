@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from ...utils import game_state
+from ...utils import game_state, generate_narration
 from ...utils.spiral import update_spiral
 from ...utils.map_utils import parse_direction, move_position, render_map
 
@@ -26,7 +26,7 @@ def chat():
         else:
             narration = f"Tyler cannot move {direction}."
     else:
-        narration = f"Tyler reflects: {prompt}"
+        narration = generate_narration(prompt, game_state.GAME_STATE)
 
     update_spiral(game_state.GAME_STATE, prompt, narration)
     game_state.GAME_STATE.last_narration = narration
