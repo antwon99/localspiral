@@ -20,6 +20,7 @@ def index():
         "index.html",
         narration=game_state.GAME_STATE.last_narration,
         spiral=game_state.GAME_STATE.spiral,
+        turn=game_state.GAME_STATE.turn,
     )
 
 

@@ -10,6 +10,11 @@ def test_chat_endpoint_returns_response_and_increments_turn(client):
     assert isinstance(data["map"], list)
     assert isinstance(data["spiral"], int)
 
+    resp2 = client.post("/chat", json={"prompt": "north"})
+    data2 = resp2.get_json()
+    assert resp2.status_code == 200
+    assert data2["turn"] == 2
+
 
 # Edge case: missing prompt should still succeed
 
