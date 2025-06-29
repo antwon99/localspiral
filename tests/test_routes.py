@@ -29,6 +29,7 @@ def test_chat_endpoint(client, monkeypatch):
     assert 'state' in data
     assert 'spiral_score' in data['state']
     assert 'perceived_description' in data['state']
+    assert 'directions' in data['state']
 
 
 def test_spiral_endpoint(client):
@@ -49,6 +50,46 @@ def test_map_endpoint(client):
     payload = first.get_json()
     assert 'seed' in payload
     assert 'display_name' in payload
+
+
+def test_move_endpoint(client, monkeypatch):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(10)] for _ in range(10)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+
+    client.get('/map?seed=1')
+    resp = client.get('/move?dir=north')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert tuple(data['location']) == (4, 5)
+    assert 'directions' in data
+
+
+def test_move_blocked_returns_error(client, monkeypatch):
+    """Movement beyond the map should return a 400 error."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(10)] for _ in range(10)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+
+    client.get('/map?seed=1')
+    flask_session['game_state']['player_loc'] = (0, 5)
+    resp = client.get('/move?dir=north')
+    assert resp.status_code == 400
+    assert resp.get_json() == {'error': 'Blocked'}
 
 
 def test_chat_persists_map(client, monkeypatch):
@@ -148,3 +189,30 @@ def test_reset_endpoint_clears_state(client):
     response = client.get('/reset')
     assert response.status_code == 200
     assert 'game_state' not in flask_session
+
+
+def test_map_grid_excludes_player_marker(client, monkeypatch):
+    """Ensure '@' is never stored in the session map grid."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    client.get('/map?seed=1')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+
+    client.get('/move?dir=north')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+
+    monkeypatch.setattr(
+        'localspiral.routes.chat.generate_reply',
+        lambda prompt, system_prompt=None: 'ok'
+    )
+    monkeypatch.setattr(
+        'localspiral.routes.chat.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
+    client.get('/chat?prompt=hello')
+    grid = flask_session['game_state']['map_grid']
+    assert all(cell in '.#' for row in grid for cell in row)
+

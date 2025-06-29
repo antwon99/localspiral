@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import random
-from typing import Iterable, Tuple, Any
+from typing import Iterable, Tuple, Any, Dict
 
 # Default trigger words used when a character profile does not specify any.
 DEFAULT_TRIGGER_WORDS = {
@@ -13,6 +13,15 @@ DEFAULT_TRIGGER_WORDS = {
     "run",
     "kill",
     "escape",
+}
+
+# Direction offsets used when analyzing the map. Only the
+# four primary directions are considered for movement.
+DIRECTION_VECTORS: Dict[str, Tuple[int, int]] = {
+    "north": (-1, 0),
+    "south": (1, 0),
+    "west": (0, -1),
+    "east": (0, 1),
 }
 
 
@@ -117,17 +126,24 @@ def analyze_map(grid: Iterable[Iterable[str]]) -> dict[str, Any]:
     return {"open": open_tiles, "walls": wall_tiles, "description": desc}
 
 
+def get_available_directions(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> list[str]:
+    """Return a list of directions the player can move to from ``loc``."""
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+    available: list[str] = []
+    for name, (dr, dc) in DIRECTION_VECTORS.items():
+        r, c = loc[0] + dr, loc[1] + dc
+        if 0 <= r < rows and 0 <= c < cols and grid[r][c] != "#":
+            available.append(name)
+    return available
+
+
 def describe_surroundings(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> str:
     """Return short text describing tiles next to ``loc``."""
     rows = len(grid)
     cols = len(grid[0]) if rows else 0
     parts: list[str] = []
-    for name, (dr, dc) in {
-        "north": (-1, 0),
-        "south": (1, 0),
-        "west": (0, -1),
-        "east": (0, 1),
-    }.items():
+    for name, (dr, dc) in DIRECTION_VECTORS.items():
         r, c = loc[0] + dr, loc[1] + dc
         if 0 <= r < rows and 0 <= c < cols:
             tile = grid[r][c]
@@ -139,3 +155,24 @@ def describe_surroundings(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -
                 desc = 'void'
             parts.append(f"{name} {desc}")
     return ', '.join(parts)
+
+
+def describe_location(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> str:
+    """Return a short description of the tile under ``loc``."""
+
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+    r, c = loc
+    if not (0 <= r < rows and 0 <= c < cols):
+        return "void"
+
+    tile = grid[r][c]
+    if tile == "#":
+        return "wall"
+    if tile == ".":
+        return "corridor"
+    if tile == "@":
+        return "player"
+    if tile == "?":
+        return "distortion"
+    return "void"
