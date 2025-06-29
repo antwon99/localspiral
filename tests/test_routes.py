@@ -25,6 +25,14 @@ def test_chat_endpoint(client, monkeypatch):
         'localspiral.utils.game_loop.update_enemies',
         lambda state: None
     )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.add_enemy',
+        lambda state: None
+    )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.add_enemy',
+        lambda state: None
+    )
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
@@ -67,6 +75,8 @@ def test_move_endpoint(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
 
     client.get('/map?seed=1')
     resp = client.get('/move?dir=north')
@@ -108,12 +118,12 @@ def test_chat_persists_map(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.utils.game_loop.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.chat.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.game_loop.generate_reply',
                         lambda prompt, system_prompt=None: 'ok')
     monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
 
     first = client.get('/chat?prompt=one')
     assert first.status_code == 200
@@ -148,6 +158,7 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     monkeypatch.setattr('localspiral.utils.game_loop.mutate_perceived_grid',
                         lambda grid, score: grid)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
 
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'] == ['first reply', 'one']

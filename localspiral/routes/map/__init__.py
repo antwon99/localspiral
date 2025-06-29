@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 from ...utils.spiral_state import analyze_map
 
 from ...utils.map import generate_map, with_entities
+from ...utils.enemies import add_enemy
 from ...utils.state import load_game_state, save_game_state
 
 map_bp = Blueprint("map", __name__)
@@ -25,6 +26,8 @@ def get_map():
     state.map_seed = seed
     grid = generate_map(seed)
     state.map_grid = grid
+    if not state.enemies:
+        add_enemy(state)
     analysis = analyze_map(grid)
     location = state.player_loc
     enemy_positions = [e.position for e in state.enemies]
