@@ -4,7 +4,9 @@ This file is used by the Codex agent to understand the goals, conventions, and r
 The agent should use this file to write code, create tests, and maintain consistency with the game’s tone and systems.
 
 ## Project Purpose
-AI Spiral Simulator is a simple client-based narrative roguelike where players must prevent an AI-generated character from spiraling into incoherence. Each turn, an AI character narrates a story fragment. The player must interpret the AI's generated text and submit a clarification. A backend system scores coherence between the story, the AI response, and finally the player’s response.
+AI Spiral Simulator is a surreal, turn-based narrative roguelike where players must prevent an AI protagonist—Tyler Scienceman—from spiraling into incoherence. The player does this by submitting carefully worded prompts that influence Tyler’s logic, narration, and decisions.
+
+Each prompt represents a "turn" in the game loop. Behind the scenes, systems track Tyler’s position, sanity, spiral score, and environment. Over time, enemies, environmental hazards, and hallucinations escalate Tyler’s instability—unless the player preserves coherence.
 
 It's simply a core-concept MVP to test viability.
 
