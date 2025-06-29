@@ -38,3 +38,16 @@ def test_mutate_perceived_grid_changes(monkeypatch):
 def test_mutate_perceived_grid_low_score():
     grid = [["."]]
     assert spiral_state.mutate_perceived_grid(grid, 1.0) == grid
+
+
+def test_describe_location_tiles():
+    grid = [["#", ".", "?", "@"]]  # single row with various tiles
+    assert spiral_state.describe_location(grid, (0, 0)) == "wall"
+    assert spiral_state.describe_location(grid, (0, 1)) == "corridor"
+    assert spiral_state.describe_location(grid, (0, 2)) == "distortion"
+    assert spiral_state.describe_location(grid, (0, 3)) == "player"
+
+
+def test_describe_location_out_of_bounds():
+    grid = [["."]]
+    assert spiral_state.describe_location(grid, (1, 1)) == "void"

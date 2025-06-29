@@ -9,6 +9,7 @@ from ...utils.spiral_state import (
     mutate_perceived_grid,
     spiral_status,
     describe_surroundings,
+    describe_location,
     get_available_directions,
     check_keywords,
 )
@@ -49,6 +50,7 @@ def chat_example():
     analysis = analyze_map(state.map_grid)
     perceived_analysis = analyze_map(perceived)
     surroundings = describe_surroundings(perceived, location)
+    location_desc = describe_location(perceived, location)
     directions = get_available_directions(state.map_grid, state.player_loc)
     grid_text = "\n".join("".join(row) for row in perceived)
 
@@ -75,6 +77,7 @@ def chat_example():
         + f"\nCurrent map description: {analysis.get('description')}"
         + f"\nHallucinated map description: {perceived_analysis.get('description')}"
         + f"\nLocation: {location}"
+        + f"\nOn this tile: {location_desc}"
         + f"\nNearby: {surroundings}"
         + f"\nSpiral status: {status} ({spiral_score:.2f})"
         + f"\nMap grid:\n{grid_text}"
