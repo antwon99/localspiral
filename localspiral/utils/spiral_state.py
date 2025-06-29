@@ -155,3 +155,24 @@ def describe_surroundings(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -
                 desc = 'void'
             parts.append(f"{name} {desc}")
     return ', '.join(parts)
+
+
+def describe_location(grid: Iterable[Iterable[str]], loc: Tuple[int, int]) -> str:
+    """Return a short description of the tile under ``loc``."""
+
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+    r, c = loc
+    if not (0 <= r < rows and 0 <= c < cols):
+        return "void"
+
+    tile = grid[r][c]
+    if tile == "#":
+        return "wall"
+    if tile == ".":
+        return "corridor"
+    if tile == "@":
+        return "player"
+    if tile == "?":
+        return "distortion"
+    return "void"
