@@ -1,6 +1,6 @@
 # Movement and Map Generation
 
-Maps are deterministic 10x10 grids of `.` and `#` tiles produced by `generate_map` in `utils/map.py`. Passing the same seed always returns the same layout. The helper `compute_seed` converts strings to integer seeds so zone names can influence the result.
+Maps are deterministic 10x10 grids. `.` marks open space and `#` marks walls. Special tiles include `D` for doors and `K` for desk furniture. `generate_map` in `utils/map.py` produces the layout and the helper `compute_seed` converts strings to integer seeds so zone names can influence the result.
 
 `GameState.map_seed` stores the current seed. The `/map` endpoint or `process_turn` will create a map when none exists. Enemies are spawned into open tiles as the game advances.
 

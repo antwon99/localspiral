@@ -65,6 +65,45 @@ def ensure_zone_map(base_seed: int, zone: Zone, index: int) -> List[List[str]]:
     return grid
 
 
+def door_visible(
+    grid: List[List[str]],
+    door_loc: Tuple[int, int],
+    player_loc: Tuple[int, int],
+    max_range: int = 3,
+) -> bool:
+    """Return ``True`` if the door can be reached within ``max_range`` steps."""
+
+    from collections import deque
+
+    if not grid:
+        return False
+    rows = len(grid)
+    cols = len(grid[0])
+    if not (0 <= door_loc[0] < rows and 0 <= door_loc[1] < cols):
+        return False
+
+    q = deque([(player_loc, 0)])
+    visited = {player_loc}
+
+    while q:
+        (r, c), dist = q.popleft()
+        if dist > max_range:
+            continue
+        if (r, c) == door_loc:
+            return True
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = r + dr, c + dc
+            if (
+                0 <= nr < rows
+                and 0 <= nc < cols
+                and grid[nr][nc] != '#'
+                and (nr, nc) not in visited
+            ):
+                visited.add((nr, nc))
+                q.append(((nr, nc), dist + 1))
+    return False
+
+
 def at_door(grid: List[List[str]], loc: Tuple[int, int]) -> bool:
     """Return True if ``loc`` is a door tile in ``grid``."""
     r, c = loc

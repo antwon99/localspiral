@@ -66,6 +66,14 @@
             color: #f00;
             font-weight: bold;
         }
+        .map-grid .door {
+            color: #ff0;
+            font-weight: bold;
+        }
+        .map-grid .desk {
+            color: #0ff;
+            font-weight: bold;
+        }
         @keyframes jitter {
             0% { transform: translate(0, 0); }
             50% { transform: translate(1px, -1px); }
@@ -138,6 +146,12 @@
                     } else if (cell === 'X') {
                         cls = 'enemy';
                         text = 'X';
+                    } else if (cell === 'D') {
+                        cls = 'door';
+                        text = 'D';
+                    } else if (cell === 'K') {
+                        cls = 'desk';
+                        text = '@';
                     }
                     html += `<td class="${cls}">${text}</td>`;
                 }
