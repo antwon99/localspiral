@@ -22,3 +22,28 @@ Use `load_character` from `localspiral/utils/characters.py` to read a profile fi
 
 The loader checks that all required fields exist and raises `ValueError` if the
 file is missing information or is not valid JSON.
+
+## Spiral Weights and Sanity
+
+The spiral score represents how unstable the protagonist is. The constants
+`DRIFT_WEIGHT`, `TRIGGER_WEIGHT`, `ANCHOR_WEIGHT`, `DRIFT_IGNORE_THRESHOLD` and
+`SPIRAL_DRIFT_CAP` in `localspiral/utils/game_loop.py` tune how much each turn
+changes this score. The high level formula, used in `process_turn`, is:
+
+```
+drift_component   = (drift_user + drift_history) * DRIFT_WEIGHT
+trigger_component = triggers * TRIGGER_WEIGHT
+anchor_component  = anchors * ANCHOR_WEIGHT
+
+delta = 0.0
+if drift_component > DRIFT_IGNORE_THRESHOLD or trigger_component:
+    delta += drift_component + trigger_component
+delta -= anchor_component
+delta = max(-SPIRAL_DRIFT_CAP, min(SPIRAL_DRIFT_CAP, delta))
+spiral_score = max(0.0, spiral_score + delta - 0.02)
+```
+
+`process_turn` stores the resulting value in `GameState.spiral_score` and then
+calls `GameState.update_sanity` to recompute the sanity meter. `update_sanity`
+calculates sanity as the character's starting value minus `20 * spiral_score`.
+When the spiral climbs, sanity drops accordingly.
