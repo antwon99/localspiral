@@ -47,3 +47,7 @@ spiral_score = max(0.0, spiral_score + delta - 0.02)
 calls `GameState.update_sanity` to recompute the sanity meter. `update_sanity`
 calculates sanity as the character's starting value minus `20 * spiral_score`.
 When the spiral climbs, sanity drops accordingly.
+
+## Extending the Cast
+
+Adding a new protagonist is as simple as creating another JSON file in `localspiral/characters/`. Use the same fields shown above. Unique trigger words and recovery anchors let each character spiral in their own way. Zones are loaded by `get_zones_for_character(id)` in `utils/zones.py`, so providing a matching list there will place the new character in a custom world sequence.
