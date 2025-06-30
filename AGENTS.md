@@ -19,7 +19,7 @@ The core gameplay loop is about preserving narrative coherence in the face of AI
 Codex should prioritize **clarity, modularity, and character consistency**. When acting on this project, Codex must:
 
 - Maintain and expand the central gameplay loop (Prompt → Move → Narrate → Spiral → Render)
-- Wire up features that already exist (movement, turns, map, enemies)
+- Make sure to integrate and wire up features that already exist (movement, turns, map, enemies) and any additions.
 - Protect the internal logic of Tyler's character
 - Respect surreal systems, but enforce their internal consistency
 - Modularize systems for testability and future additions
@@ -44,16 +44,6 @@ localspiral/
 ├── docs/                # Game loop specs, data contracts, etc
 ```
 
----
-
-## Game Loop (High Level)
-
-1. **Player Input** → Via `/chat`, the player submits a prompt.
-2. **Game Tick Begins** → Increments turn counter, logs state.
-3. **Movement/Action** → Based on prompt or command.
-4. **Narration** → Tyler replies, influenced by state and spiral.
-5. **Spiral Update** → Drift logic updates spiral score.
-6. **Rendering** → Updated map and sanity level returned to UI.
 
 ---
 
@@ -109,15 +99,53 @@ The `generate_map(seed)` function should return consistent layouts given a stabl
 
 ---
 
-## Turn-Based System
 
-Each player input = one turn. Codex must:
+# Turn-Based Loop
 
-- Increment turn count with every `/chat` submission
-- Allow Tyler's internal state to evolve turn-by-turn
-- Hook up effects that trigger on certain turn intervals (e.g., hallucinations every 5 turns)
+A standard turn in the **AI Spiral Simulator** follows this core structure:
 
-If a turn system is present but disconnected, Codex must connect it to the game loop.
+---
+
+## 1. Chat Phase
+
+Player and Tyler engage in **1–5 prompts** of dialogue. During this phase:
+
+- **Spiral and sanity** values drift with each exchange  
+- The **environment and nearby enemies** may be commented on
+- Plans can be formed.
+- Tyler may express **doubt, fear, resistance, or hallucinations**
+
+---
+
+## 2. Decision Point
+
+After 5 chat exchanges, both the **player** and **Tyler** must reach a directional consensus  
+(the player pushes a button, tyler runs a command).
+
+---
+
+### If they agree:
+
+- ✅ Tyler moves as instructed  
+- ✅ Enemies take their turn  
+- ✅ The map updates  
+- ➜ A new **Chat Phase** begins
+
+---
+
+### If they disagree:
+
+- ❌ Movement is lost for that turn  
+- Tyler may react (e.g. *"I got confused..."* or *"I thought you meant left."*)  
+- ✅ Enemies still move  
+- ✅ The map updates  
+- ➜ A new **Chat Phase** begins
+
+---
+
+This cycle repeats until Tyler either **escapes**, **breaks down**,  
+or **spirals beyond recovery**.
+
 
 ---
 
