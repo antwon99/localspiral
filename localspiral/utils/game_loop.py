@@ -6,7 +6,13 @@ from typing import Tuple
 import random
 
 from .map import generate_map, with_entities
-from .zones import at_door, should_leave_zone, move_to_next_zone, ensure_zone_map
+from .zones import (
+    at_door,
+    should_leave_zone,
+    move_to_next_zone,
+    ensure_zone_map,
+    door_visible,
+)
 from .dialogue import generate_reply
 from .scoring import calculate_drift
 from .spiral_state import (
@@ -154,10 +160,43 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
                 movement_success = apply_move(state, direction)
                 break
 
+    trigger_words = None
+    anchor_words = None
+    if isinstance(state.character, dict):
+        trigger_words = state.character.get("spiral_triggers")
+        anchor_words = state.character.get("recovery_anchors")
+
+    triggers = check_keywords(prompt, trigger_words)
+    anchors = check_keywords(prompt, anchor_words)
+
+    delta_keywords = triggers * TRIGGER_WEIGHT - anchors * ANCHOR_WEIGHT
+    state.spiral_score = max(0.0, state.spiral_score + delta_keywords)
+    state.update_sanity()
+
+    def _spammy(text: str) -> bool:
+        parts = [p.strip() for p in text.split(",") if p.strip()]
+        return len(parts) >= 3 and all(len(p.split()) <= 2 for p in parts)
+
+    spam_warning = _spammy(prompt)
+
+    door_hint: str | None = None
     if movement_success and at_door(state.map_grid, state.player_loc):
-        msg = move_to_next_zone(state)
-        if msg:
-            zone_message = msg
+        if (
+            current_zone
+            and current_zone.name.lower() == "office"
+            and state.zone_index == 0
+        ):
+            zone_message = 'There\u2019s a door here. Type "leave office" to continue.'
+        else:
+            msg = move_to_next_zone(state)
+            if msg:
+                zone_message = msg
+    elif current_zone and current_zone.name.lower() == "office" and current_zone.door_loc:
+        if door_visible(state.map_grid, current_zone.door_loc, state.player_loc, max_range=3):
+            door_hint = "A door is visible nearby."
+
+    if door_hint:
+        zone_message = f"{door_hint}\n{zone_message}" if zone_message else door_hint
 
     display = advance_state(state)
     encounter = handle_enemy_encounters(state)
@@ -224,7 +263,11 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     )
 
     raw_reply = generate_reply(prompt, system_prompt=system_prompt)
-    if zone_message:
+    if spam_warning:
+        raw_reply = "Why are you just listing words at me?"
+        if zone_message:
+            raw_reply = f"{zone_message}\n" + raw_reply
+    elif zone_message:
         raw_reply = f"{zone_message}\n" + raw_reply
 
     drift_user = calculate_drift(prompt, raw_reply)
@@ -233,15 +276,6 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     else:
         drift_history = 0.0
 
-    trigger_words = None
-    anchor_words = None
-    if isinstance(state.character, dict):
-        trigger_words = state.character.get("spiral_triggers")
-        anchor_words = state.character.get("recovery_anchors")
-
-    triggers = check_keywords(prompt, trigger_words)
-    anchors = check_keywords(prompt, anchor_words)
-
     spiral_score = state.spiral_score
 
     drift_component = (drift_user + drift_history) * DRIFT_WEIGHT
@@ -249,9 +283,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     anchor_component = anchors * ANCHOR_WEIGHT
 
     delta = 0.0
-    if drift_component > DRIFT_IGNORE_THRESHOLD or trigger_component:
-        delta += drift_component + trigger_component
-    delta -= anchor_component
+    if drift_component > DRIFT_IGNORE_THRESHOLD:
+        delta += drift_component
     delta = max(-SPIRAL_DRIFT_CAP, min(SPIRAL_DRIFT_CAP, delta))
 
     spiral_score = max(0.0, spiral_score + delta - 0.02)
