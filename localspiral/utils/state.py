@@ -11,6 +11,7 @@ from pathlib import Path
 from .enemies import Enemy
 
 from .characters import load_character
+from .zones import Zone, get_zones_for_character, ensure_zone_map
 
 CHARACTER_PATH = (
     Path(__file__).resolve().parents[1] / "characters" / "tyler.json"
@@ -33,6 +34,8 @@ class GameState:
     last_hallucination: str | None = None
     paranoia_level: float = 0.0
     enemies: List[Enemy] = field(default_factory=list)
+    zone_index: int = 0
+    zones: List = field(default_factory=list)
 
     def update_sanity(self) -> None:
         """Recalculate sanity based on the current spiral score."""
@@ -49,7 +52,7 @@ def _clean_grid(grid: List[List[str]] | None) -> List[List[str]] | None:
     cleaned = []
     for row in grid:
         cleaned.append([
-            '.' if cell in {'@', 'X'} else cell
+            '.' if cell in {'@', 'X', 'D'} else cell
             for cell in row
         ])
     return cleaned
@@ -60,7 +63,9 @@ def load_game_state() -> GameState:
     data = session.get("game_state")
     if not isinstance(data, dict):
         character = load_character(str(CHARACTER_PATH))
-        return GameState(character=character)
+        zones = get_zones_for_character(character.get("id", "tyler"))
+        base_seed = random.randint(0, 2**32 - 1)
+        return GameState(character=character, zones=zones, map_seed=base_seed)
     character = data.get("character")
     if character is None:
         character = load_character(str(CHARACTER_PATH))
@@ -82,6 +87,8 @@ def load_game_state() -> GameState:
         last_hallucination=data.get("last_hallucination"),
         paranoia_level=data.get("paranoia_level", 0.0),
         enemies=enemies,
+        zone_index=data.get("zone_index", 0),
+        zones=[Zone(name=z['name'], door_loc=tuple(z['door_loc']), start_loc=tuple(z['start_loc'])) if isinstance(z, dict) else z for z in data.get("zones", get_zones_for_character(character.get("id", "tyler")))],
     )
 
 
