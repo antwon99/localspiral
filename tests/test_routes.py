@@ -166,18 +166,17 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'][0].endswith('first reply')
     assert flask_session['game_state']['history'][1] == 'one'
-    assert calls[0][0] == 'one'
-    assert calls[0][1].endswith('first reply')
+    assert calls == [('one', 'first reply')]
 
     client.get('/chat?prompt=two')
     assert flask_session['game_state']['history'][2].endswith('second reply')
     assert flask_session['game_state']['history'][3] == 'two'
-    assert calls[0][0] == 'one'
-    assert calls[0][1].endswith('first reply')
-    assert calls[1][0] == 'two'
-    assert calls[1][1].endswith('second reply')
-    assert calls[2][0].endswith('first reply')
+    assert calls[0] == ('one', 'first reply')
+    assert calls[1] == ('first reply', 'two')
+    assert calls[2][0] == 'two'
     assert calls[2][1].endswith('second reply')
+    assert calls[3][0].endswith('first reply')
+    assert calls[3][1].endswith('second reply')
 
     client.get('/chat?prompt=three')
     client.get('/chat?prompt=four')
@@ -188,13 +187,18 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     assert hist[3] == 'three'
     assert hist[4].endswith('fourth reply')
     assert hist[5] == 'four'
-    assert calls[0][1].endswith('first reply')
-    assert calls[1][1].endswith('second reply')
-    assert calls[2][1].endswith('second reply')
-    assert calls[3][1].endswith('third reply')
-    assert calls[4][1].endswith('third reply')
-    assert calls[5][1].endswith('fourth reply')
-    assert calls[6][1].endswith('fourth reply')
+    assert calls[4][0].endswith('second reply')
+    assert calls[4][1] == 'three'
+    assert calls[5][0] == 'three'
+    assert calls[5][1].endswith('third reply')
+    assert calls[6][0].endswith('second reply')
+    assert calls[6][1].endswith('third reply')
+    assert calls[7][0].endswith('third reply')
+    assert calls[7][1] == 'four'
+    assert calls[8][0] == 'four'
+    assert calls[8][1].endswith('fourth reply')
+    assert calls[9][0].endswith('third reply')
+    assert calls[9][1].endswith('fourth reply')
 
 
 def test_chat_updates_spiral_score(client, monkeypatch):
