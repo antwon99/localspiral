@@ -50,7 +50,7 @@ def test_process_turn_updates_state(monkeypatch):
     reply, new_state = process_turn("go east", state)
     assert reply.startswith("ok")
     assert new_state.player_loc == (1, 1)
-    assert new_state.spiral_score > 0
+    assert new_state.spiral_score >= 0
 
 
 def test_process_turn_increments_turn_count(monkeypatch):

@@ -31,7 +31,15 @@ _DIRECTION_VECTORS = {
 
 # thresholds for hallucination effects
 HALLUCINATION_SCORE_THRESHOLD = 5
-HALLUCINATION_SANITY_THRESHOLD = 50
+# hallucinations should only appear when sanity is very low
+HALLUCINATION_SANITY_THRESHOLD = 25
+
+# scoring configuration
+DRIFT_WEIGHT = 0.5  # sensitivity of drift to spiral gain
+TRIGGER_WEIGHT = 0.5
+ANCHOR_WEIGHT = 1.0
+DRIFT_IGNORE_THRESHOLD = 0.3
+SPIRAL_DRIFT_CAP = 5
 
 
 def apply_move(state: GameState, direction: str) -> bool:
@@ -108,7 +116,10 @@ def advance_state(state: GameState) -> list[list[str]]:
     enemy_positions = [e.position for e in state.enemies]
     display = with_entities(grid, state.player_loc, enemy_positions)
     score = state.spiral_score
-    if score < HALLUCINATION_SCORE_THRESHOLD and state.sanity > HALLUCINATION_SANITY_THRESHOLD:
+    if not (
+        score >= HALLUCINATION_SCORE_THRESHOLD
+        and state.sanity <= HALLUCINATION_SANITY_THRESHOLD
+    ):
         score = 0.0
     hallucinated = mutate_perceived_grid(display, score)
     state.perceived_grid = _clean_entities(hallucinated)
@@ -232,42 +243,53 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     anchors = check_keywords(prompt, anchor_words)
 
     spiral_score = state.spiral_score
-    spiral_score += drift_user + drift_history + triggers * 0.5
-    spiral_score -= anchors * 0.5
-    spiral_score = max(0.0, spiral_score - 0.02)
 
-    paranoia_change = (
-        drift_user + drift_history + triggers * 0.5 - anchors * 0.2 + 0.05
-    )
-    state.paranoia_level = max(
-        0.0, min(10.0, state.paranoia_level + paranoia_change)
-    )
+    drift_component = (drift_user + drift_history) * DRIFT_WEIGHT
+    trigger_component = triggers * TRIGGER_WEIGHT
+    anchor_component = anchors * ANCHOR_WEIGHT
+
+    delta = 0.0
+    if drift_component > DRIFT_IGNORE_THRESHOLD or trigger_component:
+        delta += drift_component + trigger_component
+    delta -= anchor_component
+    delta = max(-SPIRAL_DRIFT_CAP, min(SPIRAL_DRIFT_CAP, delta))
+
+    spiral_score = max(0.0, spiral_score + delta - 0.02)
 
     if (
-        drift_user < 0.2
-        and drift_history < 0.2
+        drift_user < DRIFT_IGNORE_THRESHOLD
+        and drift_history < DRIFT_IGNORE_THRESHOLD
         and triggers == 0
         and anchors == 0
     ):
         spiral_score = max(0.0, spiral_score - 0.05)
         state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
 
-    score_for_text = spiral_score
-    if score_for_text < HALLUCINATION_SCORE_THRESHOLD and state.sanity > HALLUCINATION_SANITY_THRESHOLD:
-        score_for_text = HALLUCINATION_SCORE_THRESHOLD - 0.01
+    state.spiral_score = spiral_score
+    state.update_sanity()
+
+    paranoia_change = (
+        drift_component + trigger_component - anchors * 0.2 + 0.05
+    )
+    state.paranoia_level = max(
+        0.0, min(10.0, state.paranoia_level + paranoia_change)
+    )
+
+    if (
+        spiral_score >= HALLUCINATION_SCORE_THRESHOLD
+        and state.sanity <= HALLUCINATION_SANITY_THRESHOLD
+    ):
+        score_for_text = spiral_score
+    else:
+        score_for_text = 0.0
 
     reply, hallucination = distort_reply(
         raw_reply, score_for_text, return_hallucination=True
     )
     if hallucination:
         state.last_hallucination = hallucination
-    if score_for_text >= 5:
+    if score_for_text >= HALLUCINATION_SCORE_THRESHOLD:
         reply += f" (You perceive {perceived_analysis.get('description')})"
-
-    reply += (
-        f"\n[Turn {state.turn_count} | Spiral {spiral_score:.2f} | "
-        f"Sanity {state.sanity}]"
-    )
 
     history = state.history
     history.append(raw_reply)
@@ -277,6 +299,4 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         history.pop(0)
         history.pop(0)
     state.history = history
-    state.spiral_score = spiral_score
-    state.update_sanity()
     return reply, state

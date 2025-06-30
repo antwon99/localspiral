@@ -41,6 +41,7 @@ def chat_example():
         "spiral_score": round(state.spiral_score, 3),
         "sanity": state.sanity,
         "status": spiral_status(state.spiral_score),
+        "turn": state.turn_count,
         "map_seed": state.map_seed,
         "location": state.player_loc,
         "description": analysis.get("description"),

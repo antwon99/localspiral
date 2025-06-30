@@ -155,6 +155,7 @@
                 if (score !== undefined) html += `<p><strong>Spiral Score:</strong> ${score}</p>`;
                 if ('sanity' in data) html += `<p><strong>Sanity Level:</strong> ${data.sanity}</p>`;
                 if ('status' in data) html += `<p><strong>Status:</strong> ${data.status}</p>`;
+                if ('turn' in data) html += `<p><strong>Turn:</strong> ${data.turn}</p>`;
                 return html;
             }
             if ('message' in data) {
