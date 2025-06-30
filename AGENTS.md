@@ -155,7 +155,7 @@ Add unit tests to `/tests/` where possible.
 ## Documentation and Observability
 Codex should prioritize clarity of system behavior.  
 All non-trivial features must be accompanied by in-code comments or API-accessible diagnostics that explain their purpose and behavior.  
-When creating new systems, include a brief description of their logic and thresholds, especially if tied to gameplay feedback (e.g. hallucinations, spiral triggers, sanity modifiers).
+When creating new systems, include a brief description of their logic and thresholds, especially if tied to gameplay feedback (e.g. hallucinations, spiral triggers, sanity modifiers), **and create an accompanying doc file in `/docs/`.**
 
 
 
