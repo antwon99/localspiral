@@ -52,7 +52,7 @@ def _clean_grid(grid: List[List[str]] | None) -> List[List[str]] | None:
     cleaned = []
     for row in grid:
         cleaned.append([
-            '.' if cell in {'@', 'X', 'D'} else cell
+            '.' if cell in {'@', 'X'} else cell
             for cell in row
         ])
     return cleaned
@@ -88,7 +88,19 @@ def load_game_state() -> GameState:
         paranoia_level=data.get("paranoia_level", 0.0),
         enemies=enemies,
         zone_index=data.get("zone_index", 0),
-        zones=[Zone(name=z['name'], door_loc=tuple(z['door_loc']), start_loc=tuple(z['start_loc'])) if isinstance(z, dict) else z for z in data.get("zones", get_zones_for_character(character.get("id", "tyler")))],
+        zones=[
+            Zone(
+                name=z["name"],
+                door_loc=tuple(z.get("door_loc", (9, 5))),
+                start_loc=tuple(z.get("start_loc", (5, 5))),
+                desk_loc=tuple(z["desk_loc"]) if z.get("desk_loc") else None,
+            )
+            if isinstance(z, dict)
+            else z
+            for z in data.get(
+                "zones", get_zones_for_character(character.get("id", "tyler"))
+            )
+        ],
     )
 
 
