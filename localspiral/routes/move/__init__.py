@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from ...utils.map import generate_map, with_entities
 from ...utils.zones import ensure_zone_map, at_door, move_to_next_zone
 from ...utils.spiral_state import analyze_map, get_available_directions
-from ...utils.game_loop import apply_move
+from ...utils.game_loop import apply_move, advance_state, handle_enemy_encounters
 from ...utils.state import load_game_state, save_game_state
 
 move_bp = Blueprint("move", __name__)
@@ -40,11 +40,20 @@ def move_player():
     if not apply_move(state, direction):
         save_game_state(state)
         return jsonify({"error": "Blocked"}), 400
+
     state.turn_count += 1
     zone_msg = None
     if at_door(state.map_grid, state.player_loc):
         zone_msg = move_to_next_zone(state)
         grid = state.map_grid
+
+    advance_state(state)
+    handle_enemy_encounters(state)
+
+    state.spiral_score = max(0.0, state.spiral_score - 0.07)
+    state.paranoia_level = max(0.0, min(10.0, state.paranoia_level + 0.05))
+    state.update_sanity()
+
     analysis = analyze_map(grid)
     location = state.player_loc
     directions = get_available_directions(grid, location)
