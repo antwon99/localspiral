@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from ...utils.map import generate_map, with_entities
 from ...utils.spiral_state import analyze_map, get_available_directions
-from ...utils.game_loop import apply_move, advance_state
+from ...utils.game_loop import apply_move
 from ...utils.state import load_game_state, save_game_state
 
 move_bp = Blueprint("move", __name__)
@@ -35,9 +35,6 @@ def move_player():
     if not apply_move(state, direction):
         save_game_state(state)
         return jsonify({"error": "Blocked"}), 400
-
-    state.turn_count += 1
-    advance_state(state)
     analysis = analyze_map(grid)
     location = state.player_loc
     directions = get_available_directions(grid, location)
