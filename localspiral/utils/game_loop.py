@@ -154,10 +154,26 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
                 movement_success = apply_move(state, direction)
                 break
 
+    door_hint: str | None = None
     if movement_success and at_door(state.map_grid, state.player_loc):
-        msg = move_to_next_zone(state)
-        if msg:
-            zone_message = msg
+        if (
+            current_zone
+            and current_zone.name.lower() == "office"
+            and state.zone_index == 0
+        ):
+            zone_message = 'There\u2019s a door here. Type "leave office" to continue.'
+        else:
+            msg = move_to_next_zone(state)
+            if msg:
+                zone_message = msg
+    elif current_zone and current_zone.name.lower() == "office" and current_zone.door_loc:
+        dr = abs(current_zone.door_loc[0] - state.player_loc[0])
+        dc = abs(current_zone.door_loc[1] - state.player_loc[1])
+        if dr + dc <= 3:
+            door_hint = "A door is visible nearby."
+
+    if door_hint:
+        zone_message = f"{door_hint}\n{zone_message}" if zone_message else door_hint
 
     display = advance_state(state)
     encounter = handle_enemy_encounters(state)

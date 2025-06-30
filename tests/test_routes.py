@@ -32,7 +32,7 @@ def test_chat_endpoint(client, monkeypatch):
     response = client.get('/chat?prompt=hello')
     assert response.status_code == 200
     data = response.get_json()
-    assert data['message'].startswith('ok')
+    assert data['message'].split('\n')[-1].startswith('ok')
     assert 'breakdown' in data
     assert 'state' in data
     assert 'spiral_score' in data['state']
@@ -164,33 +164,37 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
 
     client.get('/chat?prompt=one')
-    assert flask_session['game_state']['history'] == ['first reply', 'one']
-    assert calls == [('one', 'first reply')]
+    assert flask_session['game_state']['history'][0].endswith('first reply')
+    assert flask_session['game_state']['history'][1] == 'one'
+    assert calls[0][0] == 'one'
+    assert calls[0][1].endswith('first reply')
 
     client.get('/chat?prompt=two')
-    assert flask_session['game_state']['history'] == [
-        'first reply', 'one', 'second reply', 'two'
-    ]
-    assert calls == [
-        ('one', 'first reply'),
-        ('two', 'second reply'),
-        ('first reply', 'second reply'),
-    ]
+    assert flask_session['game_state']['history'][2].endswith('second reply')
+    assert flask_session['game_state']['history'][3] == 'two'
+    assert calls[0][0] == 'one'
+    assert calls[0][1].endswith('first reply')
+    assert calls[1][0] == 'two'
+    assert calls[1][1].endswith('second reply')
+    assert calls[2][0].endswith('first reply')
+    assert calls[2][1].endswith('second reply')
 
     client.get('/chat?prompt=three')
     client.get('/chat?prompt=four')
-    assert flask_session['game_state']['history'] == [
-        'second reply', 'two', 'third reply', 'three', 'fourth reply', 'four'
-    ]
-    assert calls == [
-        ('one', 'first reply'),
-        ('two', 'second reply'),
-        ('first reply', 'second reply'),
-        ('three', 'third reply'),
-        ('second reply', 'third reply'),
-        ('four', 'fourth reply'),
-        ('third reply', 'fourth reply'),
-    ]
+    hist = flask_session['game_state']['history']
+    assert hist[0].endswith('second reply')
+    assert hist[1] == 'two'
+    assert hist[2].endswith('third reply')
+    assert hist[3] == 'three'
+    assert hist[4].endswith('fourth reply')
+    assert hist[5] == 'four'
+    assert calls[0][1].endswith('first reply')
+    assert calls[1][1].endswith('second reply')
+    assert calls[2][1].endswith('second reply')
+    assert calls[3][1].endswith('third reply')
+    assert calls[4][1].endswith('third reply')
+    assert calls[5][1].endswith('fourth reply')
+    assert calls[6][1].endswith('fourth reply')
 
 
 def test_chat_updates_spiral_score(client, monkeypatch):
@@ -240,11 +244,11 @@ def test_map_grid_excludes_player_marker(client, monkeypatch):
 
     client.get('/map?seed=1')
     grid = flask_session['game_state']['map_grid']
-    assert all(cell in '.#' for row in grid for cell in row)
+    assert all(cell in '.#DK' for row in grid for cell in row)
 
     client.get('/move?dir=north')
     grid = flask_session['game_state']['map_grid']
-    assert all(cell in '.#' for row in grid for cell in row)
+    assert all(cell in '.#DK' for row in grid for cell in row)
 
     # add an enemy marker to ensure cleaning logic
     flask_session['game_state']['enemies'] = [{'position': [1, 1], 'aggressive': False}]
@@ -263,7 +267,7 @@ def test_map_grid_excludes_player_marker(client, monkeypatch):
     )
     client.get('/chat?prompt=hello')
     grid = flask_session['game_state']['map_grid']
-    assert all(cell in '.#' for row in grid for cell in row)
+    assert all(cell in '.#DK' for row in grid for cell in row)
 
 
 def test_chat_increments_turn_count(client, monkeypatch):

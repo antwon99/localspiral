@@ -168,6 +168,10 @@ def describe_surroundings(
                 desc = 'wall'
             elif tile == '.':
                 desc = 'corridor'
+            elif tile == 'D':
+                desc = 'door'
+            elif tile == 'K':
+                desc = 'desk'
             else:
                 desc = 'void'
             parts.append(f"{name} {desc}")
@@ -194,4 +198,8 @@ def describe_location(
         return "player"
     if tile == "?":
         return "distortion"
+    if tile == "D":
+        return "door"
+    if tile == "K":
+        return "desk"
     return "void"
