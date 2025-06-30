@@ -1,5 +1,7 @@
 import copy
+
 from localspiral.utils.game_loop import advance_state, process_turn
+from localspiral.utils.enemies import Enemy
 from localspiral.utils.state import GameState
 
 
@@ -14,8 +16,8 @@ def test_hallucination_spawn_every_five():
     grid = [["." for _ in range(3)] for _ in range(3)]
     state = GameState(map_grid=copy.deepcopy(grid), player_loc=(1, 1))
     state.turn_count = 5
-from localspiral.utils.enemies import Enemy
-from localspiral.utils.state import GameState
+    advance_state(state)
+    assert any(e.hallucination for e in state.enemies)
 
 
 def test_enemy_spawn_probability(monkeypatch):
@@ -30,7 +32,7 @@ def test_enemy_spawn_probability(monkeypatch):
     assert len(state.enemies) == 2
 
 
-def test_hallucination_spawn_every_five(monkeypatch):
+def test_hallucination_spawn_every_five_forced(monkeypatch):
     grid = [["." for _ in range(3)] for _ in range(3)]
     state = GameState(map_grid=copy.deepcopy(grid), player_loc=(1, 1))
     state.turn_count = 5
