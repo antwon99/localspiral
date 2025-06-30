@@ -54,6 +54,22 @@ def with_player_marker(
     return new_grid
 
 
+def clean_entities(grid: Iterable[Iterable[str]] | None) -> list[list[str]] | None:
+    """Return ``grid`` with player and enemy markers replaced by dots.
+
+    ``None`` input is passed through unchanged.
+    """
+    if grid is None:
+        return None
+    cleaned = []
+    for row in grid:
+        cleaned.append([
+            cell if cell not in {"@", "X"} else "."
+            for cell in row
+        ])
+    return cleaned
+
+
 def with_entities(
     grid: Iterable[Iterable[str]],
     player_loc: Tuple[int, int],

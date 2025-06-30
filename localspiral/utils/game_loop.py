@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Tuple
 import random
 
-from .map import generate_map, with_entities
+from .map import generate_map, with_entities, clean_entities
 from .zones import (
     at_door,
     should_leave_zone,
@@ -85,15 +85,6 @@ def apply_move(state: GameState, direction: str) -> bool:
     state.player_loc = (r, c)
     return True
 
-
-def _clean_entities(grid: list[list[str]]) -> list[list[str]]:
-    """Return ``grid`` with any entity markers replaced by dots."""
-    return [
-        [cell if cell not in {'@', 'X'} else '.' for cell in row]
-        for row in grid
-    ]
-
-
 def advance_state(state: GameState) -> list[list[str]]:
     """Update enemy positions and hallucinated view for the current turn.
 
@@ -128,7 +119,7 @@ def advance_state(state: GameState) -> list[list[str]]:
     ):
         score = 0.0
     hallucinated = mutate_perceived_grid(display, score)
-    state.perceived_grid = _clean_entities(hallucinated)
+    state.perceived_grid = clean_entities(hallucinated)
     return hallucinated
 
 
