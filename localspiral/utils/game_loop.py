@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Tuple
+import random
 
 from .map import generate_map, with_entities
 from .dialogue import generate_reply
@@ -89,7 +90,7 @@ def advance_state(state: GameState) -> list[list[str]]:
         grid = generate_map(state.map_seed)
         state.map_grid = grid
 
-    if not state.enemies:
+    if not state.enemies or random.random() < 0.25:
         add_enemy(state)
     if state.turn_count and state.turn_count % 5 == 0:
         add_enemy(state, hallucination=True)

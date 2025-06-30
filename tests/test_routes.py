@@ -294,3 +294,4 @@ def test_move_increments_turn_count(client, monkeypatch):
     client.get('/map?seed=1')
     client.get('/move?dir=north')
     assert flask_session['game_state']['turn_count'] == 0
+    assert flask_session['game_state']['turn_count'] == 1
