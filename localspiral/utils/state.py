@@ -12,6 +12,7 @@ from .enemies import Enemy
 
 from .characters import load_character
 from .zones import Zone, get_zones_for_character, ensure_zone_map
+from .map import clean_entities
 
 CHARACTER_PATH = (
     Path(__file__).resolve().parents[1] / "characters" / "tyler.json"
@@ -44,20 +45,6 @@ class GameState:
             base = self.character.get("starting_sanity", 100)
         self.sanity = max(0, base - int(self.spiral_score * 20))
 
-
-def _clean_grid(grid: List[List[str]] | None) -> List[List[str]] | None:
-    """Return ``grid`` with any entity markers removed."""
-    if grid is None:
-        return None
-    cleaned = []
-    for row in grid:
-        cleaned.append([
-            '.' if cell in {'@', 'X'} else cell
-            for cell in row
-        ])
-    return cleaned
-
-
 def load_game_state() -> GameState:
     """Return :class:`GameState` instance from the session."""
     data = session.get("game_state")
@@ -77,7 +64,7 @@ def load_game_state() -> GameState:
     return GameState(
         spiral_score=data.get("spiral_score", 0.0),
         sanity=data.get("sanity", character.get("starting_sanity", 100)),
-        map_grid=_clean_grid(data.get("map_grid")),
+        map_grid=clean_entities(data.get("map_grid")),
         map_seed=data.get("map_seed", random.randint(0, 2**32 - 1)),
         player_loc=tuple(data.get("player_loc", (5, 5))),
         perceived_grid=data.get("perceived_grid"),
@@ -106,5 +93,5 @@ def load_game_state() -> GameState:
 
 def save_game_state(state: GameState) -> None:
     """Persist ``state`` to the session."""
-    state.map_grid = _clean_grid(state.map_grid)
+    state.map_grid = clean_entities(state.map_grid)
     session["game_state"] = asdict(state)

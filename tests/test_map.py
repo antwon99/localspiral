@@ -1,4 +1,4 @@
-from localspiral.utils.map import generate_map
+from localspiral.utils.map import generate_map, clean_entities
 
 
 def test_generate_map_deterministic():
@@ -11,3 +11,19 @@ def test_generate_map_different_seed():
     map_a = generate_map(1)
     map_b = generate_map(2)
     assert map_a != map_b
+
+
+def test_clean_entities_replaces_markers():
+    grid = [
+        ["@", ".", "X"],
+        ["#", "X", "@"],
+    ]
+    cleaned = clean_entities(grid)
+    assert cleaned == [
+        [".", ".", "."],
+        ["#", ".", "."],
+    ]
+
+
+def test_clean_entities_none():
+    assert clean_entities(None) is None
