@@ -6,6 +6,7 @@ from typing import Tuple
 import random
 
 from .map import generate_map, with_entities
+from .zones import at_door, should_leave_zone, move_to_next_zone, ensure_zone_map
 from .dialogue import generate_reply
 from .scoring import calculate_drift
 from .spiral_state import (
@@ -87,7 +88,13 @@ def advance_state(state: GameState) -> list[list[str]]:
     """
     grid = state.map_grid
     if grid is None:
-        grid = generate_map(state.map_seed)
+        zones = getattr(state, "zones", [])
+        index = getattr(state, "zone_index", 0)
+        if zones:
+            zone = zones[index]
+            grid = ensure_zone_map(state.map_seed, zone, index)
+        else:
+            grid = generate_map(state.map_seed)
         state.map_grid = grid
 
     if not state.enemies or random.random() < 0.25:
@@ -120,11 +127,26 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     lower = prompt.lower()
     movement_dir: str | None = None
     movement_success = False
-    for direction in _DIRECTION_VECTORS:
-        if direction in lower:
-            movement_dir = direction
-            movement_success = apply_move(state, direction)
-            break
+    zone_message: str | None = None
+    current_zone = None
+    if getattr(state, "zones", None):
+        current_zone = state.zones[state.zone_index]
+        if should_leave_zone(lower, current_zone):
+            zone_message = move_to_next_zone(state)
+            movement_dir = None
+            movement_success = True
+
+    if not zone_message:
+        for direction in _DIRECTION_VECTORS:
+            if direction in lower:
+                movement_dir = direction
+                movement_success = apply_move(state, direction)
+                break
+
+    if movement_success and at_door(state.map_grid, state.player_loc):
+        msg = move_to_next_zone(state)
+        if msg:
+            zone_message = msg
 
     display = advance_state(state)
     encounter = handle_enemy_encounters(state)
@@ -152,6 +174,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     base_prompt = (
         f"You are {char_data.get('display_name', 'Tyler Scienceman')}"
     )
+    if current_zone:
+        base_prompt += f" currently in {current_zone.name}"
     employer = char_data.get("employer")
     if employer:
         base_prompt += f" employed by {employer}"
@@ -189,6 +213,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     )
 
     raw_reply = generate_reply(prompt, system_prompt=system_prompt)
+    if zone_message:
+        raw_reply = f"{zone_message}\n" + raw_reply
 
     drift_user = calculate_drift(prompt, raw_reply)
     if len(state.history) >= 2:

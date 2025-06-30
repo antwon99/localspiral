@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ...utils.map import generate_map, with_entities
+from ...utils.zones import ensure_zone_map, at_door, move_to_next_zone
 from ...utils.spiral_state import analyze_map, get_available_directions
 from ...utils.game_loop import apply_move
 from ...utils.state import load_game_state, save_game_state
@@ -29,12 +30,21 @@ def move_player():
     state = load_game_state()
     grid = state.map_grid
     if grid is None:
-        grid = generate_map(state.map_seed)
+        zones = getattr(state, "zones", [])
+        if zones:
+            grid = ensure_zone_map(state.map_seed, zones[state.zone_index], state.zone_index)
+        else:
+            grid = generate_map(state.map_seed)
         state.map_grid = grid
 
     if not apply_move(state, direction):
         save_game_state(state)
         return jsonify({"error": "Blocked"}), 400
+    state.turn_count += 1
+    zone_msg = None
+    if at_door(state.map_grid, state.player_loc):
+        zone_msg = move_to_next_zone(state)
+        grid = state.map_grid
     analysis = analyze_map(grid)
     location = state.player_loc
     directions = get_available_directions(grid, location)
@@ -42,10 +52,15 @@ def move_player():
     display = with_entities(grid, location, enemy_positions)
 
     save_game_state(state)
+    zone_name = None
+    if getattr(state, "zones", None):
+        zone_name = state.zones[state.zone_index].name
     return jsonify({
         "seed": state.map_seed,
         "grid": display,
         "analysis": analysis,
         "location": location,
         "directions": directions,
+        "zone": zone_name,
+        "message": zone_msg,
     })

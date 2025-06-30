@@ -3,22 +3,40 @@
 from __future__ import annotations
 
 import random
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Union
+import hashlib
 
 
-def generate_map(seed: int) -> list[list[str]]:
+def compute_seed(value: Union[int, str]) -> int:
+    """Return an ``int`` seed from ``value``.
+
+    ``value`` may be an ``int`` or a ``str``. Strings are hashed so that
+    identical inputs always yield the same integer.
+    """
+    if isinstance(value, int):
+        return value
+    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:8]
+    return int(digest, 16)
+
+
+def generate_map(seed: Union[int, str], door_loc: Tuple[int, int] | None = None) -> list[list[str]]:
     """Return a deterministic 10x10 grid of tiles.
 
     Each tile is either ``'.'`` representing open ground or ``'#'`` for a wall.
-    The layout is determined by the provided ``seed`` so that calling the
-    function with the same seed always yields the same map.
+    The layout is determined by ``seed`` so that calling the function with the
+    same seed always yields the same map. If ``door_loc`` is provided a ``'D'``
+    tile will be placed at that location.
     """
-    rng = random.Random(seed)
+    rng = random.Random(compute_seed(seed))
     width = height = 10
     grid: list[list[str]] = []
     for _ in range(height):
         row = ['#' if rng.random() < 0.2 else '.' for _ in range(width)]
         grid.append(row)
+    if door_loc:
+        r, c = door_loc
+        if 0 <= r < height and 0 <= c < width:
+            grid[r][c] = 'D'
     return grid
 
 

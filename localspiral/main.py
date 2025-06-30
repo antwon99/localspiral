@@ -17,6 +17,10 @@ def create_app() -> Flask:
     app.register_blueprint(reset_bp)
 
     @app.route('/')
+    def landing():
+        return render_template('landing.html')
+
+    @app.route('/play')
     def index():
         return render_template('index.html')
 
