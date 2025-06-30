@@ -15,4 +15,5 @@ def spiral_example():
         "score": round(score, 3),
         "sanity": state.sanity,
         "status": spiral_status(score),
+        "turn": state.turn_count,
     })
