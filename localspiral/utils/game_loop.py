@@ -170,7 +170,21 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     anchors = check_keywords(prompt, anchor_words)
 
     delta_keywords = triggers * TRIGGER_WEIGHT - anchors * ANCHOR_WEIGHT
-    state.spiral_score = max(0.0, state.spiral_score + delta_keywords)
+
+    drift_prompt = 0.0
+    if len(state.history) >= 2:
+        drift_prompt = calculate_drift(state.history[-2], prompt)
+
+    early_component = drift_prompt * DRIFT_WEIGHT
+
+    delta_early = 0.0
+    if early_component > DRIFT_IGNORE_THRESHOLD:
+        delta_early += early_component
+    delta_early = max(-SPIRAL_DRIFT_CAP, min(SPIRAL_DRIFT_CAP, delta_early))
+
+    state.spiral_score = max(
+        0.0, state.spiral_score + delta_keywords + delta_early
+    )
     state.update_sanity()
 
     def _spammy(text: str) -> bool:
