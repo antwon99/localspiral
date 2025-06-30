@@ -28,6 +28,10 @@ _DIRECTION_VECTORS = {
     "east": (0, 1),
 }
 
+# thresholds for hallucination effects
+HALLUCINATION_SCORE_THRESHOLD = 5
+HALLUCINATION_SANITY_THRESHOLD = 50
+
 
 def apply_move(state: GameState, direction: str) -> bool:
     """Move the player in ``direction`` if possible.
@@ -96,7 +100,10 @@ def advance_state(state: GameState) -> list[list[str]]:
 
     enemy_positions = [e.position for e in state.enemies]
     display = with_entities(grid, state.player_loc, enemy_positions)
-    hallucinated = mutate_perceived_grid(display, state.spiral_score)
+    score = state.spiral_score
+    if score < HALLUCINATION_SCORE_THRESHOLD and state.sanity > HALLUCINATION_SANITY_THRESHOLD:
+        score = 0.0
+    hallucinated = mutate_perceived_grid(display, score)
     state.perceived_grid = _clean_entities(hallucinated)
     return hallucinated
 
@@ -219,13 +226,22 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         spiral_score = max(0.0, spiral_score - 0.05)
         state.paranoia_level = max(0.0, state.paranoia_level - 0.1)
 
+    score_for_text = spiral_score
+    if score_for_text < HALLUCINATION_SCORE_THRESHOLD and state.sanity > HALLUCINATION_SANITY_THRESHOLD:
+        score_for_text = HALLUCINATION_SCORE_THRESHOLD - 0.01
+
     reply, hallucination = distort_reply(
-        raw_reply, spiral_score, return_hallucination=True
+        raw_reply, score_for_text, return_hallucination=True
     )
     if hallucination:
         state.last_hallucination = hallucination
-    if spiral_score >= 5:
+    if score_for_text >= 5:
         reply += f" (You perceive {perceived_analysis.get('description')})"
+
+    reply += (
+        f"\n[Turn {state.turn_count} | Spiral {spiral_score:.2f} | "
+        f"Sanity {state.sanity}]"
+    )
 
     history = state.history
     history.append(raw_reply)

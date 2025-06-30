@@ -48,7 +48,7 @@ def test_process_turn_updates_state(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
     reply, new_state = process_turn("go east", state)
-    assert reply == "ok"
+    assert reply.startswith("ok")
     assert new_state.player_loc == (1, 1)
     assert new_state.spiral_score > 0
 

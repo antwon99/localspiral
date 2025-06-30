@@ -1,5 +1,19 @@
 import copy
 from localspiral.utils.game_loop import advance_state, process_turn
+from localspiral.utils.state import GameState
+
+
+def test_enemy_spawns_when_none():
+    grid = [["." for _ in range(3)] for _ in range(3)]
+    state = GameState(map_grid=copy.deepcopy(grid), player_loc=(1, 1))
+    advance_state(state)
+    assert state.enemies
+
+
+def test_hallucination_spawn_every_five():
+    grid = [["." for _ in range(3)] for _ in range(3)]
+    state = GameState(map_grid=copy.deepcopy(grid), player_loc=(1, 1))
+    state.turn_count = 5
 from localspiral.utils.enemies import Enemy
 from localspiral.utils.state import GameState
 
