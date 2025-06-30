@@ -73,6 +73,7 @@ def test_move_endpoint(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
 
@@ -298,9 +299,58 @@ def test_move_increments_turn_count(client, monkeypatch):
 
     monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
 
     client.get('/map?seed=1')
     client.get('/move?dir=north')
     assert flask_session['game_state']['turn_count'] == 1
+
+
+def test_move_enemy_encounter_updates_spiral(client, monkeypatch):
+    """Moving into an enemy should increase spiral score."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(2)] for _ in range(2)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
+
+    client.get('/map?seed=1')
+    flask_session['game_state']['player_loc'] = (0, 0)
+    flask_session['game_state']['enemies'] = [{'position': [0, 1], 'aggressive': False}]
+
+    client.get('/move?dir=east')
+    assert flask_session['game_state']['player_loc'] == (0, 1)
+    assert flask_session['game_state']['spiral_score'] > 0.9
+
+
+def test_move_applies_baseline_decay(client, monkeypatch):
+    """Spiral score should decay slightly when moving without encounters."""
+    from flask import session as flask_session
+    flask_session.clear()
+
+    grid = [['.' for _ in range(2)] for _ in range(2)]
+
+    def fake_map(seed):
+        return [row[:] for row in grid]
+
+    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
+    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
+
+    client.get('/map?seed=1')
+    flask_session['game_state']['player_loc'] = (0, 0)
+    flask_session['game_state']['spiral_score'] = 1.0
+
+    client.get('/move?dir=south')
+    assert flask_session['game_state']['spiral_score'] < 1.0
