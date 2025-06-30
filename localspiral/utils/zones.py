@@ -55,13 +55,43 @@ def ensure_zone_map(base_seed: int, zone: Zone, index: int) -> List[List[str]]:
     """Generate map for ``zone`` using ``base_seed``."""
     seed = get_zone_seed(base_seed, zone, index)
     grid = map_utils.generate_map(seed)
+
+    rows = len(grid)
+    cols = len(grid[0]) if rows else 0
+
+    # Ensure the player does not spawn inside a wall
+    sr, sc = zone.start_loc
+    if not (0 <= sr < rows and 0 <= sc < cols):
+        sr = min(max(sr, 0), rows - 1)
+        sc = min(max(sc, 0), cols - 1)
+    if grid[sr][sc] == "#":
+        from collections import deque
+
+        def _find_open(start: tuple[int, int]) -> tuple[int, int]:
+            q = deque([start])
+            visited = {start}
+            while q:
+                r, c = q.popleft()
+                if grid[r][c] != "#":
+                    return r, c
+                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in visited:
+                        visited.add((nr, nc))
+                        q.append((nr, nc))
+            return start
+
+        sr, sc = _find_open((sr, sc))
+        zone.start_loc = (sr, sc)
+    grid[sr][sc] = "."
+
     r, c = zone.door_loc
-    if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
-        grid[r][c] = 'D'
+    if 0 <= r < rows and 0 <= c < cols:
+        grid[r][c] = "D"
     if zone.desk_loc:
         dr, dc = zone.desk_loc
-        if 0 <= dr < len(grid) and 0 <= dc < len(grid[0]):
-            grid[dr][dc] = 'K'
+        if 0 <= dr < rows and 0 <= dc < cols:
+            grid[dr][dc] = "K"
     return grid
 
 
