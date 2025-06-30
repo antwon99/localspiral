@@ -193,6 +193,9 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
                 zone_message = msg
     elif current_zone and current_zone.name.lower() == "office" and current_zone.door_loc:
         if door_visible(state.map_grid, current_zone.door_loc, state.player_loc, max_range=3):
+        dr = abs(current_zone.door_loc[0] - state.player_loc[0])
+        dc = abs(current_zone.door_loc[1] - state.player_loc[1])
+        if dr + dc <= 3:
             door_hint = "A door is visible nearby."
 
     if door_hint:
