@@ -97,14 +97,24 @@ Codex must:
 
 The `generate_map(seed)` function should return consistent layouts given a stable seed.
 
+List of symbols used so far:
+| Symbol | Meaning           |
+|--------|-------------------|
+| `@`    | Tyler (player)    |
+| `D`    | Door              |
+| `#`    | Wall              |
+| `.`    | Empty tile        |
+| `X`    | Enemy             |
+| `!`    | Hallucination     |
+| `?`    | Item or unknown   |
+
+
 ---
 
 
 # Turn-Based Loop
 
 A standard turn in the **AI Spiral Simulator** follows this core structure:
-
----
 
 ## 1. Chat Phase
 
@@ -115,14 +125,12 @@ Player and Tyler engage in **1–5 prompts** of dialogue. During this phase:
 - Plans can be formed.
 - Tyler may express **doubt, fear, resistance, or hallucinations**
 
----
 
 ## 2. Decision Point
 
 After 5 chat exchanges, both the **player** and **Tyler** must reach a directional consensus  
 (the player pushes a button, tyler runs a command).
 
----
 
 ### If they agree:
 
@@ -131,7 +139,6 @@ After 5 chat exchanges, both the **player** and **Tyler** must reach a direction
 - ✅ The map updates  
 - ➜ A new **Chat Phase** begins
 
----
 
 ### If they disagree:
 
@@ -141,13 +148,13 @@ After 5 chat exchanges, both the **player** and **Tyler** must reach a direction
 - ✅ The map updates  
 - ➜ A new **Chat Phase** begins
 
----
 
 This cycle repeats until Tyler either **escapes**, **breaks down**,  
 or **spirals beyond recovery**.
 
 
 ---
+
 
 ## Enemies and Entities
 
@@ -172,10 +179,26 @@ Codex must consider a system "working" when:
 
 - The local server runs without error
 - `/chat`, `/map`, `/spiral`, and `/reset` all behave as expected
-- Tyler responds with coherent but unstable narration
+- Tyler responds coherent when sane but unstable when spiraling
 - Movement and spiral updates reflect input
 
 Add unit tests to `/tests/` where possible.
+
+### Manual Testing Checklist
+
+- [ ] Tyler spawns in correct location on map (`@`)
+- [ ] Map matches Tyler's narration (when sane)
+- [ ] Movement updates map *and* Tyler’s perception
+- [ ] Sanity decreases on spiral triggers
+- [ ] Hallucinations appear after threshold
+- [ ] HTML reflects internal state each turn
+
+### Automated Tests Should Cover:
+- Movement boundaries
+- Seed-based map generation consistency
+- Spiral score math (trigger vs. drift)
+- Turn based mechanisms
+
 
 ---
 
