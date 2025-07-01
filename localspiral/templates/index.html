@@ -170,6 +170,7 @@
                 if ('sanity' in data) html += `<p><strong>Sanity Level:</strong> ${data.sanity}</p>`;
                 if ('status' in data) html += `<p><strong>Status:</strong> ${data.status}</p>`;
                 if ('turn' in data) html += `<p><strong>Turn:</strong> ${data.turn}</p>`;
+                if ('chat_count' in data) html += `<p><strong>Prompt Count:</strong> ${data.chat_count}</p>`;
                 return html;
             }
             if ('message' in data) {
