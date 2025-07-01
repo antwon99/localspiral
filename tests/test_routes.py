@@ -62,47 +62,6 @@ def test_map_endpoint(client):
     assert 'display_name' in payload
 
 
-def test_move_endpoint(client, monkeypatch):
-    from flask import session as flask_session
-    flask_session.clear()
-
-    grid = [['.' for _ in range(10)] for _ in range(10)]
-
-    def fake_map(seed):
-        return [row[:] for row in grid]
-
-    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
-    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
-
-    client.get('/map?seed=1')
-    resp = client.get('/move?dir=north')
-    assert resp.status_code == 200
-    data = resp.get_json()
-    assert tuple(data['location']) == (4, 5)
-    assert 'directions' in data
-
-
-def test_move_blocked_returns_error(client, monkeypatch):
-    """Movement beyond the map should return a 400 error."""
-    from flask import session as flask_session
-    flask_session.clear()
-
-    grid = [['.' for _ in range(10)] for _ in range(10)]
-
-    def fake_map(seed):
-        return [row[:] for row in grid]
-
-    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
-
-    client.get('/map?seed=1')
-    flask_session['game_state']['player_loc'] = (0, 5)
-    resp = client.get('/move?dir=north')
-    assert resp.status_code == 400
-    assert resp.get_json() == {'error': 'Blocked'}
 
 
 def test_chat_persists_map(client, monkeypatch):
@@ -253,7 +212,23 @@ def test_map_grid_excludes_player_marker(client, monkeypatch):
     grid = flask_session['game_state']['map_grid']
     assert all(cell in '.#DK' for row in grid for cell in row)
 
-    client.get('/move?dir=north')
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.generate_reply',
+        lambda prompt, system_prompt=None: 'north'
+    )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.mutate_perceived_grid',
+        lambda grid, score: grid
+    )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.update_enemies',
+        lambda state: None
+    )
+    monkeypatch.setattr(
+        'localspiral.utils.game_loop.add_enemy',
+        lambda state: None
+    )
+    client.get('/chat?prompt=north')
     grid = flask_session['game_state']['map_grid']
     assert all(cell in '.#DK' for row in grid for cell in row)
 
@@ -290,70 +265,3 @@ def test_chat_increments_turn_count(client, monkeypatch):
     assert flask_session['game_state']['turn_count'] == 1
 
 
-def test_move_increments_turn_count(client, monkeypatch):
-    from flask import session as flask_session
-    flask_session.clear()
-
-    grid = [['.' for _ in range(10)] for _ in range(10)]
-
-    def fake_map(seed):
-        return [row[:] for row in grid]
-
-    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
-    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
-
-    client.get('/map?seed=1')
-    client.get('/move?dir=north')
-    assert flask_session['game_state']['turn_count'] == 1
-
-
-def test_move_enemy_encounter_updates_spiral(client, monkeypatch):
-    """Moving into an enemy should increase spiral score."""
-    from flask import session as flask_session
-    flask_session.clear()
-
-    grid = [['.' for _ in range(2)] for _ in range(2)]
-
-    def fake_map(seed):
-        return [row[:] for row in grid]
-
-    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
-    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
-
-    client.get('/map?seed=1')
-    flask_session['game_state']['player_loc'] = (0, 0)
-    flask_session['game_state']['enemies'] = [{'position': [0, 1], 'aggressive': False}]
-
-    client.get('/move?dir=east')
-    assert flask_session['game_state']['player_loc'] == (0, 1)
-    assert flask_session['game_state']['spiral_score'] > 0.9
-
-
-def test_move_applies_baseline_decay(client, monkeypatch):
-    """Spiral score should decay slightly when moving without encounters."""
-    from flask import session as flask_session
-    flask_session.clear()
-
-    grid = [['.' for _ in range(2)] for _ in range(2)]
-
-    def fake_map(seed):
-        return [row[:] for row in grid]
-
-    monkeypatch.setattr('localspiral.routes.map.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
-    monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
-    monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
-    monkeypatch.setattr('localspiral.routes.map.add_enemy', lambda s: None)
-
-    client.get('/map?seed=1')
-    flask_session['game_state']['player_loc'] = (0, 0)
-    flask_session['game_state']['spiral_score'] = 1.0
-
-    client.get('/move?dir=south')
-    assert flask_session['game_state']['spiral_score'] < 1.0
