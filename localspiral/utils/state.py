@@ -37,6 +37,9 @@ class GameState:
     enemies: List[Enemy] = field(default_factory=list)
     zone_index: int = 0
     zones: List = field(default_factory=list)
+    chat_count: int = 0
+    pending_player_dir: str | None = None
+    pending_tyler_dir: str | None = None
 
     def update_sanity(self) -> None:
         """Recalculate sanity based on the current spiral score."""
@@ -88,6 +91,9 @@ def load_game_state() -> GameState:
                 "zones", get_zones_for_character(character.get("id", "tyler"))
             )
         ],
+        chat_count=data.get("chat_count", 0),
+        pending_player_dir=data.get("pending_player_dir"),
+        pending_tyler_dir=data.get("pending_tyler_dir"),
     )
 
 

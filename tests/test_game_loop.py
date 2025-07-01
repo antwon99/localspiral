@@ -25,7 +25,7 @@ def test_process_turn_blocked_move(monkeypatch):
     grid = [["#", "#"], ["#", "."]]
     state = GameState(map_grid=grid, perceived_grid=[row[:] for row in grid], player_loc=(1, 1))
 
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok")
+    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok east")
     monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.0)
     monkeypatch.setattr("localspiral.utils.game_loop.check_keywords", lambda text, words=None: 0)
@@ -41,7 +41,7 @@ def test_process_turn_updates_state(monkeypatch):
     grid = [[".", "."], [".", "."]]
     state = GameState(map_grid=grid, perceived_grid=[row[:] for row in grid], player_loc=(1, 0))
 
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda prompt, system_prompt=None: "ok")
+    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda prompt, system_prompt=None: "ok east")
     monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.5)
     monkeypatch.setattr("localspiral.utils.game_loop.check_keywords", lambda text, words=None: 0)
@@ -59,7 +59,7 @@ def test_process_turn_increments_turn_count(monkeypatch):
     grid = [[".", "."], [".", "."]]
     state = GameState(map_grid=grid, perceived_grid=[row[:] for row in grid])
 
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok")
+    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok east")
     monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.0)
     monkeypatch.setattr("localspiral.utils.game_loop.check_keywords", lambda text, words=None: 0)
@@ -90,7 +90,7 @@ def test_recovery_anchor_reduces_spiral(monkeypatch):
         character=character,
     )
 
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok")
+    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok east")
     monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.0)
 
@@ -119,7 +119,7 @@ def test_process_turn_enemy_encounter(monkeypatch):
         enemies=[enemy],
     )
 
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok")
+    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok east")
     monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
     monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.0)
     monkeypatch.setattr("localspiral.utils.game_loop.check_keywords", lambda text, words=None: 0)
@@ -127,7 +127,7 @@ def test_process_turn_enemy_encounter(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    _, new_state = process_turn("wait", state)
+    _, new_state = process_turn("move east", state)
     assert new_state.spiral_score > 0
 
 
