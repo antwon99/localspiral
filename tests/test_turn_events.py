@@ -79,5 +79,5 @@ def test_baseline_decay(monkeypatch):
         'localspiral.utils.game_loop.add_enemy',
         lambda s, **kw: None,
     )
-    _, new_state = process_turn('wait', state)
+    _, new_state, _ = process_turn('wait', state)
     assert new_state.spiral_score < 0.5

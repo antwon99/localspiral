@@ -24,7 +24,7 @@ def chat_example():
     state = load_game_state()
 
     try:
-        reply, state = process_turn(prompt, state)
+        reply, state, grid_update = process_turn(prompt, state)
     except RuntimeError as exc:
         return jsonify({"error": str(exc)})
 
@@ -41,6 +41,12 @@ def chat_example():
     enemy_positions = [e.position for e in state.enemies]
     real_grid = with_entities(state.map_grid or [], state.player_loc, enemy_positions)
     perceived_grid = state.perceived_grid or []
+    char_name = None
+    if isinstance(state.character, dict):
+        char_name = state.character.get("display_name")
+    zone_name = None
+    if getattr(state, "zones", None):
+        zone_name = state.zones[state.zone_index].name
 
     state_dict = {
         "spiral_score": round(state.spiral_score, 3),
@@ -58,11 +64,22 @@ def chat_example():
         "real_grid": real_grid,
         "enemies": enemy_positions,
     }
-    return jsonify(
-        {
-            "message": reply,
-            "state": state_dict,
-            "breakdown": breakdown,
-            "debug": debug,
+
+    response = {
+        "message": reply,
+        "state": state_dict,
+        "breakdown": breakdown,
+        "debug": debug,
+    }
+
+    if grid_update is not None:
+        response["grid"] = {
+            "seed": state.map_seed,
+            "grid": grid_update,
+            "analysis": analysis,
+            "location": state.player_loc,
+            "display_name": char_name,
+            "zone": zone_name,
         }
-    )
+
+    return jsonify(response)

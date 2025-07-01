@@ -33,7 +33,7 @@ def test_process_turn_blocked_move(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    _, new_state = process_turn("move north", state)
+    _, new_state, _ = process_turn("move north", state)
     assert new_state.player_loc == (1, 1)
 
 
@@ -49,7 +49,7 @@ def test_process_turn_updates_state(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    reply, new_state = process_turn("go east", state)
+    reply, new_state, _ = process_turn("go east", state)
     assert reply.startswith("ok")
     assert new_state.player_loc == (1, 1)
     assert new_state.spiral_score >= 0
@@ -68,7 +68,7 @@ def test_process_turn_increments_turn_count(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
     assert state.turn_count == 0
-    _, new_state = process_turn("east", state)
+    _, new_state, _ = process_turn("east", state)
     assert new_state.turn_count == 1
 
 
@@ -104,7 +104,7 @@ def test_recovery_anchor_reduces_spiral(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    _, new_state = process_turn("sip some coffee", state)
+    _, new_state, _ = process_turn("sip some coffee", state)
     assert new_state.spiral_score < 1.0
     assert new_state.paranoia_level < 1.0
 
@@ -127,7 +127,7 @@ def test_process_turn_enemy_encounter(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    _, new_state = process_turn("move east", state)
+    _, new_state, _ = process_turn("move east", state)
     assert new_state.spiral_score > 0
 
 
@@ -150,7 +150,7 @@ def test_history_truncation_keeps_pairs(monkeypatch):
 
     prompts = ["p1", "p2", "p3", "p4"]
     for p in prompts:
-        _, state = process_turn(p, state)
+        _, state, _ = process_turn(p, state)
 
     assert state.history == ["r2", "p2", "r3", "p3", "r4", "p4"]
 
@@ -174,11 +174,11 @@ def test_door_hint_requires_visibility(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s, **kw: None)
 
-    reply, state = process_turn("look", state)
+    reply, state, _ = process_turn("look", state)
     assert "door" not in reply.lower()
 
     state.map_grid[5][6] = "."
-    reply, state = process_turn("look", state)
+    reply, state, _ = process_turn("look", state)
     assert "door" in reply.lower()
 
 
@@ -193,5 +193,5 @@ def test_spammy_prompt_warning(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s, **kw: None)
 
-    reply, _ = process_turn("coffee, your mother, science", state)
+    reply, _, _ = process_turn("coffee, your mother, science", state)
     assert "listing words" in reply.lower()
