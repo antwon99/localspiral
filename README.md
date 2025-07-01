@@ -20,6 +20,7 @@ This is a developer sandbox for exploring narrative integrity, drift mechanics, 
 - Map rendering with movable AI (@)
 - Enemies and hallucinations (WIP)
 - Patrol patterns and hallucinated foes
+- Optional Debug Mode to inspect the map and enemy data
 
 ---
 
