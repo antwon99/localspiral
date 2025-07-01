@@ -163,6 +163,8 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
                         lambda grid, score: grid)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
+    monkeypatch.setattr('localspiral.utils.game_loop.at_door', lambda grid, loc: False)
+    monkeypatch.setattr('localspiral.utils.game_loop.door_visible', lambda grid, door_loc, loc, max_range=3: False)
 
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'][0].endswith('first reply')
@@ -347,6 +349,7 @@ def test_move_applies_baseline_decay(client, monkeypatch):
     monkeypatch.setattr('localspiral.routes.move.generate_map', fake_map)
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda s: None)
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda s: None)
+    monkeypatch.setattr('localspiral.routes.map.add_enemy', lambda s: None)
 
     client.get('/map?seed=1')
     flask_session['game_state']['player_loc'] = (0, 0)

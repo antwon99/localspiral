@@ -35,6 +35,15 @@ _DIRECTION_VECTORS = {
     "east": (0, 1),
 }
 
+
+def extract_direction(text: str) -> str | None:
+    """Return the first movement direction found in ``text``."""
+    lowered = text.lower()
+    for name in _DIRECTION_VECTORS:
+        if name in lowered:
+            return name
+    return None
+
 # thresholds for hallucination effects
 HALLUCINATION_SCORE_THRESHOLD = 5
 # hallucinations should only appear when sanity is very low
@@ -64,6 +73,14 @@ def apply_move(state: GameState, direction: str) -> bool:
         ``True`` if the player moved successfully, ``False`` otherwise.
     """
     grid = state.map_grid
+    if grid is None:
+        zones = getattr(state, "zones", [])
+        index = getattr(state, "zone_index", 0)
+        if zones:
+            grid = ensure_zone_map(state.map_seed, zones[index], index)
+        else:
+            grid = generate_map(state.map_seed)
+        state.map_grid = grid
     if grid is None:
         return False
 
@@ -132,24 +149,28 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     """
 
     state.turn_count += 1
+    state.chat_count += 1
     lower = prompt.lower()
-    movement_dir: str | None = None
-    movement_success = False
     zone_message: str | None = None
     current_zone = None
     if getattr(state, "zones", None):
         current_zone = state.zones[state.zone_index]
         if should_leave_zone(lower, current_zone):
             zone_message = move_to_next_zone(state)
-            movement_dir = None
-            movement_success = True
 
-    if not zone_message:
-        for direction in _DIRECTION_VECTORS:
-            if direction in lower:
-                movement_dir = direction
-                movement_success = apply_move(state, direction)
-                break
+    grid = state.map_grid
+    if grid is None:
+        zones = getattr(state, "zones", [])
+        index = getattr(state, "zone_index", 0)
+        if zones:
+            grid = ensure_zone_map(state.map_seed, zones[index], index)
+        else:
+            grid = generate_map(state.map_seed)
+        state.map_grid = grid
+
+    player_dir = extract_direction(lower)
+    if player_dir:
+        state.pending_player_dir = player_dir
 
     trigger_words = None
     anchor_words = None
@@ -185,7 +206,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     spam_warning = _spammy(prompt)
 
     door_hint: str | None = None
-    if movement_success and at_door(state.map_grid, state.player_loc):
+    if at_door(state.map_grid, state.player_loc):
         if (
             current_zone
             and current_zone.name.lower() == "office"
@@ -208,15 +229,24 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     if door_hint:
         zone_message = f"{door_hint}\n{zone_message}" if zone_message else door_hint
 
-    display = advance_state(state)
-    encounter = handle_enemy_encounters(state)
     grid = state.map_grid
+    enemy_positions = [e.position for e in state.enemies]
+    display = with_entities(grid, state.player_loc, enemy_positions)
+    score = state.spiral_score
+    if not (
+        score >= HALLUCINATION_SCORE_THRESHOLD
+        and state.sanity <= HALLUCINATION_SANITY_THRESHOLD
+    ):
+        score = 0.0
+    hallucinated = mutate_perceived_grid(display, score)
+    state.perceived_grid = clean_entities(hallucinated)
+    encounter = None
     location = state.player_loc
 
     analysis = analyze_map(grid)
-    perceived_analysis = analyze_map(display)
-    surroundings = describe_surroundings(display, location)
-    location_desc = describe_location(display, location)
+    perceived_analysis = analyze_map(hallucinated)
+    surroundings = describe_surroundings(hallucinated, location)
+    location_desc = describe_location(hallucinated, location)
     nearby = [
         e
         for e in state.enemies
@@ -228,7 +258,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         if nearby
         else "no enemies nearby"
     )
-    grid_text = "\n".join("".join(row) for row in display)
+    grid_text = "\n".join("".join(row) for row in hallucinated)
 
     char_data = state.character or {}
     base_prompt = (
@@ -251,9 +281,6 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         base_prompt += f" Paranoia level {state.paranoia_level:.2f}."
 
     move_line = ""
-    if movement_dir:
-        outcome = "succeeded" if movement_success else "blocked"
-        move_line = f"\nMovement attempt: {movement_dir} ({outcome})"
 
     system_prompt = (
         base_prompt
@@ -333,6 +360,50 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         state.last_hallucination = hallucination
     if score_for_text >= HALLUCINATION_SCORE_THRESHOLD:
         reply += f" (You perceive {perceived_analysis.get('description')})"
+
+    tyler_dir = extract_direction(reply)
+    if tyler_dir:
+        state.pending_tyler_dir = tyler_dir
+
+    decision_ready = False
+    if state.pending_player_dir and state.pending_tyler_dir:
+        decision_ready = True
+    elif state.chat_count >= 5:
+        decision_ready = True
+
+    move_result = None
+    encounter = None
+    if decision_ready:
+        agree = (
+            state.pending_player_dir
+            and state.pending_player_dir == state.pending_tyler_dir
+        )
+        if agree:
+            moved = apply_move(state, state.pending_player_dir)
+            if moved and at_door(state.map_grid, state.player_loc):
+                msg = move_to_next_zone(state)
+                if msg:
+                    zone_message = msg if not zone_message else f"{zone_message}\n{msg}"
+            move_result = (
+                f"Tyler moves {state.pending_player_dir}."
+                if moved
+                else f"Tyler tries to move {state.pending_player_dir} but is blocked."
+            )
+        else:
+            move_result = "Tyler hesitates, unsure which way to go."
+        display = advance_state(state)
+        encounter = handle_enemy_encounters(state)
+        state.chat_count = 0
+        state.pending_player_dir = None
+        state.pending_tyler_dir = None
+        grid_text = "\n".join("".join(row) for row in display)
+        perceived_analysis = analyze_map(display)
+        if move_result:
+            reply += "\n" + move_result
+        if encounter:
+            reply += f" {encounter}"
+        if zone_message:
+            reply = f"{zone_message}\n" + reply
 
     history = state.history
     history.append(raw_reply)
