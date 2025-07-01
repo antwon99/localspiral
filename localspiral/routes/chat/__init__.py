@@ -6,6 +6,7 @@ from ...utils.spiral_state import (
     spiral_status,
     get_available_directions,
 )
+from ...utils.map import with_entities
 from ...utils.state import load_game_state, save_game_state
 from ...utils.game_loop import process_turn
 
@@ -37,6 +38,10 @@ def chat_example():
         state.map_grid or [], state.player_loc
     )
 
+    enemy_positions = [e.position for e in state.enemies]
+    real_grid = with_entities(state.map_grid or [], state.player_loc, enemy_positions)
+    perceived_grid = state.perceived_grid or []
+
     state_dict = {
         "spiral_score": round(state.spiral_score, 3),
         "sanity": state.sanity,
@@ -48,6 +53,16 @@ def chat_example():
         "perceived_description": perceived_analysis.get("description"),
         "directions": directions,
     }
+    debug = {
+        "perceived_grid": perceived_grid,
+        "real_grid": real_grid,
+        "enemies": enemy_positions,
+    }
     return jsonify(
-        {"message": reply, "state": state_dict, "breakdown": breakdown}
+        {
+            "message": reply,
+            "state": state_dict,
+            "breakdown": breakdown,
+            "debug": debug,
+        }
     )

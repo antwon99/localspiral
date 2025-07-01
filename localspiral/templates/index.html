@@ -113,6 +113,8 @@
             <button data-dir="east">East</button>
         </div>
         <div id="map-output" class="box"></div>
+        <label><input type="checkbox" id="debugToggle"> Debug Mode</label>
+        <pre id="debug-info" class="box" style="display:none;"></pre>
 
     </div>
     <script>
@@ -185,6 +187,30 @@
             return `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         }
 
+        function renderDebug(data) {
+            const debugDiv = document.getElementById('debug-info');
+            const toggle = document.getElementById('debugToggle');
+            if (!toggle.checked || !data) {
+                debugDiv.style.display = 'none';
+                debugDiv.textContent = '';
+                return;
+            }
+            debugDiv.style.display = 'block';
+            let text = '';
+            if (Array.isArray(data.perceived_grid)) {
+                text += 'Perceived Grid:\n';
+                text += data.perceived_grid.map(r => r.join('')).join('\n') + '\n';
+            }
+            if (Array.isArray(data.real_grid)) {
+                text += 'Real Grid:\n';
+                text += data.real_grid.map(r => r.join('')).join('\n') + '\n';
+            }
+            if (Array.isArray(data.enemies)) {
+                text += 'Enemies: ' + data.enemies.map(p => `(${p[0]},${p[1]})`).join(' ') + '\n';
+            }
+            debugDiv.textContent = text;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const promptInput = document.getElementById('prompt');
             const sendButton = document.getElementById('sendButton');
@@ -195,6 +221,12 @@
             const resetButton = document.getElementById('resetButton');
             const moveButtons = document.querySelectorAll('#move-buttons button');
             const mapOutput = document.getElementById('map-output');
+            const debugToggle = document.getElementById('debugToggle');
+            let lastDebugData = null;
+
+            debugToggle.addEventListener('change', () => {
+                renderDebug(lastDebugData);
+            });
 
             function updateSpiralMeter(data) {
                 spiralMeter.innerHTML = renderSpiral(data);
@@ -236,6 +268,8 @@
                                 currentMapSeed = data.state.map_seed;
                                 loadMap(currentMapSeed);
                             }
+                            lastDebugData = data.debug || null;
+                            renderDebug(lastDebugData);
                         }
                     })
                     .catch(() => {
