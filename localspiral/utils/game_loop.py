@@ -140,7 +140,7 @@ def advance_state(state: GameState) -> list[list[str]]:
     return hallucinated
 
 
-def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
+def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[list[str]] | None]:
     """Process a single turn of user input.
 
     Movement commands in ``prompt`` are applied, the assistant reply is
@@ -153,10 +153,13 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     lower = prompt.lower()
     zone_message: str | None = None
     current_zone = None
+    starting_zone = state.zone_index
     if getattr(state, "zones", None):
         current_zone = state.zones[state.zone_index]
         if should_leave_zone(lower, current_zone):
             zone_message = move_to_next_zone(state)
+            if state.zone_index != starting_zone:
+                zone_changed = True
 
     grid = state.map_grid
     if grid is None:
@@ -206,6 +209,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
     spam_warning = _spammy(prompt)
 
     door_hint: str | None = None
+    zone_changed = False
+    display_grid: list[list[str]] | None = None
     if at_door(state.map_grid, state.player_loc):
         if (
             current_zone
@@ -217,6 +222,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
             msg = move_to_next_zone(state)
             if msg:
                 zone_message = msg
+            if state.zone_index != starting_zone:
+                zone_changed = True
     elif current_zone and current_zone.name.lower() == "office" and current_zone.door_loc:
         if door_visible(
             state.map_grid, current_zone.door_loc, state.player_loc, max_range=3
@@ -384,6 +391,8 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
                 msg = move_to_next_zone(state)
                 if msg:
                     zone_message = msg if not zone_message else f"{zone_message}\n{msg}"
+                if state.zone_index != starting_zone:
+                    zone_changed = True
             move_result = (
                 f"Tyler moves {state.pending_player_dir}."
                 if moved
@@ -393,6 +402,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
             move_result = "Tyler hesitates, unsure which way to go."
         display = advance_state(state)
         encounter = handle_enemy_encounters(state)
+        display_grid = with_entities(state.map_grid, state.player_loc, [e.position for e in state.enemies])
         state.chat_count = 0
         state.pending_player_dir = None
         state.pending_tyler_dir = None
@@ -413,4 +423,13 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState]:
         history.pop(0)
         history.pop(0)
     state.history = history
-    return reply, state
+
+    if state.zone_index != starting_zone:
+        zone_changed = True
+
+    if display_grid is None and zone_changed:
+        display_grid = with_entities(
+            state.map_grid, state.player_loc, [e.position for e in state.enemies]
+        )
+
+    return reply, state, display_grid

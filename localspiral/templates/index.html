@@ -264,12 +264,16 @@
                         responseDiv.textContent = data.message || data.error || 'No response';
                         if (data.state) {
                             updateSpiralMeter(data.state);
-                            if (typeof data.state.map_seed === 'number' && data.state.map_seed !== currentMapSeed) {
+                            if (typeof data.state.map_seed === 'number') {
                                 currentMapSeed = data.state.map_seed;
-                                loadMap(currentMapSeed);
                             }
                             lastDebugData = data.debug || null;
                             renderDebug(lastDebugData);
+                        }
+                        if (data.grid && data.grid.grid) {
+                            mapOutput.innerHTML = renderMapHTML(data.grid);
+                        } else {
+                            loadMap(currentMapSeed);
                         }
                     })
                     .catch(() => {
