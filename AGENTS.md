@@ -186,13 +186,35 @@ All non-trivial features must be accompanied by in-code comments or API-accessib
 When creating new systems, include a brief description of their logic and thresholds, especially if tied to gameplay feedback (e.g. hallucinations, spiral triggers, sanity modifiers), **and create an accompanying doc file in `/docs/`.**
 
 
+---
+
+
+## HTML Rendering Layer
+
+The HTML is the **single source of visible truth** for the developer (and player). Any changes to game logic (movement, enemies, sanity, map layout, etc.) MUST be reflected visually in the HTML rendering.
+
+NOTE: Codex often updates backend logic but forgets to update or sync the HTML display. These need to be kept in sync at all times.
+
+Whenever modifying:
+- Tile symbols
+- Map dimensions
+- Entity placement
+- UI counters (turns, sanity, spiral, etc.)
+- (OR Adding features!)
+
+Make sure to reflect these updates directly in `index.html` (or the active rendering template).
+
+### Sanity Debug Tip
+
+Include a `[Debug Mode]` toggle that prints Tyler’s perceived map, real map, spiral score, and all entity positions every turn—*in plain text*—below the main UI.
+
 
 ---
 
 
 ## Final Principles
 
-- Prioritize **narrative integrity** over mechanical polish
+- Stick to the readme and agent file, and ultimately its vision and end goals.
 - Always explain fixes in plain English unless explicitly told not to
 - Match all narration and behavior to Tyler’s persona
 - Remember: **The player doesn’t control Tyler—they stabilize him.**
