@@ -20,6 +20,8 @@ def _compile_state_response(state: GameState) -> Dict[str, Any]:
     perceived_analysis = analyze_map(state.perceived_grid or [])
     directions = get_available_directions(state.map_grid or [], state.player_loc)
 
+    awaiting_move = state.chat_count >= 5
+
     return {
         "spiral_score": round(state.spiral_score, 3),
         "sanity": state.sanity,
@@ -31,6 +33,7 @@ def _compile_state_response(state: GameState) -> Dict[str, Any]:
         "perceived_description": perceived_analysis.get("description"),
         "directions": directions,
         "chat_count": state.chat_count,
+        "awaiting_move": awaiting_move,
     }
 
 

@@ -148,7 +148,6 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
     returned alongside the reply text.
     """
 
-    state.turn_count += 1
     state.chat_count += 1
     lower = prompt.lower()
     zone_message: str | None = None
@@ -381,6 +380,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
     move_result = None
     encounter = None
     if decision_ready:
+        state.turn_count += 1
         agree = (
             state.pending_player_dir
             and state.pending_player_dir == state.pending_tyler_dir

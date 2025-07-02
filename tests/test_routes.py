@@ -265,3 +265,14 @@ def test_chat_increments_turn_count(client, monkeypatch):
     assert flask_session['game_state']['turn_count'] == 1
 
 
+def test_skip_endpoint_sets_chat_count(client):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    resp = client.get('/skip')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['state']['awaiting_move']
+    assert flask_session['game_state']['chat_count'] == 5
+
+
