@@ -70,6 +70,23 @@ def clean_entities(grid: Iterable[Iterable[str]] | None) -> list[list[str]] | No
     return cleaned
 
 
+def clean_enemies(grid: Iterable[Iterable[str]] | None) -> list[list[str]] | None:
+    """Return ``grid`` with only enemy markers replaced by dots.
+
+    The player marker ``@`` is preserved so Tyler's perceived map matches
+    his actual position. ``None`` input is passed through unchanged.
+    """
+    if grid is None:
+        return None
+    cleaned = []
+    for row in grid:
+        cleaned.append([
+            cell if cell != "X" else "."
+            for cell in row
+        ])
+    return cleaned
+
+
 def with_entities(
     grid: Iterable[Iterable[str]],
     player_loc: Tuple[int, int],

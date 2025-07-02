@@ -1,4 +1,4 @@
-from localspiral.utils.map import generate_map, clean_entities
+from localspiral.utils.map import generate_map, clean_entities, clean_enemies
 
 
 def test_generate_map_deterministic():
@@ -27,3 +27,15 @@ def test_clean_entities_replaces_markers():
 
 def test_clean_entities_none():
     assert clean_entities(None) is None
+
+
+def test_clean_enemies_preserves_player():
+    grid = [
+        ["@", "X"],
+        ["X", "."],
+    ]
+    cleaned = clean_enemies(grid)
+    assert cleaned == [
+        ["@", "."],
+        [".", "."],
+    ]

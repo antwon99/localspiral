@@ -123,7 +123,6 @@ def test_chat_history_pairs_reply_and_prompt(client, monkeypatch):
     monkeypatch.setattr('localspiral.utils.game_loop.update_enemies', lambda state: None)
     monkeypatch.setattr('localspiral.utils.game_loop.add_enemy', lambda state: None)
     monkeypatch.setattr('localspiral.utils.game_loop.at_door', lambda grid, loc: False)
-    monkeypatch.setattr('localspiral.utils.game_loop.door_visible', lambda grid, door_loc, loc, max_range=3: False)
 
     client.get('/chat?prompt=one')
     assert flask_session['game_state']['history'][0].endswith('first reply')
@@ -263,5 +262,16 @@ def test_chat_increments_turn_count(client, monkeypatch):
 
     client.get('/chat?prompt=hello')
     assert flask_session['game_state']['turn_count'] == 1
+
+
+def test_skip_endpoint_sets_chat_count(client):
+    from flask import session as flask_session
+    flask_session.clear()
+
+    resp = client.get('/skip')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data['state']['awaiting_move']
+    assert flask_session['game_state']['chat_count'] == 5
 
 

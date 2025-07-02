@@ -33,4 +33,4 @@ The final delta is capped by `SPIRAL_DRIFT_CAP` and the score decays slightly ev
 
 Sanity is recalculated via `GameState.update_sanity()`. Starting sanity comes from the character profile and decreases by `20 * spiral_score`.
 
-A spiral score under 2 is **Lucid**, between 2 and 4 is **Questioning**, and 4+ is **Erratic** as defined in `spiral_state.spiral_status`.
+A spiral score under 2 is **lucid**, between 2 and 4 is **unsettled**, and 4 or more is **dissociated** as defined in `spiral_state.spiral_status`.
