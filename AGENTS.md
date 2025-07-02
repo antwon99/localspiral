@@ -18,13 +18,12 @@ The core gameplay loop is about preserving narrative coherence in the face of AI
 
 Codex should prioritize **clarity, modularity, and character consistency**. When acting on this project, Codex must:
 
-- Maintain and expand the central gameplay loop (Prompt → Move → Narrate → Spiral → Render)
+- Maintain and expand the central gameplay loop (Prompt(s) → reply → Move → Spiral → Render)
 - Make sure to integrate and wire up features that already exist (movement, turns, map, enemies) and any additions.
 - Protect the internal logic of Tyler's character
 - Respect surreal systems, but enforce their internal consistency
 - Modularize systems for testability and future additions
-
-Codex should default to **surgical, isolated commits** unless specifically instructed otherwise.
+- Focus on the `moonshots` branch, that's where most building/iterating happens.
 
 ---
 
@@ -124,7 +123,7 @@ Player and Tyler engage in **1–5 prompts** of dialogue. During this phase:
 - The **environment and nearby enemies** may be commented on
 - Plans can be formed.
 - Tyler may express **doubt, fear, resistance, or hallucinations**
-
+-
 
 ## 2. Decision Point
 
