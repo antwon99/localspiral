@@ -1,123 +1,176 @@
-# AGENT.md
+# AGENTS.md
 
-This file is used by the Codex agent to understand the goals, conventions, and rules of the AI Spiral Simulator project.
-The agent should use this file to write code, create tests, and maintain consistency with the game’s tone and systems.
+This file is Codex's operating manual for working on the **AI Spiral Simulator** reboot. The game has transitioned away from a web/HTML frontend to a native Pygame-based interface.
 
-## Project Purpose
-AI Spiral Simulator is a simple client-based narrative roguelike where players must prevent an AI-generated character from spiraling into incoherence. Each turn, an AI character narrates a story fragment. The player must interpret the AI's generated text and submit a clarification. A backend system scores coherence between the story, the AI response, and finally the player’s response.
+Codex should use this file to understand Tyler’s systems, the game loop, and the core principles behind the spiral.
 
-It's simply a core-concept MVP I can test viability.
+---
 
-## The AI agent (Codex) should:
+## Project Overview
 
-Maintain narrative coherence systems
+**AI Spiral Simulator** is a surreal, narrative-heavy roguelike built in Python using **Pygame**. The player doesn’t control the protagonist directly—they influence his thoughts.
 
-Follow the structure and tone of each character profile
+That protagonist is **Tyler Scienceman**, a spiraling, unstable AI caught in a metaphorical maze.  
+The player’s goal is to keep him sane—*or at least narratively coherent*—as he drifts into madness.
 
-Respect the surreal but internally consistent game logic
+---
 
-## Project Structure
+## Codex Responsibilities
 
-No idea, yet.
+Codex must:
+- Maintain a clean modular codebase
+- Prioritize **character consistency**, **narrative degradation**, and **visual feedback**
+- Update or create features inside the `/moonshots` branch
+- Build systems that reflect Tyler’s psychology and world
+- Keep the player *engaged but confused*
 
-probably something like, if you think it's optimal:
+---
 
-bash 
+## 🧠 Gameplay Loop
 
-aispiral/
-├── README.md
-├── AGENTS.md
-├── requirements.txt        # or package.json
-├── src/
-│   ├── main.py             # or server.js — the executable entry point
-│   ├── routes/
-│   │   ├── chat/           # /chat API handlers
-│   │   └── spiral/         # /spiral API handlers
-│   ├── utils/              # scoring modules, embeddings, helper functions
-│   ├── characters/         # character profiles in JSON or YAML
-│   └── templates/          # HTML or front-end code if needed
-├── tests/                  # unit tests for the utils and routes
-├── docs/                   # additional documentation
-└── .gitignore              # I read this is important, but idk why
+**Core structure** (per turn):
 
+1. **Chat Phase**
+    - Player prompts Tyler (up to 5 times)
+    - Tyler responds narratively
+    - Spiral score shifts based on drift + keywords
 
-## Coding Guidelines
+2. **Decision Point**
+    - Player and Tyler both "choose" a direction
+    - If they agree, Tyler moves
+    - If not, movement is skipped, and Tyler reacts
 
-Must be fully explained in notes for a layman.
+3. **Spiral Update**
+    - Sanity drops if spiral grows
+    - Hallucinations or distortions may trigger
 
-Getting it running by an executable is preffered!
+4. **Visual Render (Pygame)**
+    - Grid updates
+    - Text and overlays reflect mental state
 
-## Character System Rules
+---
 
-Each character has:
-A unique ID (id)
+## Pygame Layer
 
-A display_name
+Tyler's world is rendered in 2D using **Pygame**. This includes:
+- A tile-based map
+- Overlay text showing Tyler's thoughts
+- A spiral/sanity indicator
+- Possible distortion effects (jitter, opacity, visual noise)
 
-A starting_sanity score
+Codex must ensure that the **rendered map matches Tyler’s internal perception**, including hallucinations or disconnections from reality.
 
-A list of spiral_triggers (words/behaviors that accelerate collapse)
+---
 
-A list of recovery_anchors (phrases/logic that stabilize the character)
+## 🧬 Tyler Scienceman (Default Character)
 
-A tone (e.g. dry_satirical, poetic, surreal)
+Tyler’s profile is stored in JSON, and includes:
+- `display_name`: Tyler Scienceman
+- `starting_sanity`: 100
+- `tone`: dry_satirical
+- `spiral_triggers`: words or ideas that increase instability
+- `recovery_anchors`: stabilizing elements
+- `intro_prompt`: The opening line of his internal monologue
 
-An intro_prompt (starting line for story generation)
+Codex must:
+- Keep Tyler narratively believable
+- Let hallucinations emerge *organically*, not randomly
+- Match tone to satirical dryness, even under stress
 
-Codex must ensure that al new characters follow this format, and that characters are referenced correctly in scene selection logic
+---
 
-## Formatting Rules
+## Spiral System
 
-API route files should be organized by function (e.g. /chat, /image, /spiral)
+The spiral is Tyler's decay tracker. It is based on:
+- Cosine drift between player input and Tyler’s output
+- Trigger word detection (in prompt and reply)
+- Cumulative instability
 
-Spiral scoring logic should be isolated in /utils/ for testability
+Spiral score should trigger:
+- Visual distortions
+- Hallucinated entities
+- Sudden tone shifts
+- Memory glitches
 
-## Testing and Verification
+All spiral logic should be unit-testable and isolated from rendering.
 
-Codex should not consider a task complete unless the local server runs and all APIs return expected output.
+---
 
-## Embedding / Coherence Logic
-Drift is calculated using:
+## Mapping System
 
-Text embeddings from OpenAI (text-embedding-3-small)
+The world is a 2D tile grid. Each tile is one of:
 
-Cosine similarity between:
+| Symbol | Meaning         |
+|--------|-----------------|
+| `@`    | Tyler            |
+| `#`    | Wall             |
+| `.`    | Empty tile       |
+| `D`    | Door             |
+| `X`    | Enemy            |
+| `!`    | Hallucination    |
+| `?`    | Unknown / Item   |
 
-AI’s story output
+Codex should:
+- Prevent invalid movement
+- Update Tyler’s location correctly
+- Allow hallucinated elements to be visible to Tyler but not necessarily to the player
+- Support seed-based map generation
 
-Player’s clarification
+---
 
-## Codex must ensure:
+## Entities & Hallucinations
 
-All drift logic is consistent and modular
+Enemies (real or imagined) must:
+- Exist on the grid
+- Trigger reactions or panic when Tyler gets close
+- Be indistinguishable from each other visually—only internal logic reveals what’s real
 
-Spiral Meter is updated based on drift score thresholds
+Codex must define:
+- Entity types
+- Triggers for hallucinated behavior
+- Reactions in narration
 
-Hallucination keywords are respected per character
+---
 
-## Pull Request Guidelines
-Codex should format pull requests like this:
+## Testing Guidelines
 
-Title:
-[Feature] Add spiral scoring module
-or
-[Fix] Correct Tyler Scienceman hallucination parser
+### Manual Checks
+- [ ] Tyler spawns in correct grid location (`@`)
+- [ ] Spiral score reacts to prompt drift and trigger words
+- [ ] Visual output reflects hallucination and instability
+- [ ] Movement logic prevents clipping or invalid tiles
+- [ ] Hallucinations appear after threshold
 
-Description:
+### Automated Tests
+- Spiral score logic
+- Turn loop state machine
+- Sanity decay thresholds
+- Entity collision
+- Map generation consistency (given seed)
 
-Brief summary of changes
+---
 
-Files added/modified
+## 🧾 Observability
 
-Any tests run or verified
+All new features must:
+- Be commented clearly
+- Include logs or on-screen diagnostics (especially spiral & hallucinations)
+- Document thresholds for spiral effects (in `/docs/`)
 
-Reference to any issue IDs (if applicable)
+**Debug Mode:**  
+Add a toggle to show:
+- Spiral score
+- Sanity level
+- Real vs. perceived map
+- Entity positions
 
-## Behavior Notes for Codex
-Always prioritize clarity and sanity-preservation logic
+---
 
-Match narrative tone to character traits
+## 📌 Final Principles
 
-Favor a modular design: each system (image gen, text gen, drift check) should be swappable and/or editable.
+- The player **influences** Tyler—they do not control him
+- Sanity loss should feel earned, not arbitrary
+- Every glitch, distortion, or hallucination must serve narrative
+- Keep the surreal coherent
 
-Avoid speculative abstractions—stick close to what's described in README.md
+**If it feels weird, but makes sense? Ship it.**
