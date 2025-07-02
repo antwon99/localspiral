@@ -45,12 +45,18 @@ def check_keywords(
 
 
 def spiral_status(score: float) -> str:
-    """Return a short status label for the given spiral score."""
+    """Return a short emotional label for ``score``.
+
+    These descriptors are intentionally fuzzy so Tyler never sees a raw
+    numeric rating.  They loosely map the spiral score to emotional states
+    used throughout the UI and narration.
+    """
+
     if score < 2:
-        return "Lucid"
+        return "lucid"
     if score < 4:
-        return "Questioning"
-    return "Erratic"
+        return "unsettled"
+    return "dissociated"
 
 
 def distort_reply(

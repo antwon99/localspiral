@@ -5,13 +5,12 @@ from __future__ import annotations
 from typing import Tuple
 import random
 
-from .map import generate_map, with_entities, clean_entities
+from .map import generate_map, with_entities, clean_enemies
 from .zones import (
     at_door,
     should_leave_zone,
     move_to_next_zone,
     ensure_zone_map,
-    door_visible,
 )
 from .dialogue import generate_reply
 from .scoring import calculate_drift
@@ -136,7 +135,7 @@ def advance_state(state: GameState) -> list[list[str]]:
     ):
         score = 0.0
     hallucinated = mutate_perceived_grid(display, score)
-    state.perceived_grid = clean_entities(hallucinated)
+    state.perceived_grid = clean_enemies(hallucinated)
     return hallucinated
 
 
@@ -207,7 +206,6 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
 
     spam_warning = _spammy(prompt)
 
-    door_hint: str | None = None
     zone_changed = False
     display_grid: list[list[str]] | None = None
     if at_door(state.map_grid, state.player_loc):
@@ -224,16 +222,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
             if state.zone_index != starting_zone:
                 zone_changed = True
     elif current_zone and current_zone.name.lower() == "office" and current_zone.door_loc:
-        if door_visible(
-            state.map_grid, current_zone.door_loc, state.player_loc, max_range=3
-        ):
-            dr = abs(current_zone.door_loc[0] - state.player_loc[0])
-            dc = abs(current_zone.door_loc[1] - state.player_loc[1])
-            if dr + dc <= 3:
-                door_hint = "A door is visible nearby."
-
-    if door_hint:
-        zone_message = f"{door_hint}\n{zone_message}" if zone_message else door_hint
+        pass  # door visibility no longer triggers automatic narration
 
     grid = state.map_grid
     enemy_positions = [e.position for e in state.enemies]
@@ -245,7 +234,7 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
     ):
         score = 0.0
     hallucinated = mutate_perceived_grid(display, score)
-    state.perceived_grid = clean_entities(hallucinated)
+    state.perceived_grid = clean_enemies(hallucinated)
     encounter = None
     location = state.player_loc
 
@@ -284,7 +273,12 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
     if state.last_hallucination:
         base_prompt += f" Last hallucination: {state.last_hallucination}."
     if state.paranoia_level:
-        base_prompt += f" Paranoia level {state.paranoia_level:.2f}."
+        if state.paranoia_level < 3:
+            base_prompt += " Paranoia steady."
+        elif state.paranoia_level < 7:
+            base_prompt += " Paranoia rising."
+        else:
+            base_prompt += " Paranoia overwhelming."
 
     move_line = ""
 
@@ -301,7 +295,6 @@ def process_turn(prompt: str, state: GameState) -> Tuple[str, GameState, list[li
         + f"\n{enemy_info}"
         + (f"\nEncounter: {encounter}" if encounter else "")
         + f"\nSpiral status: {spiral_status(state.spiral_score)}"
-        + f" ({state.spiral_score:.2f})"
         + f"\nMap grid:\n{grid_text}"
     )
 

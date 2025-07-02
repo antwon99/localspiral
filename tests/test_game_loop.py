@@ -155,32 +155,6 @@ def test_history_truncation_keeps_pairs(monkeypatch):
     assert state.history == ["r2", "p2", "r3", "p3", "r4", "p4"]
 
 
-def test_door_hint_requires_visibility(monkeypatch):
-    grid = [["." for _ in range(10)] for _ in range(10)]
-    grid[5][6] = "#"
-    grid[5][8] = "D"
-    zone = Zone(name="Office", door_loc=(5, 8), start_loc=(5, 5), desk_loc=(5, 4))
-    state = GameState(
-        map_grid=copy.deepcopy(grid),
-        perceived_grid=[row[:] for row in grid],
-        player_loc=(5, 5),
-        zones=[zone],
-    )
-
-    monkeypatch.setattr("localspiral.utils.game_loop.generate_reply", lambda p, system_prompt=None: "ok")
-    monkeypatch.setattr("localspiral.utils.game_loop.mutate_perceived_grid", lambda g, s: g)
-    monkeypatch.setattr("localspiral.utils.game_loop.calculate_drift", lambda a, b: 0.0)
-    monkeypatch.setattr("localspiral.utils.game_loop.distort_reply", lambda t, s, return_hallucination=True: (t, None))
-    monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
-    monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s, **kw: None)
-
-    reply, state, _ = process_turn("look", state)
-    assert "door" not in reply.lower()
-
-    state.map_grid[5][6] = "."
-    reply, state, _ = process_turn("look", state)
-    assert "door" in reply.lower()
-
 
 def test_spammy_prompt_warning(monkeypatch):
     grid = [["." for _ in range(2)] for _ in range(2)]
