@@ -96,6 +96,8 @@
         <h1>AI Spiral Simulator</h1>
         <textarea id="prompt" placeholder="Enter your prompt..."></textarea>
         <button id="sendButton">Send</button>
+        <div id="skip-control"><button id="skipButton">Skip to Move</button></div>
+        <div id="move-buttons" style="display:none;"></div>
         <div id="response" class="box"></div>
         <div id="spiral-meter" class="box"></div>
         <div id="extra-buttons">
@@ -170,7 +172,8 @@
                 if ('sanity' in data) html += `<p><strong>Sanity Level:</strong> ${data.sanity}</p>`;
                 if ('status' in data) html += `<p><strong>Status:</strong> ${data.status}</p>`;
                 if ('turn' in data) html += `<p><strong>Turn:</strong> ${data.turn}</p>`;
-                if ('chat_count' in data) html += `<p><strong>Prompt Count:</strong> ${data.chat_count}</p>`;
+                if ('chat_count' in data && !data.awaiting_move)
+                    html += `<p><strong>Prompt Count:</strong> ${data.chat_count}/5</p>`;
                 return html;
             }
             if ('message' in data) {
@@ -206,6 +209,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const promptInput = document.getElementById('prompt');
             const sendButton = document.getElementById('sendButton');
+            const skipButton = document.getElementById('skipButton');
+            const moveButtons = document.getElementById('move-buttons');
             const responseDiv = document.getElementById('response');
             const spiralMeter = document.getElementById('spiral-meter');
             const spiralButton = document.getElementById('spiralButton');
@@ -243,7 +248,54 @@
                     spiralMeter.classList.remove('unstable');
                     responseDiv.classList.remove('unstable');
                 }
+
+                if (data.awaiting_move) {
+                    promptInput.disabled = true;
+                    sendButton.disabled = true;
+                    skipButton.style.display = 'none';
+                    moveButtons.style.display = 'block';
+                    moveButtons.innerHTML = 'Move:' +
+                        data.directions.map(dir =>
+                            ` <button class="move-btn" data-dir="${dir}">${dir.charAt(0).toUpperCase()}</button>`
+                        ).join('');
+            moveButtons.querySelectorAll('button[data-dir]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                            const d = btn.getAttribute('data-dir');
+                            responseDiv.textContent = 'Loading...';
+                            fetchJson(`/chat?prompt=${d}`)
+                                .then((res) => {
+                                    responseDiv.textContent = res.message || res.error || 'No response';
+                                    if (res.state) {
+                                        updateSpiralMeter(res.state);
+                                        if (res.grid && res.grid.grid) {
+                                            mapOutput.innerHTML = renderMapHTML(res.grid);
+                                        } else {
+                                            loadMap(currentMapSeed);
+                                        }
+                                        lastDebugData = res.debug || null;
+                                        renderDebug(lastDebugData);
+                                    }
+                                })
+                                .catch(() => { responseDiv.textContent = 'Request failed.'; });
+                });
+            });
+            } else {
+                    promptInput.disabled = false;
+                    sendButton.disabled = false;
+                    moveButtons.style.display = 'none';
+                    skipButton.style.display = 'inline-block';
+                }
             }
+
+            skipButton.addEventListener('click', () => {
+                fetchJson('/skip')
+                    .then((data) => {
+                        if (data.state) {
+                            updateSpiralMeter(data.state);
+                        }
+                    })
+                    .catch(() => { responseDiv.textContent = 'Request failed.'; });
+            });
 
 
             sendButton.addEventListener('click', () => {

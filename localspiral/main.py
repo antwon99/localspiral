@@ -4,6 +4,7 @@ from .routes.chat import chat_bp
 from .routes.spiral import spiral_bp
 from .routes.map import map_bp
 from .routes.reset import reset_bp
+from .routes.skip import skip_bp
 
 
 def create_app() -> Flask:
@@ -13,6 +14,7 @@ def create_app() -> Flask:
     app.register_blueprint(spiral_bp)
     app.register_blueprint(map_bp)
     app.register_blueprint(reset_bp)
+    app.register_blueprint(skip_bp)
 
     @app.route('/')
     def landing():

@@ -67,9 +67,9 @@ def test_process_turn_increments_turn_count(monkeypatch):
     monkeypatch.setattr("localspiral.utils.game_loop.update_enemies", lambda s: None)
     monkeypatch.setattr("localspiral.utils.game_loop.add_enemy", lambda s: None)
 
-    assert state.turn_count == 0
+    assert state.turn_count == 1
     _, new_state, _ = process_turn("east", state)
-    assert new_state.turn_count == 1
+    assert new_state.turn_count == 2
 
 
 def test_recovery_anchor_reduces_spiral(monkeypatch):
