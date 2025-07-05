@@ -34,6 +34,13 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### Running Tests
+
+```bash
+pytest
+```
+
+
 ---
 
 ### Repo Structure (Suggested)
