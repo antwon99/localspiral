@@ -1,0 +1,9 @@
+{
+    "id": "tyler",
+    "display_name": "Tyler Scienceman",
+    "starting_sanity": 100,
+    "spiral_triggers": [],
+    "recovery_anchors": [],
+    "tone": "dry scientific curiosity laced with existential dread",
+    "intro_prompt": "Tyler bootstraps his reality one experiment at a time."
+}
