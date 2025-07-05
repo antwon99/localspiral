@@ -1,69 +1,68 @@
-# AI Spiral Simulator
+# README.md (Pygame Edition)
 
-**A narrative roguelike where your only goal is to keep an AI protagonist from spiraling into incoherent madness.**
+## AI Spiral Simulator (Pygame Version)
 
-Inspired by DougDoug’s chaotic AI experiments, this game transforms LLM instability into a gameplay mechanic. You, the **Narrative Handler**, must interpret AI-generated story scenes and prevent narrative collapse—measured by how far the AI drifts from the generated context.
+*A surreal narrative roguelike where your goal is to keep an AI—Tyler Scienceman—from spiraling into incoherent madness.*
 
+### What’s New?
 
-## Concept
+* Now powered by **Pygame** for immersive visuals and interactive gameplay.
 
-Each run begins with:
-- A chosen AI character (e.g., Tyler Scienceman)
-- An initial GPT-generated narrative prompt
-- Seed based logic for the characters route home.
+### Core Features
 
-The player must:
-- Analyze the scene and AI output
-- Submit a corrected or clarified description
-- Prevent divergence between scene ↔ AI text ↔ player text
+* Dynamic AI narration (via OpenAI or canned responses).
+* Procedurally generated map grid.
+* Spiral score & sanity mechanics.
+* Turn-based exploration with hallucinations & enemies.
+* Visual spiral effects.
 
-Behind the scenes, some sort of **coherence engine** scores the drift and adjusts a **Spiral Meter**. When it hits zero? Sanity fails. Game over.
+---
 
+### How to Play
 
-## Tech Stack
+1. Issue narrative prompts.
+2. Guide Tyler’s movement.
+3. Keep him coherent while avoiding threats.
+4. Survive the spiral.
 
-No idea! :)
+---
 
-## Project Structure
+### Install & Run
 
-No idea! :)
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
-## Getting Started
+---
 
-No idea! :)
+### Repo Structure (Suggested)
 
-## Features (In Progress)
+```
+localspiral/
+├── assets/
+├── characters/
+├── game/
+├── ui/
+├── main.py
+├── tests/
+├── docs/
+```
 
-Main Focus (prioritize first):
+---
 
-Basic character selection
-GPT-based scene generation
-Core gameplay loop
-Spiral scoring via embeddings
-Spiral Meter UI
+### Contributing
 
-After the basics are in place:
+* Focus on **narrative consistency**, **visual clarity**, and **modular design**.
+* All new systems must include brief in-code documentation.
+* Major features: document in `/docs/`.
 
-Leaderboards: “Longest sanity run"
-Chaos modifiers and unlockables
-Multiplayer? (stretch goal)
+---
 
+### License
 
-## How to Add New Characters
+MIT
 
-No idea! :)
+---
 
-## Codex & Agent Instructions
-
-The AGENTS.md file contains detailed instructions for GitHub Copilot/Codex, including:
-
-- Style rules (naming conventions, formatting, etc.)
-
-- Coding preferences (e.g., avoid console.log, use custom logger)
-
-- How to run tests or check correctness
-
-- Pull request formatting
-
-- This helps the AI contribute consistent code aligned with the game’s narrative tone and technical goals.
-
+*The player doesn’t control Tyler. They stabilize him.*
