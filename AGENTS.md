@@ -1,176 +1,140 @@
-# AGENTS.md
+# AGENTS.md (Pygame Edition)
 
-This file is Codex's operating manual for working on the **AI Spiral Simulator** reboot. The game has transitioned away from a web/HTML frontend to a native Pygame-based interface.
+## Project Purpose
 
-Codex should use this file to understand Tyler’s systems, the game loop, and the core principles behind the spiral.
+AI Spiral Simulator is evolving into a **Pygame-based narrative roguelike**, where the player doesn’t control the world—they influence the **mind** of an AI protagonist, **Tyler Scienceman**.
 
----
+Players issue prompts. Tyler interprets them, narrates, and moves through a procedurally generated map. The player’s goal is to preserve **narrative integrity** and keep Tyler from spiraling into incoherence.
 
-## Project Overview
+Codex’s role is to ensure that all systems are:
 
-**AI Spiral Simulator** is a surreal, narrative-heavy roguelike built in Python using **Pygame**. The player doesn’t control the protagonist directly—they influence his thoughts.
-
-That protagonist is **Tyler Scienceman**, a spiraling, unstable AI caught in a metaphorical maze.  
-The player’s goal is to keep him sane—*or at least narratively coherent*—as he drifts into madness.
+* Modular
+* Testable
+* Consistent with Tyler's tone and mental state
 
 ---
 
 ## Codex Responsibilities
 
 Codex must:
-- Maintain a clean modular codebase
-- Prioritize **character consistency**, **narrative degradation**, and **visual feedback**
-- Update or create features inside the `/moonshots` branch
-- Build systems that reflect Tyler’s psychology and world
-- Keep the player *engaged but confused*
+
+* Maintain and expand the core gameplay loop (**Prompt → Move → Narrate → Spiral → Render**).
+* Port existing logic (sanity, spiral, enemies, map) into Pygame while preserving existing behaviors.
+* Ensure Tyler's character remains internally consistent even as he degrades.
+* Modularize code to support testing and future features (e.g., new characters, new hallucination effects).
 
 ---
 
-## 🧠 Gameplay Loop
+## Project Structure (Pygame Edition - Suggested)
 
-**Core structure** (per turn):
-
-1. **Chat Phase**
-    - Player prompts Tyler (up to 5 times)
-    - Tyler responds narratively
-    - Spiral score shifts based on drift + keywords
-
-2. **Decision Point**
-    - Player and Tyler both "choose" a direction
-    - If they agree, Tyler moves
-    - If not, movement is skipped, and Tyler reacts
-
-3. **Spiral Update**
-    - Sanity drops if spiral grows
-    - Hallucinations or distortions may trigger
-
-4. **Visual Render (Pygame)**
-    - Grid updates
-    - Text and overlays reflect mental state
+```
+localspiral/
+├── main.py              # Pygame main loop
+├── assets/              # Sprites, sounds
+├── characters/          # JSON profiles (Tyler, others)
+├── game/                # Game logic (map, spiral, narration)
+├── ui/                  # Rendering functions, overlays
+├── tests/               # Unit tests
+├── docs/                # Design docs
+```
 
 ---
 
-## Pygame Layer
+## Tyler Scienceman (Character Profile)
 
-Tyler's world is rendered in 2D using **Pygame**. This includes:
-- A tile-based map
-- Overlay text showing Tyler's thoughts
-- A spiral/sanity indicator
-- Possible distortion effects (jitter, opacity, visual noise)
+Each AI lives in a JSON file containing:
 
-Codex must ensure that the **rendered map matches Tyler’s internal perception**, including hallucinations or disconnections from reality.
+* `id`, `display_name`
+* `starting_sanity`
+* `spiral_triggers` & `recovery_anchors`
+* `tone`
+* `intro_prompt`
 
----
+Codex must ensure Tyler:
 
-## 🧬 Tyler Scienceman (Default Character)
-
-Tyler’s profile is stored in JSON, and includes:
-- `display_name`: Tyler Scienceman
-- `starting_sanity`: 100
-- `tone`: dry_satirical
-- `spiral_triggers`: words or ideas that increase instability
-- `recovery_anchors`: stabilizing elements
-- `intro_prompt`: The opening line of his internal monologue
-
-Codex must:
-- Keep Tyler narratively believable
-- Let hallucinations emerge *organically*, not randomly
-- Match tone to satirical dryness, even under stress
+* Responds in consistent tone
+* References his internal state and surroundings
+* Narrates with increasing distortion as spiral score climbs
 
 ---
 
 ## Spiral System
 
-The spiral is Tyler's decay tracker. It is based on:
-- Cosine drift between player input and Tyler’s output
-- Trigger word detection (in prompt and reply)
-- Cumulative instability
-
-Spiral score should trigger:
-- Visual distortions
-- Hallucinated entities
-- Sudden tone shifts
-- Memory glitches
-
-All spiral logic should be unit-testable and isolated from rendering.
+* Drift is calculated using embeddings (or placeholder functions for offline mode).
+* Spiral score increases based on drift + trigger words.
+* Visual effects and narration breakdowns must trigger at thresholds.
+* All spiral logic must remain modular and testable.
 
 ---
 
-## Mapping System
+## Mapping & Environment
 
-The world is a 2D tile grid. Each tile is one of:
-
-| Symbol | Meaning         |
-|--------|-----------------|
-| `@`    | Tyler            |
-| `#`    | Wall             |
-| `.`    | Empty tile       |
-| `D`    | Door             |
-| `X`    | Enemy            |
-| `!`    | Hallucination    |
-| `?`    | Unknown / Item   |
-
-Codex should:
-- Prevent invalid movement
-- Update Tyler’s location correctly
-- Allow hallucinated elements to be visible to Tyler but not necessarily to the player
-- Support seed-based map generation
+* Procedural map (walkable `.`, blocked `#`, entities `@` `!` `?`)
+* Tyler can only move into valid tiles.
+* Map must update visually in Pygame.
+* Narration should tie directly to map state and surroundings.
 
 ---
 
-## Entities & Hallucinations
+## Turn-Based Loop
 
-Enemies (real or imagined) must:
-- Exist on the grid
-- Trigger reactions or panic when Tyler gets close
-- Be indistinguishable from each other visually—only internal logic reveals what’s real
+1. **Chat Phase:**
 
-Codex must define:
-- Entity types
-- Triggers for hallucinated behavior
-- Reactions in narration
+   * Player issues prompt.
+   * Tyler responds narratively.
+   * Spiral updates.
 
----
+2. **Decision Point:**
 
-## Testing Guidelines
+   * Player and Tyler "agree" on movement.
+   * Map updates or Tyler hesitates.
 
-### Manual Checks
-- [ ] Tyler spawns in correct grid location (`@`)
-- [ ] Spiral score reacts to prompt drift and trigger words
-- [ ] Visual output reflects hallucination and instability
-- [ ] Movement logic prevents clipping or invalid tiles
-- [ ] Hallucinations appear after threshold
+3. **Enemy Turn:**
 
-### Automated Tests
-- Spiral score logic
-- Turn loop state machine
-- Sanity decay thresholds
-- Entity collision
-- Map generation consistency (given seed)
+   * Enemies move or act.
+
+4. **Loop:**
+
+   * Return to Chat Phase.
 
 ---
 
-## 🧾 Observability
+## Enemies and Entities
 
-All new features must:
-- Be commented clearly
-- Include logs or on-screen diagnostics (especially spiral & hallucinations)
-- Document thresholds for spiral effects (in `/docs/`)
+* Entities have position, type, symbol, behavior.
+* Hallucinations and real threats are indistinguishable visually but differ in effect.
 
-**Debug Mode:**  
-Add a toggle to show:
-- Spiral score
-- Sanity level
-- Real vs. perceived map
-- Entity positions
+Codex must ensure entities behave predictably in code, even if narratively unreliable.
 
 ---
 
-## 📌 Final Principles
+## Pygame Visuals
 
-- The player **influences** Tyler—they do not control him
-- Sanity loss should feel earned, not arbitrary
-- Every glitch, distortion, or hallucination must serve narrative
-- Keep the surreal coherent
+* Map and entities rendered on grid.
+* Narration box displays Tyler’s thoughts.
+* Visual sanity effects: color changes, distortion, static overlays.
 
-**If it feels weird, but makes sense? Ship it.**
+---
+
+## Debug Mode
+
+* Toggle to show real vs perceived map.
+* Display spiral score, sanity, entity positions in text overlay.
+* Easily removable for final release.
+
+---
+
+## Documentation and Observability
+
+Codex should prioritize clarity of system behavior.
+All non-trivial features must be accompanied by in-code comments or API-accessible diagnostics that explain their purpose and behavior.
+When creating new systems, include a brief description of their logic and thresholds, especially if tied to gameplay feedback (e.g. hallucinations, spiral triggers, sanity modifiers), and create an accompanying doc file in /docs/.
+
+---
+
+## Final Principles
+
+* **Narrative integrity over mechanical polish.**
+* **All changes must reflect visually in Pygame.**
+* **Tyler's tone is the heart of the game.**
+* Codex commits should be **small, clear, and documented**.
