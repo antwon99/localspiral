@@ -6,7 +6,7 @@ import pygame
 from game.map import GameMap
 from game.player import Player
 from game.spiral import SpiralSystem
-from ui.render import Renderer
+from ui.render import Renderer, STATUS_BAR_HEIGHT, NARRATION_HEIGHT, TILE_SIZE
 
 
 def load_character(path: str) -> dict:
@@ -17,17 +17,21 @@ def load_character(path: str) -> dict:
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    map_width = 20
+    map_height = 15
+    screen_height = STATUS_BAR_HEIGHT + map_height * TILE_SIZE + NARRATION_HEIGHT
+    screen = pygame.display.set_mode((map_width * TILE_SIZE, screen_height))
     pygame.display.set_caption("AI Spiral Simulator")
     clock = pygame.time.Clock()
 
     # Load Tyler's profile to seed initial sanity and future behaviors
     character = load_character(os.path.join("characters", "tyler.json"))
 
-    game_map = GameMap(width=20, height=15)
+    game_map = GameMap(width=map_width, height=map_height)
     player = Player(1, 1)
     spiral = SpiralSystem(starting_sanity=character.get("starting_sanity", 100))
     renderer = Renderer(screen)
+    narration = character.get("intro_prompt", "")
 
     running = True
     while running:
@@ -43,9 +47,12 @@ def main():
                     player.move(-1, 0, game_map)
                 elif event.key == pygame.K_RIGHT:
                     player.move(1, 0, game_map)
+                elif event.key == pygame.K_RETURN:
+                    narration = "Tyler ponders your words..."
 
         spiral.apply_drift(0.1)
-        renderer.draw_map(game_map, player)
+        status = "Spiraling" if spiral.breaking_point else "Stable"
+        renderer.render(game_map, player, spiral, status, narration)
         pygame.display.flip()
         clock.tick(30)
 
